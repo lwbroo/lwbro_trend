@@ -1,0 +1,230 @@
+/* 紫微八字 · 個人趨勢 — 樣式 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --accent: #2a78d6;
+  --accent-dark: #1c5cab;
+  --danger: #d03b3b;
+  --lu: #0ca30c;      /* 化祿 */
+  --quan: #eb6834;    /* 化權 */
+  --ke: #2a78d6;      /* 化科 */
+  --ji: #d03b3b;      /* 化忌 */
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  line-height: 1.55;
+}
+a { color: var(--accent-dark); }
+
+/* ---------- header / tabs ---------- */
+.app-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--grid);
+  padding: 14px 20px 0;
+  position: sticky; top: 0; z-index: 10;
+}
+.header-inner { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px; max-width: 1080px; margin: 0 auto; }
+.app-header h1 { font-size: 1.25rem; }
+.app-header h1 .sub { font-size: 0.85rem; color: var(--muted); font-weight: normal; margin-left: 6px; }
+.profile-chip { font-size: 0.8rem; color: var(--ink-2); background: var(--page); border: 1px solid var(--grid); border-radius: 99px; padding: 2px 12px; }
+.tabs { display: flex; gap: 2px; max-width: 1080px; margin: 10px auto 0; overflow-x: auto; }
+.tab {
+  border: none; background: none; cursor: pointer;
+  font-size: 0.95rem; color: var(--ink-2);
+  padding: 8px 14px; border-bottom: 2px solid transparent; white-space: nowrap;
+}
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--accent-dark); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* ---------- layout ---------- */
+main { max-width: 1080px; margin: 0 auto; padding: 18px 16px 60px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 18px; margin: 14px 0;
+}
+.grid-2col > .card { margin: 0; }
+.card-wide { grid-column: 1 / -1; }
+.card h2 { font-size: 1.02rem; margin-bottom: 10px; }
+.card h3 { font-size: 0.92rem; margin: 14px 0 8px; color: var(--ink-2); }
+.hint { font-size: 0.78rem; color: var(--muted); font-weight: normal; font-style: normal; }
+.notice { background: #fdf6e3; border: 1px solid #eeddb0; border-radius: 8px; padding: 10px 14px; margin: 12px 0; font-size: 0.9rem; }
+.empty-hint { color: var(--muted); padding: 24px 8px; text-align: center; }
+.toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0; font-size: 0.9rem; }
+.toolbar input[type="date"], .toolbar select { margin-left: 4px; }
+
+/* ---------- buttons / forms ---------- */
+button { font: inherit; cursor: pointer; }
+.btn-primary {
+  background: var(--accent); color: #fff; border: none; border-radius: 7px;
+  padding: 7px 20px; font-size: 0.92rem;
+}
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-ghost, .file-label {
+  background: var(--surface); color: var(--ink-2); border: 1px solid var(--baseline);
+  border-radius: 7px; padding: 5px 14px; font-size: 0.86rem; display: inline-block;
+}
+.btn-ghost:hover, .file-label:hover { border-color: var(--ink-2); color: var(--ink); }
+.file-label { cursor: pointer; }
+.btn-danger { background: none; color: var(--danger); border: 1px solid var(--danger); border-radius: 7px; padding: 5px 14px; font-size: 0.86rem; }
+.btn-mini { border: 1px solid var(--baseline); background: none; border-radius: 5px; font-size: 0.75rem; padding: 1px 8px; color: var(--ink-2); }
+.btn-mini.danger { color: var(--danger); border-color: var(--danger); }
+.save-status { font-size: 0.8rem; color: var(--lu); }
+
+input[type="text"], input[type="date"], input[type="time"], textarea, select {
+  font: inherit; border: 1px solid var(--baseline); border-radius: 6px;
+  padding: 5px 9px; background: var(--surface); color: var(--ink);
+}
+textarea { width: 100%; max-width: 560px; resize: vertical; }
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+.field-row { display: flex; align-items: flex-start; gap: 12px; margin: 12px 0; flex-wrap: wrap; }
+.field-label { min-width: 64px; font-size: 0.88rem; color: var(--ink-2); padding-top: 5px; }
+label.inline { margin-right: 14px; }
+
+/* 心情/精力評分 */
+.rating { display: flex; gap: 6px; }
+.rating label { cursor: pointer; }
+.rating input { position: absolute; opacity: 0; }
+.rating span {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  font-size: 1.3rem; border: 1px solid var(--grid); border-radius: 8px;
+  padding: 4px 10px 2px; background: var(--surface);
+}
+.rating span i { font-style: normal; font-size: 0.65rem; color: var(--muted); }
+.rating input:checked + span { border-color: var(--accent); background: #eaf2fc; }
+.rating input:focus-visible + span { outline: 2px solid var(--accent); }
+
+/* 標籤 chips */
+.tag-chips { display: flex; flex-wrap: wrap; gap: 6px; max-width: 640px; }
+.chip {
+  border: 1px solid var(--baseline); background: var(--surface); color: var(--ink-2);
+  border-radius: 99px; padding: 2px 12px; font-size: 0.82rem;
+}
+.chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip-static { background: var(--page); border-color: var(--grid); padding: 0 9px; font-size: 0.75rem; }
+
+/* ---------- 資訊表格 ---------- */
+table.info-table, table.bazi-table, table.records-table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.info-table th, .info-table td, .bazi-table th, .bazi-table td, .records-table th, .records-table td {
+  border-bottom: 1px solid var(--grid); padding: 6px 10px; text-align: left; vertical-align: top;
+}
+.info-table thead th, .bazi-table thead th, .records-table thead th { color: var(--muted); font-weight: 500; font-size: 0.8rem; }
+.info-table tbody th, .bazi-table tbody th { color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+.gz { font-size: 1.05rem; font-weight: 600; letter-spacing: 1px; }
+.bazi-table tr.big td { font-size: 1.3rem; font-weight: 700; }
+.bazi-table td i { display: inline-block; margin-left: 4px; }
+
+/* 五行小標 */
+.wx { font-size: 0.68rem; vertical-align: super; margin: 0 4px 0 1px; font-weight: normal; }
+.wx-木 { color: #2c7a2c; } .wx-火 { color: #c04030; } .wx-土 { color: #8a6a2f; }
+.wx-金 { color: #8a7a1f; } .wx-水 { color: #2a5a9a; }
+
+/* 四化徽章 */
+.mutagen, .flow-tag {
+  display: inline-block; font-size: 0.68rem; border-radius: 4px; padding: 0 4px;
+  color: #fff; margin-left: 3px; vertical-align: middle; line-height: 1.5;
+}
+.mutagen-lu, .flow-lu { background: var(--lu); }
+.mutagen-quan, .flow-quan { background: var(--quan); }
+.mutagen-ke, .flow-ke { background: var(--ke); }
+.mutagen-ji, .flow-ji { background: var(--ji); }
+.flow-tag { color: inherit; background: none; border: 1px solid; padding: 0 3px; }
+.flow-lu { border-color: var(--lu); color: var(--lu); }
+.flow-quan { border-color: var(--quan); color: var(--quan); }
+.flow-ke { border-color: var(--ke); color: var(--ke); }
+.flow-ji { border-color: var(--ji); color: var(--ji); }
+
+/* ---------- 紫微 12 宮盤 ---------- */
+.ziwei-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, minmax(150px, auto));
+  gap: 2px;
+  background: var(--baseline);
+  border: 1px solid var(--baseline);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0;
+  min-width: 680px;
+}
+#ziwei-board-wrap { overflow-x: auto; }
+.palace { background: var(--surface); padding: 6px 8px; display: flex; flex-direction: column; font-size: 0.8rem; }
+.branch-巳 { grid-area: 1/1; } .branch-午 { grid-area: 1/2; } .branch-未 { grid-area: 1/3; } .branch-申 { grid-area: 1/4; }
+.branch-辰 { grid-area: 2/1; } .branch-酉 { grid-area: 2/4; }
+.branch-卯 { grid-area: 3/1; } .branch-戌 { grid-area: 3/4; }
+.branch-寅 { grid-area: 4/1; } .branch-丑 { grid-area: 4/2; } .branch-子 { grid-area: 4/3; } .branch-亥 { grid-area: 4/4; }
+.palace-center { grid-area: 2/2/4/4; justify-content: center; padding: 14px 18px; font-size: 0.86rem; }
+.palace-center h3 { margin: 0 0 6px; font-size: 1rem; color: var(--ink); }
+.palace-center p { margin: 2px 0; }
+.palace-stars { display: flex; flex-wrap: wrap; gap: 2px 8px; }
+.star { white-space: nowrap; }
+.star-major { font-weight: 700; font-size: 0.9rem; }
+.star-minor { color: var(--ink-2); }
+.star .bright { font-style: normal; font-size: 0.65rem; color: var(--muted); margin-left: 1px; }
+.palace-adj { color: var(--muted); font-size: 0.68rem; margin-top: 3px; flex: 1; }
+.palace-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; border-top: 1px dashed var(--grid); padding-top: 3px; margin-top: 4px; }
+.palace-name { font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
+.body-tag { background: var(--ink); color: #fff; border-radius: 3px; font-size: 0.62rem; padding: 0 3px; margin-left: 3px; font-weight: normal; }
+.layer-badge { background: #fdf1e6; border: 1px solid var(--quan); color: var(--quan); border-radius: 3px; font-size: 0.62rem; padding: 0 3px; margin-left: 3px; font-weight: normal; }
+.palace-meta { color: var(--muted); font-size: 0.68rem; }
+.palace-gz { color: var(--ink-2); }
+
+/* ---------- 五行分佈 ---------- */
+.dist-row { display: flex; align-items: center; gap: 10px; margin: 4px 0; max-width: 480px; }
+.dist-label { width: 20px; text-align: center; }
+.dist-bar { flex: 1; background: var(--page); border-radius: 4px; height: 14px; overflow: hidden; }
+.dist-bar i { display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; min-width: 2px; }
+.dist-count { width: 20px; color: var(--ink-2); font-size: 0.85rem; }
+
+/* ---------- 記錄表 ---------- */
+.records-table .note-cell { max-width: 260px; font-size: 0.82rem; color: var(--ink-2); }
+.row-actions { white-space: nowrap; }
+
+/* ---------- 圖表 ---------- */
+.chart-box { position: relative; }
+.chart-tooltip {
+  display: none; position: absolute; z-index: 5; pointer-events: none;
+  background: var(--ink); color: #fff; font-size: 0.78rem;
+  border-radius: 6px; padding: 6px 10px; max-width: 240px; line-height: 1.45;
+}
+.chart-tooltip .hint { color: #c3c2b7; }
+.chart-legend { display: flex; gap: 16px; font-size: 0.8rem; color: var(--ink-2); margin-bottom: 4px; }
+.legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+.insights { padding-left: 20px; font-size: 0.88rem; }
+.insights li { margin: 6px 0; }
+
+/* ---------- 14 天預覽 ---------- */
+.forecast-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; margin: 10px 0; }
+.fc-cell { border: 1px solid var(--grid); border-radius: 8px; padding: 8px 10px; font-size: 0.78rem; background: var(--surface); }
+.fc-cell.fc-up { border-color: #9ccf9c; background: #f3faf3; }
+.fc-cell.fc-down { border-color: #e8b3b3; background: #fdf5f5; }
+.fc-cell.fc-today { outline: 2px solid var(--accent); }
+.fc-date { color: var(--ink); font-weight: 600; }
+.fc-date i { font-style: normal; color: var(--muted); font-weight: normal; }
+.fc-date b { color: var(--accent-dark); font-size: 0.7rem; margin-left: 3px; }
+.fc-gz, .fc-palace { color: var(--ink-2); }
+.fc-score { margin-top: 3px; font-weight: 700; }
+.fc-up .fc-score { color: #006300; }
+.fc-down .fc-score { color: var(--danger); }
+.fc-score .hint { font-weight: normal; margin-left: 4px; }
+
+@media (max-width: 640px) {
+  main { padding: 12px 10px 50px; }
+  .card { padding: 12px; }
+  .field-label { min-width: 100%; padding-top: 0; }
+}

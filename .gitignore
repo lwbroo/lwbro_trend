@@ -1,0 +1,3 @@
+# 離線用排盤函式庫（見 vendor/README.md，未下載時自動改用 CDN）
+vendor/*.js
+node_modules/
