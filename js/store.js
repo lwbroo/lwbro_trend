@@ -8,6 +8,7 @@ const Store = (() => {
 
   const PROFILE_KEY = 'zwbz.profile';
   const RECORDS_KEY = 'zwbz.records';
+  const SYNC_KEY = 'zwbz.sync';
 
   /* ---------- profile ---------- */
   function getProfile() {
@@ -60,6 +61,21 @@ const Store = (() => {
   function clearAll() {
     localStorage.removeItem(PROFILE_KEY);
     localStorage.removeItem(RECORDS_KEY);
+    localStorage.removeItem(SYNC_KEY);
+  }
+
+  /* ---------- 雲端同步設定 ---------- */
+  function getSyncConfig() {
+    try {
+      const raw = localStorage.getItem(SYNC_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  function saveSyncConfig(cfg) {
+    localStorage.setItem(SYNC_KEY, JSON.stringify(cfg));
+  }
+  function clearSyncConfig() {
+    localStorage.removeItem(SYNC_KEY);
   }
 
   /* ---------- 匯出 / 匯入 ---------- */
@@ -105,6 +121,7 @@ const Store = (() => {
   return {
     getProfile, saveProfile,
     getRecords, getRecord, upsertRecord, deleteRecord,
-    clearAll, exportJSON, importJSON, exportCSV
+    clearAll, exportJSON, importJSON, exportCSV,
+    getSyncConfig, saveSyncConfig, clearSyncConfig
   };
 })();

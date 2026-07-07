@@ -182,6 +182,7 @@
       note: $('#note').value.trim()
     });
     $('#checkin-status').textContent = `已儲存 ${currentDate} 的記錄 ✓`;
+    Sync.schedulePush();
   });
 
   /* ================= 本命盤 ================= */
@@ -319,6 +320,7 @@
         if (confirm(`確定刪除 ${btn.dataset.date} 的記錄？`)) {
           Store.deleteRecord(btn.dataset.date);
           renderRecords();
+          Sync.schedulePush();
         }
       }
     };
@@ -357,6 +359,7 @@
         $('#records-io-status').textContent = `匯入完成：新增 ${result.added} 筆、更新 ${result.updated} 筆，共 ${result.total} 筆`;
         renderProfileChip();
         renderRecords();
+        Sync.schedulePush();
       } catch (e) {
         $('#records-io-status').textContent = '匯入失敗：' + e.message;
       }
@@ -537,8 +540,63 @@
   $('#trend-range').addEventListener('change', renderTrends);
   $('#trend-metric').addEventListener('change', renderTrends);
 
+  /* ================= 雲端同步 ================= */
+  function renderSyncUI() {
+    const connected = Sync.isConnected();
+    $('#sync-disconnected').hidden = connected;
+    $('#sync-connected').hidden = !connected;
+    if (connected) {
+      const c = Sync.config();
+      const last = c.lastSyncAt ? new Date(c.lastSyncAt).toLocaleString() : '尚未同步';
+      $('#sync-info').innerHTML = `已連線雲端資料庫（Gist <code>${esc(String(c.gistId).slice(0, 8))}…</code>）｜最後同步：${esc(last)}<br>其他裝置只要輸入同一個 Token 連線，就會自動找到並合併這份資料。`;
+    }
+  }
+  function refreshActiveTab() {
+    const active = document.querySelector('.tab.active');
+    if (active) switchTab(active.dataset.tab);
+  }
+  Sync.onStatus((state, message) => {
+    const el = $('#sync-status');
+    el.textContent = message;
+    el.style.color = state === 'error' ? 'var(--danger)' : state === 'busy' ? 'var(--muted)' : 'var(--lu)';
+    if (state === 'ok' || state === 'off') renderSyncUI();
+  });
+  $('#btn-sync-connect').addEventListener('click', async () => {
+    const token = $('#sync-token').value.trim();
+    if (!token) { $('#sync-status').textContent = '請先貼上 Token'; return; }
+    $('#btn-sync-connect').disabled = true;
+    try {
+      const result = await Sync.connect(token);
+      $('#sync-token').value = '';
+      renderProfileChip();
+      renderSyncUI();
+      if (!result.created) refreshActiveTab();
+    } catch (e) {
+      $('#sync-status').textContent = '連線失敗：' + e.message;
+      $('#sync-status').style.color = 'var(--danger)';
+      Store.clearSyncConfig();
+    }
+    $('#btn-sync-connect').disabled = false;
+  });
+  $('#btn-sync-now').addEventListener('click', async () => {
+    try {
+      await Sync.syncNow();
+      renderProfileChip();
+      refreshActiveTab();
+    } catch (e) {
+      $('#sync-status').textContent = '同步失敗：' + e.message;
+      $('#sync-status').style.color = 'var(--danger)';
+    }
+  });
+  $('#btn-sync-disconnect').addEventListener('click', () => {
+    if (confirm('中斷雲端連線？本地資料與雲端 Gist 都會保留，只是不再自動同步。')) {
+      Sync.disconnect();
+    }
+  });
+
   /* ================= 設定 ================= */
   function renderSettings() {
+    renderSyncUI();
     const p = Store.getProfile();
     if (!p) return;
     $('#p-name').value = p.name || '';
@@ -559,6 +617,7 @@
     analyzer = null;
     renderProfileChip();
     $('#profile-status').textContent = '已儲存 ✓';
+    Sync.schedulePush();
     setTimeout(() => switchTab('chart'), 400);
   });
   $('#btn-settings-export').addEventListener('click', exportJSONFile);
@@ -579,5 +638,14 @@
     switchTab('today');
   } else {
     switchTab('settings');
+  }
+  // 已連線雲端時，啟動即背景同步（拉取其他裝置的更新後刷新畫面）
+  if (Sync.isConnected()) {
+    Sync.syncNow().then(stats => {
+      if (stats.added || stats.updated) {
+        renderProfileChip();
+        refreshActiveTab();
+      }
+    }).catch(() => { /* 離線或失敗時保持本地資料，狀態列已顯示訊息 */ });
   }
 })();

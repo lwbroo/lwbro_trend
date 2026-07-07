@@ -18,6 +18,8 @@
   - 平均心情（或精力）× 流日天干五行／流日十神／流日天干／流日地支／紫微流日命宮
   - 自動摘要：樣本數 ≥3 的分組中，狀態最高與最低的流日類型
 - **資料庫管理**：JSON 匯出／匯入（跨裝置合併）、CSV 匯出（含排盤欄位，可丟進試算表分析）
+- **雲端同步（選用）**：透過你自己 GitHub 帳號的私密 Gist 同步，家裡／辦公室／手機多裝置共用同一份資料；
+  開啟即自動同步（啟動時拉取合併、每次記錄後自動上傳），不經過任何第三方伺服器
 
 ## 使用方式
 
@@ -37,9 +39,18 @@ python3 -m http.server 8000
 
 ## 隱私
 
-所有資料（出生資料與每日記錄）只存在**你自己瀏覽器的 localStorage**，
+預設所有資料（出生資料與每日記錄）只存在**你自己瀏覽器的 localStorage**，
 不會上傳到任何伺服器。清除瀏覽器資料前請先「匯出 JSON」備份；
 換裝置時匯入備份即可無縫合併。
+
+### 雲端同步（選用）
+
+到「設定 → 雲端同步」貼上 GitHub Personal Access Token（只需 `gist` 權限，
+[一鍵建立](https://github.com/settings/tokens/new?scopes=gist&description=ziwei-bazi-trend)）即可開啟。
+資料會存進**你自己 GitHub 帳號的私密 Gist**（僅你本人可見），App 直接與 GitHub API 溝通，
+沒有任何中間伺服器。其他裝置輸入同一個 Token 就會自動找到並合併同一份資料；
+合併規則為「依日期、較新的修改優先」。Token 只存在各裝置的 localStorage。
+注意：私密 Gist 是「不公開、不可被搜尋」，但知道網址的人可以讀取——請勿把 Gist 網址分享出去。
 
 ## 專案結構
 
@@ -48,6 +59,7 @@ index.html        單頁應用入口
 css/style.css     樣式
 js/engine.js      排盤引擎（八字十神／流日干支／紫微流運，含批次分析器）
 js/store.js       localStorage 資料庫（記錄、匯出／匯入／合併）
+js/sync.js        雲端同步（GitHub Gist：自動發現／建立、拉取合併、自動上傳）
 js/charts.js      SVG 圖表（折線圖、長條圖，含 hover 提示）
 js/app.js         UI 主邏輯
 vendor/           排盤函式庫（lunar-javascript、iztro，皆 MIT）

@@ -159,8 +159,30 @@
     </form>
   </div>
   <div class="card">
+    <h2>雲端同步 <span class="hint">（GitHub Gist，選用）</span></h2>
+    <div id="sync-disconnected">
+      <p class="hint">
+        開啟後，資料會加密連線存到<b>你自己 GitHub 帳號的私密 Gist</b>，家裡、辦公室、手機都能同步使用；不經過任何第三方伺服器。<br>
+        步驟：到 GitHub 建立一個 <a href="https://github.com/settings/tokens/new?scopes=gist&description=ziwei-bazi-trend" target="_blank" rel="noopener">Personal Access Token</a>（只勾 <code>gist</code> 權限即可）→ 貼到下面 → 連線。
+      </p>
+      <div class="field-row">
+        <span class="field-label">Token</span>
+        <input type="password" id="sync-token" placeholder="ghp_… 或 github_pat_…" autocomplete="off">
+        <button type="button" id="btn-sync-connect" class="btn-primary">連線雲端</button>
+      </div>
+    </div>
+    <div id="sync-connected" hidden>
+      <p id="sync-info" class="hint"></p>
+      <div class="toolbar">
+        <button type="button" id="btn-sync-now" class="btn-ghost">立即同步</button>
+        <button type="button" id="btn-sync-disconnect" class="btn-danger">中斷連線</button>
+      </div>
+    </div>
+    <p id="sync-status" class="save-status"></p>
+  </div>
+  <div class="card">
     <h2>資料管理</h2>
-    <p class="hint">所有資料只儲存在你的瀏覽器（localStorage），不會上傳到任何伺服器。換裝置或清瀏覽器資料前，請先匯出 JSON 備份。</p>
+    <p class="hint">未開啟雲端同步時，所有資料只儲存在你的瀏覽器（localStorage）。換裝置或清瀏覽器資料前，請先匯出 JSON 備份或開啟雲端同步。</p>
     <div class="toolbar">
       <button id="btn-settings-export" class="btn-ghost">匯出全部資料（JSON）</button>
       <button id="btn-clear-all" class="btn-danger">清除全部資料</button>
@@ -198,6 +220,7 @@ Promise.all([
 ])
   .then(() => loadScript(['js/engine.js']))
   .then(() => loadScript(['js/store.js']))
+  .then(() => loadScript(['js/sync.js']))
   .then(() => loadScript(['js/charts.js']))
   .then(() => loadScript(['js/app.js']))
   .catch(err => {
