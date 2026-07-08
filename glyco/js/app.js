@@ -23,7 +23,7 @@
   function loadSettings() {
     const s = Store.getSettings();
     $("api-key-input").value = s.apiKey || "";
-    $("model-select").value = s.model || "claude-opus-4-8";
+    $("model-select").value = s.model || "claude-haiku-4-5";
     updateSetupHint();
   }
 
@@ -81,7 +81,7 @@
     try {
       currentResult = await GlycoAPI.analyzeMeal({
         apiKey: s.apiKey,
-        model: s.model || "claude-opus-4-8",
+        model: s.model || "claude-haiku-4-5",
         imageBase64: currentImage.data,
         note: $("meal-note").value.trim()
       });
@@ -104,12 +104,15 @@
       const div = document.createElement("div");
       div.className = "food-item";
       const giClass = f.gi_level === "低" ? "gi-low" : f.gi_level === "中" ? "gi-mid" : "gi-high";
+      const srcTag = f.source === "db"
+        ? `<span class="src-tag src-db" title="GI 值來自內建資料庫${f.matched_as ? "（比對為「" + esc(f.matched_as) + "」）" : ""}">📚 資料庫</span>`
+        : `<span class="src-tag src-ai" title="資料庫查無此食物，GI 為 AI 估計值">🤖 AI估計</span>`;
       div.innerHTML = `
         <div class="food-main">
           <div class="food-name">${esc(f.name)} <span class="food-meta">${esc(f.category)}</span></div>
-          <div class="food-meta">${esc(f.portion)} · 碳水約 ${Math.round(f.carbs_g)}g${f.note ? " · " + esc(f.note) : ""}</div>
+          <div class="food-meta">${esc(f.portion_desc)} · 碳水約 ${Math.round(f.carbs_g)}g · ${srcTag}</div>
         </div>
-        <div class="gi-badge ${giClass}">GI ${esc(f.gi_level)}<br>${f.gi_estimate}</div>`;
+        <div class="gi-badge ${giClass}">GI ${esc(f.gi_level)}<br>${f.gi}</div>`;
       $("food-list").appendChild(div);
     });
 

@@ -191,6 +191,16 @@ main { max-width: 560px; margin: 0 auto; padding: 12px; }
 
 .hint-text { font-size: 0.82rem; color: var(--muted); }
 
+.src-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 6px;
+  vertical-align: middle;
+}
+.src-db { background: #e4f2ec; color: var(--green-dark); }
+.src-ai { background: #eef0f4; color: #5a6472; }
+
 .history-item { display: flex; gap: 12px; }
 .history-thumb {
   width: 72px; height: 72px;

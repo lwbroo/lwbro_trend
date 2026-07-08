@@ -1,50 +1,39 @@
-/* Claude Vision 分析：照片 → 食物清單 + GI + 進食順序 */
+/* Claude Vision：只負責「辨識」照片中的食物與份量。
+ * GI 值優先查本地資料庫（gidb.js），資料庫沒有的才用 AI 附帶的估計值。
+ * 進食順序與建議由本地規則引擎（order.js）計算，不耗 token。 */
 const GlycoAPI = (() => {
   const API_URL = "https://api.anthropic.com/v1/messages";
 
-  const SYSTEM_PROMPT = `你是一位專精於血糖管理的營養師。使用者會給你一張餐點照片（可能附上文字補充），你要：
-1. 辨識照片中所有的食物與飲料，估計份量。
-2. 為每項食物估計升糖指數（GI）等級與數值、碳水化合物克數，並歸類（蔬菜／蛋白質／脂肪／澱粉／水果／飲料／其他）。
-3. 根據「先纖維、再蛋白質與脂肪、澱粉與糖最後」的原則，給出具體的進食順序，並簡短說明每一步的理由。
-4. 給 2–4 條針對這一餐的控糖建議（例如飯量減半、飲料換無糖、餐後散步等）。
-全部使用繁體中文。份量與 GI 為合理估計即可，若照片模糊或無法辨識某項食物，在該項的 note 中說明。若照片中沒有食物，foods 回傳空陣列並在 meal_summary 說明。`;
+  const SYSTEM_PROMPT = `你是食物辨識助手。使用者會給你一張餐點照片（可能附文字補充），請辨識照片中所有食物與飲料。
+規則：
+- 名稱用台灣常見的通用稱呼（例如：白飯、滷雞腿、燙青菜、珍珠奶茶），一項一筆，不要合併
+- grams 為該項份量的估計克數（飲料以毫升當克數）
+- 每項附上你對該食物的 GI 估計值與每100克碳水克數，作為備用參考
+- 若照片模糊或無法確認，在 photo_note 說明；照片中沒有食物則 foods 回傳空陣列
+全部使用繁體中文，只做辨識，不要給任何建議。`;
 
   const OUTPUT_SCHEMA = {
     type: "object",
     properties: {
-      meal_summary: { type: "string", description: "這一餐的一句話總結，包含整體升糖負擔評估" },
       foods: {
         type: "array",
         items: {
           type: "object",
           properties: {
-            name: { type: "string" },
-            portion: { type: "string", description: "估計份量，例如「一碗約200g」" },
-            category: { type: "string", enum: ["蔬菜", "蛋白質", "脂肪", "澱粉", "水果", "飲料", "其他"] },
-            gi_level: { type: "string", enum: ["低", "中", "高"] },
-            gi_estimate: { type: "integer", description: "估計 GI 值 0-110" },
-            carbs_g: { type: "number", description: "估計碳水化合物克數" },
-            note: { type: "string", description: "補充說明，沒有就給空字串" }
+            name: { type: "string", description: "台灣常見稱呼" },
+            grams: { type: "number", description: "估計克數（飲料為毫升）" },
+            portion_desc: { type: "string", description: "份量口語描述，例如「一碗」" },
+            category: { type: "string", enum: ["蔬菜", "蛋白質", "脂肪", "澱粉", "水果", "飲料", "點心", "其他"] },
+            gi_fallback: { type: "integer", description: "GI 估計值 0-110" },
+            carbs100_fallback: { type: "number", description: "每100g碳水克數估計" }
           },
-          required: ["name", "portion", "category", "gi_level", "gi_estimate", "carbs_g", "note"],
+          required: ["name", "grams", "portion_desc", "category", "gi_fallback", "carbs100_fallback"],
           additionalProperties: false
         }
       },
-      eating_order: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            items: { type: "array", items: { type: "string" }, description: "這一步要吃的食物名稱" },
-            reason: { type: "string", description: "為什麼這一步先吃這些" }
-          },
-          required: ["items", "reason"],
-          additionalProperties: false
-        }
-      },
-      tips: { type: "array", items: { type: "string" } }
+      photo_note: { type: "string", description: "照片狀況備註，沒有就空字串" }
     },
-    required: ["meal_summary", "foods", "eating_order", "tips"],
+    required: ["foods", "photo_note"],
     additionalProperties: false
   };
 
@@ -78,15 +67,15 @@ const GlycoAPI = (() => {
     return canvas.toDataURL("image/jpeg", quality).split(",")[1];
   }
 
-  /** 呼叫 Claude 分析餐點照片，回傳結構化結果 */
-  async function analyzeMeal({ apiKey, model, imageBase64, note }) {
+  /** 步驟一：AI 辨識照片 → { foods: [...], photo_note } */
+  async function recognize({ apiKey, model, imageBase64, note }) {
     const userText = note
-      ? `請分析這張餐點照片。使用者補充：${note}`
-      : "請分析這張餐點照片。";
+      ? `請辨識這張餐點照片裡的食物。使用者補充：${note}`
+      : "請辨識這張餐點照片裡的食物。";
 
     const body = {
       model,
-      max_tokens: 4096,
+      max_tokens: 2048,
       system: SYSTEM_PROMPT,
       output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
       messages: [{
@@ -142,5 +131,50 @@ const GlycoAPI = (() => {
     }
   }
 
-  return { prepareImage, analyzeMeal };
+  /** 步驟二：本地資料庫比對，資料庫優先、AI 估計值備援 */
+  function enrich(recognized) {
+    const foods = (recognized.foods || []).map(item => {
+      const hit = GIDB.lookup(item.name);
+      const grams = Math.max(1, Number(item.grams) || 100);
+      if (hit) {
+        return {
+          name: item.name,
+          matched_as: hit.n === item.name ? null : hit.n,
+          portion_desc: item.portion_desc || hit.u,
+          category: hit.c,
+          gi: hit.gi,
+          gi_level: GIDB.giLevel(hit.gi),
+          carbs_g: (hit.cb * grams) / 100,
+          source: "db"
+        };
+      }
+      const gi = Math.min(110, Math.max(0, Math.round(Number(item.gi_fallback) || 50)));
+      return {
+        name: item.name,
+        matched_as: null,
+        portion_desc: item.portion_desc || "",
+        category: item.category === "其他" ? "澱粉" : item.category,
+        gi,
+        gi_level: GIDB.giLevel(gi),
+        carbs_g: ((Number(item.carbs100_fallback) || 0) * grams) / 100,
+        source: "ai"
+      };
+    });
+    return { foods, photo_note: recognized.photo_note || "" };
+  }
+
+  /** 完整流程：辨識 → 資料庫比對 → 本地排序引擎 */
+  async function analyzeMeal(opts) {
+    const recognized = await recognize(opts);
+    const { foods, photo_note } = enrich(recognized);
+    const { steps, tips, summary } = OrderEngine.plan(foods);
+    return {
+      meal_summary: summary + (photo_note ? `（${photo_note}）` : ""),
+      foods,
+      eating_order: steps,
+      tips
+    };
+  }
+
+  return { prepareImage, analyzeMeal, recognize, enrich };
 })();

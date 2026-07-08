@@ -51,7 +51,7 @@
 
   <div id="loading" class="card center hidden">
     <div class="spinner"></div>
-    <div id="loading-text">正在辨識食物與估算升糖指數⋯</div>
+    <div id="loading-text">正在辨識照片中的食物⋯（GI 由內建資料庫查表）</div>
   </div>
 
   <div id="error-box" class="card error hidden"></div>
@@ -103,10 +103,11 @@
   <div class="card">
     <h2>模型</h2>
     <select id="model-select" class="text-input">
-      <option value="claude-opus-4-8">Claude Opus 4.8（預設，最準確）</option>
-      <option value="claude-haiku-4-5">Claude Haiku 4.5（較省錢、較快）</option>
+      <option value="claude-haiku-4-5">Claude Haiku 4.5（預設，快又省）</option>
+      <option value="claude-opus-4-8">Claude Opus 4.8（辨識最準確）</option>
     </select>
-    <p class="hint-text">一張照片分析約 NT$1–2（Opus）／NT$0.3（Haiku）。</p>
+    <p class="hint-text">AI 只負責「認出照片裡有什麼」，GI 值查內建資料庫、順序由本地規則計算。
+    一張照片約 NT$0.1（Haiku）／NT$1（Opus）。</p>
   </div>
 
   <div class="card">
@@ -120,6 +121,14 @@
     <button class="btn full danger" id="clear-btn">清除所有紀錄</button>
   </div>
 
+  <div class="card">
+    <h2>資料來源</h2>
+    <p class="hint-text">
+      內建 GI 資料庫收錄約 190 種台灣常見食物，GI 值主要參考雪梨大學 GI Database 與常見營養學文獻，
+      碳水含量參考衛福部食品營養成分資料庫（約略值）。資料庫查無的食物才使用 AI 估計值，並以 🤖 標示。
+    </p>
+  </div>
+
   <p class="hint-text center">
     本工具僅供飲食順序參考，非醫療建議。<br>糖尿病患者請遵循醫師與營養師指示。
   </p>
@@ -128,6 +137,8 @@
 </main>
 
 <script src="js/store.js"></script>
+<script src="js/gidb.js"></script>
+<script src="js/order.js"></script>
 <script src="js/api.js"></script>
 <script src="js/app.js"></script>
 </body>
