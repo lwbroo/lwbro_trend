@@ -591,7 +591,22 @@
   $('#btn-sync-disconnect').addEventListener('click', () => {
     if (confirm('中斷雲端連線？本地資料與雲端 Gist 都會保留，只是不再自動同步。')) {
       Sync.disconnect();
+      $('#sync-link-out').textContent = '';
     }
+  });
+  $('#btn-sync-link').addEventListener('click', async () => {
+    const link = Sync.makeLink();
+    if (!link) return;
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(link);
+      copied = true;
+    } catch (e) { /* 剪貼簿不可用（如 http 環境）時改為顯示網址 */ }
+    $('#sync-link-out').textContent = link;
+    $('#sync-status').textContent = copied
+      ? '同步連結已複製 ✓ 貼到書籤或傳給自己，在其他裝置打開即自動連線'
+      : '無法自動複製，請手動複製下方網址';
+    $('#sync-status').style.color = 'var(--lu)';
   });
 
   /* ================= 設定 ================= */
@@ -633,6 +648,7 @@
   });
 
   /* ================= 啟動 ================= */
+  const adoptedFromLink = Sync.adoptFromUrl(); // 由「同步連結」開啟：自動帶入雲端連線
   renderProfileChip();
   if (Store.getProfile()) {
     switchTab('today');
@@ -642,10 +658,8 @@
   // 已連線雲端時，啟動即背景同步（拉取其他裝置的更新後刷新畫面）
   if (Sync.isConnected()) {
     Sync.syncNow().then(stats => {
-      if (stats.added || stats.updated) {
-        renderProfileChip();
-        refreshActiveTab();
-      }
+      renderProfileChip();
+      if (adoptedFromLink || stats.added || stats.updated) refreshActiveTab();
     }).catch(() => { /* 離線或失敗時保持本地資料，狀態列已顯示訊息 */ });
   }
 })();

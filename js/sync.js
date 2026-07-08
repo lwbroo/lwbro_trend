@@ -137,5 +137,28 @@ const Sync = (() => {
     emit('off', '已中斷雲端連線（本地資料保留）');
   }
 
-  return { connect, pull, push, syncNow, schedulePush, disconnect, isConnected, onStatus, config };
+  /* ---------- 同步連結：把連線資訊放在網址 # 之後（fragment 不會送出到伺服器） ---------- */
+
+  /** 產生一鍵連線網址：任何裝置開啟即自動連上同一份雲端資料 */
+  function makeLink() {
+    const c = config();
+    if (!c || !c.token || !c.gistId) return null;
+    const packed = btoa(c.token + '|' + c.gistId).replace(/=+$/, '');
+    return location.origin + location.pathname + '#sync=' + packed;
+  }
+
+  /** 啟動時呼叫：若網址帶有 #sync=…，採用其連線設定並清除網址（避免留在瀏覽紀錄畫面上） */
+  function adoptFromUrl() {
+    const m = location.hash.match(/[#&]sync=([A-Za-z0-9+/]+)/);
+    if (!m) return false;
+    try {
+      const [token, gistId] = atob(m[1]).split('|');
+      if (!token || !gistId) return false;
+      Store.saveSyncConfig({ token, gistId, lastSyncAt: null });
+      history.replaceState(null, '', location.pathname + location.search);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  return { connect, pull, push, syncNow, schedulePush, disconnect, isConnected, onStatus, config, makeLink, adoptFromUrl };
 })();

@@ -174,9 +174,13 @@
     <div id="sync-connected" hidden>
       <p id="sync-info" class="hint"></p>
       <div class="toolbar">
+        <button type="button" id="btn-sync-link" class="btn-primary">複製同步連結</button>
         <button type="button" id="btn-sync-now" class="btn-ghost">立即同步</button>
         <button type="button" id="btn-sync-disconnect" class="btn-danger">中斷連線</button>
       </div>
+      <p class="hint">「同步連結」＝在其他裝置<b>免輸入 Token</b> 的一鍵連線網址：存到書籤或用通訊軟體傳給自己，
+      新裝置（含手機）打開這條連結就自動連上同一份雲端資料。<b>此連結等同你的資料鑰匙，請勿分享給別人。</b></p>
+      <p id="sync-link-out" class="hint" style="word-break:break-all;"></p>
     </div>
     <p id="sync-status" class="save-status"></p>
   </div>
