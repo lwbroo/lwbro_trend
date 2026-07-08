@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1f7a5c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>食序 GlycoOrder · 拍照控糖助手</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%231f7a5c'/%3E%3Ctext x='50' y='66' font-size='48' text-anchor='middle' fill='white'%3E%E9%A3%9F%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>食序 <span class="sub">GlycoOrder</span></h1>
+  <p class="tagline">拍照分析升糖指數 · 調整進食順序，穩住血糖</p>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="analyze">📷 分析</button>
+  <button class="tab" data-tab="history">📒 紀錄</button>
+  <button class="tab" data-tab="settings">⚙️ 設定</button>
+</nav>
+
+<main>
+
+<!-- ═══════════ 分析 ═══════════ -->
+<section id="tab-analyze" class="tab-panel active">
+
+  <div id="setup-hint" class="card warn hidden">
+    ⚠️ 尚未設定 API Key，請先到「設定」貼上你的 Anthropic API Key 才能分析照片。
+    <button class="btn small" id="goto-settings">前往設定</button>
+  </div>
+
+  <div class="card">
+    <label class="photo-drop" id="photo-drop">
+      <input type="file" id="photo-input" accept="image/*" hidden>
+      <div id="photo-placeholder">
+        <div class="big-icon">📷</div>
+        <div>點這裡拍照或選擇餐點照片</div>
+      </div>
+      <img id="photo-preview" class="hidden" alt="餐點照片預覽">
+    </label>
+
+    <input type="text" id="meal-note" class="text-input" placeholder="補充說明（選填）：例如「白飯一碗、雞腿、燙青菜」">
+
+    <button class="btn primary full" id="analyze-btn" disabled>分析這一餐</button>
+  </div>
+
+  <div id="loading" class="card center hidden">
+    <div class="spinner"></div>
+    <div id="loading-text">正在辨識食物與估算升糖指數⋯</div>
+  </div>
+
+  <div id="error-box" class="card error hidden"></div>
+
+  <div id="result" class="hidden">
+    <div class="card">
+      <h2>🍽️ 這一餐的內容</h2>
+      <p id="meal-summary" class="summary"></p>
+      <div id="food-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>🥢 建議進食順序</h2>
+      <p class="hint-text">先吃纖維、再吃蛋白質、澱粉放最後，能有效減緩血糖上升速度。</p>
+      <ol id="order-list" class="order-list"></ol>
+    </div>
+
+    <div class="card">
+      <h2>💡 控糖小建議</h2>
+      <ul id="tips-list" class="tips-list"></ul>
+    </div>
+
+    <button class="btn primary full" id="save-btn">儲存到紀錄</button>
+    <p id="save-done" class="center hint-text hidden">✅ 已儲存</p>
+  </div>
+
+</section>
+
+<!-- ═══════════ 紀錄 ═══════════ -->
+<section id="tab-history" class="tab-panel">
+  <div id="history-empty" class="card center">
+    還沒有任何紀錄。<br>分析一餐並儲存後，就會出現在這裡。
+  </div>
+  <div id="history-list"></div>
+</section>
+
+<!-- ═══════════ 設定 ═══════════ -->
+<section id="tab-settings" class="tab-panel">
+  <div class="card">
+    <h2>Anthropic API Key</h2>
+    <p class="hint-text">
+      分析照片使用 Claude 視覺模型，需要你自己的 API Key（只儲存在這台裝置的瀏覽器，不會上傳到任何伺服器）。
+      到 <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com</a> 建立。
+    </p>
+    <input type="password" id="api-key-input" class="text-input" placeholder="sk-ant-...">
+    <label class="hint-text"><input type="checkbox" id="show-key"> 顯示 Key</label>
+  </div>
+
+  <div class="card">
+    <h2>模型</h2>
+    <select id="model-select" class="text-input">
+      <option value="claude-opus-4-8">Claude Opus 4.8（預設，最準確）</option>
+      <option value="claude-haiku-4-5">Claude Haiku 4.5（較省錢、較快）</option>
+    </select>
+    <p class="hint-text">一張照片分析約 NT$1–2（Opus）／NT$0.3（Haiku）。</p>
+  </div>
+
+  <div class="card">
+    <button class="btn primary full" id="save-settings-btn">儲存設定</button>
+    <p id="settings-saved" class="center hint-text hidden">✅ 已儲存</p>
+  </div>
+
+  <div class="card">
+    <h2>資料</h2>
+    <button class="btn full" id="export-btn">匯出紀錄 (JSON)</button>
+    <button class="btn full danger" id="clear-btn">清除所有紀錄</button>
+  </div>
+
+  <p class="hint-text center">
+    本工具僅供飲食順序參考，非醫療建議。<br>糖尿病患者請遵循醫師與營養師指示。
+  </p>
+</section>
+
+</main>
+
+<script src="js/store.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

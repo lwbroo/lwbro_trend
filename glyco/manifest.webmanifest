@@ -1,0 +1,17 @@
+{
+  "name": "食序 GlycoOrder",
+  "short_name": "食序",
+  "description": "拍照分析升糖指數，建議進食順序控制血糖",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f4f6f5",
+  "theme_color": "#1f7a5c",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231f7a5c'/%3E%3Ctext x='50' y='66' font-size='48' text-anchor='middle' fill='white'%3E%E9%A3%9F%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
