@@ -67,14 +67,19 @@ const OrderEngine = (() => {
     return tips.slice(0, 4);
   }
 
-  /** 整餐摘要：總碳水 + 總升糖負荷（GL = Σ GI × 碳水 / 100） */
-  function makeSummary(foods) {
-    if (!foods.length) return "沒有辨識到食物。";
+  /** 整餐統計：總碳水 + 總升糖負荷（GL = Σ GI × 碳水 / 100） */
+  function stats(foods) {
     const totalCarbs = foods.reduce((s, f) => s + (f.carbs_g || 0), 0);
     const totalGL = foods.reduce((s, f) => s + (f.gi * (f.carbs_g || 0)) / 100, 0);
     const level = totalGL < 20 ? "輕度" : totalGL < 40 ? "中等" : "偏高";
-    return `共 ${foods.length} 項，碳水約 ${Math.round(totalCarbs)}g，整餐升糖負荷 GL ≈ ${Math.round(totalGL)}（${level}）。`;
+    return { count: foods.length, totalCarbs, totalGL, level };
   }
 
-  return { plan };
+  function makeSummary(foods) {
+    if (!foods.length) return "沒有辨識到食物。";
+    const s = stats(foods);
+    return `共 ${s.count} 項，碳水約 ${Math.round(s.totalCarbs)}g，整餐升糖負荷 GL ≈ ${Math.round(s.totalGL)}（${s.level}）。`;
+  }
+
+  return { plan, stats };
 })();

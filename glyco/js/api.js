@@ -169,7 +169,8 @@ const GlycoAPI = (() => {
     const { foods, photo_note } = enrich(recognized);
     const { steps, tips, summary } = OrderEngine.plan(foods);
     return {
-      meal_summary: summary + (photo_note ? `（${photo_note}）` : ""),
+      meal_summary: summary,
+      photo_note,
       foods,
       eating_order: steps,
       tips

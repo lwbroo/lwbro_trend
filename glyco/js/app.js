@@ -97,7 +97,17 @@
   });
 
   function renderResult(r) {
-    $("meal-summary").textContent = r.meal_summary || "";
+    // 摘要 chips：項目 / 碳水 / 升糖負荷
+    const st = OrderEngine.stats(r.foods || []);
+    const glClass = st.level === "輕度" ? "" : st.level === "中等" ? "warn-chip" : "danger-chip";
+    $("summary-chips").innerHTML = `
+      <div class="chip"><div class="chip-value">${st.count}</div><div class="chip-label">食物項目</div></div>
+      <div class="chip"><div class="chip-value">${Math.round(st.totalCarbs)}g</div><div class="chip-label">碳水化合物</div></div>
+      <div class="chip ${glClass}"><div class="chip-value">${Math.round(st.totalGL)}</div><div class="chip-label">升糖負荷 ${esc(st.level)}</div></div>`;
+
+    const note = r.photo_note || "";
+    $("meal-summary").textContent = note ? `📷 ${note}` : "";
+    $("meal-summary").classList.toggle("hidden", !note);
 
     $("food-list").innerHTML = "";
     (r.foods || []).forEach(f => {
