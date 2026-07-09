@@ -1,52 +1,56 @@
-# 食序 GlycoOrder · 拍照控糖助手（POC）
+# GlycoOrder · Eat in the Right Order (POC)
 
-拍下你的餐點照片，AI（Claude 視覺模型）自動辨識食物、估算每項食物的**升糖指數（GI）**，
-並根據「先纖維 → 再蛋白質與脂肪 → 澱粉與糖最後」的原則，給出**建議進食順序**與控糖建議。
-目標：不改變吃什麼，只調整**吃的順序**，減緩餐後血糖飆升。
+Snap a photo of your meal — AI identifies the foods, the built-in database supplies each item's
+**glycemic index (GI)**, and a local rule engine tells you the smartest **eating order**
+(fiber → protein & fat → starches & sugars last) to blunt the post-meal glucose spike.
+The goal: don't change *what* you eat — change the *order* you eat it in.
 
-## 功能
+## Features
 
-- **拍照分析**：手機直接拍照或選相簿照片，可加文字補充（例如「白飯一碗」）
-- **食物清單**：每項食物的份量估計、分類、GI 等級（低/中/高）與估計值、碳水克數
-- **進食順序**：分步驟的吃法建議，每一步附理由
-- **控糖建議**：針對這一餐的 2–4 條具體建議
-- **用餐紀錄**：儲存每餐的縮圖與分析結果（localStorage，僅存在自己裝置），可匯出 JSON
+- **Photo analysis**: snap or pick a meal photo, optional text note
+- **Food breakdown**: portion estimate, category, GI level (Low/Med/High) + value, carbs — each item tagged 📚 database or 🤖 AI estimate
+- **Eating order**: step-by-step plan with the reason for each step
+- **Tips**: 2–4 concrete suggestions for this exact meal
+- **Meal log with follow-up**: log meals, then record whether you followed the order, how you felt 1–2h later, and (optionally) your post-meal glucose — building your personal evidence that order matters
+- **Today strip & streak**: today's meals / carbs / glycemic load at a glance, logging streak
+- **Burn it off**: when today's glycemic load runs high, concrete exercise suggestions sized to the excess
+- All data stays in your browser's localStorage; JSON export available
 
-## 使用方式
+## Usage
 
-純靜態網頁，無後端：
+Pure static web app, no backend:
 
 ```bash
 cd glyco
 python3 -m http.server 8000
-# 開 http://localhost:8000
+# open http://localhost:8000
 ```
 
-第一次使用：到「設定」貼上你自己的 Anthropic API Key
-（[到 platform.claude.com 建立](https://platform.claude.com/settings/keys)）。
-Key 只儲存在瀏覽器 localStorage，App 直接與 Anthropic API 溝通，不經過任何中間伺服器。
+First run: open **Settings** and paste your own Anthropic API key
+([create one here](https://platform.claude.com/settings/keys)).
+The key is stored only in your browser; the app talks directly to the Anthropic API.
 
-## 技術說明（混合式架構）
+## Architecture (hybrid: AI recognizes, local data decides)
 
-AI 只做「辨識」，數據與邏輯都在本地，把每張照片的 token 成本壓到最低：
-
-| 工作 | 由誰做 |
+| Job | Done by |
 |---|---|
-| 照片 → 認出食物與份量 | Claude 視覺模型（`js/api.js`） |
-| 食物 → GI 值／碳水 | 內建資料庫查表（`js/gidb.js`，約 190 種台灣常見食物） |
-| 進食順序、控糖建議、整餐 GL | 本地規則引擎（`js/order.js`），零 token |
+| Photo → foods & portions | Claude vision model (`js/api.js`) |
+| Food → GI / carbs | Built-in database lookup (`js/gidb.js`, ~190 Western & Asian foods) |
+| Eating order, tips, meal GL | Local rule engine (`js/order.js`), zero tokens |
 
-- GI 值主要參考雪梨大學 GI Database 與營養學文獻；碳水參考衛福部食品營養成分資料庫（約略值）
-- 資料庫查無的食物 fallback 用 AI 附帶的估計值，UI 以 🤖 標示區別
-- 照片在瀏覽器端縮圖（長邊 1344px JPEG）後以 base64 傳給 Claude Messages API
-- 使用 [structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)（`output_config.format` + JSON Schema）確保回傳固定格式
-- 瀏覽器直連 API 需帶 `anthropic-dangerous-direct-browser-access: true` 標頭
-- 預設模型 `claude-haiku-4-5`（辨識約 NT$0.1/張），可切換 `claude-opus-4-8`
+- GI values primarily referenced from the University of Sydney GI Database and nutrition literature; carbs approximate
+- Foods missing from the database fall back to AI estimates, marked 🤖
+- Photos are downscaled client-side (1344px long edge JPEG) and sent base64 to the Claude Messages API
+- [Structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) (`output_config.format` + JSON Schema) guarantee a fixed response shape
+- Direct browser calls require the `anthropic-dangerous-direct-browser-access: true` header
+- Default model `claude-haiku-4-5` (~US$0.003/photo); `claude-opus-4-8` selectable
 
 ## Roadmap
 
-- [ ] 餐後感受／血糖值回填，累積個人資料庫驗證效果（與 lwbro_trend 同哲學）
-- [ ] 雲端同步（GitHub Gist）
-- [ ] Capacitor 打包上架 App Store
+- [ ] Trends: followed-order vs not, feeling & glucose over time (reuse lwbro_trend charts)
+- [ ] Guided meal mode ("start eating" → step-by-step pacing)
+- [ ] Reminders / gamification
+- [ ] HealthKit / CGM integration
+- [ ] Capacitor wrap → App Store (with backend proxy so users don't need their own API key)
 
-> 本工具僅供飲食順序參考，非醫療建議。糖尿病患者請遵循醫師與營養師指示。
+> For dietary-order guidance only — not medical advice. If you have diabetes, follow your doctor's and dietitian's instructions.

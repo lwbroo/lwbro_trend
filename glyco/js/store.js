@@ -31,6 +31,11 @@ const Store = (() => {
     localStorage.setItem(KEY_RECORDS, JSON.stringify(records));
   }
 
+  function updateRecord(id, patch) {
+    const records = getRecords().map(r => (r.id === id ? { ...r, ...patch } : r));
+    localStorage.setItem(KEY_RECORDS, JSON.stringify(records));
+  }
+
   function deleteRecord(id) {
     localStorage.setItem(
       KEY_RECORDS,
@@ -46,5 +51,5 @@ const Store = (() => {
     return JSON.stringify({ app: "glyco-order", exported_at: new Date().toISOString(), records: getRecords() }, null, 2);
   }
 
-  return { getSettings, saveSettings, getRecords, addRecord, deleteRecord, clearRecords, exportJSON };
+  return { getSettings, saveSettings, getRecords, addRecord, updateRecord, deleteRecord, clearRecords, exportJSON };
 })();

@@ -298,6 +298,77 @@ main {
 
 .hint-text { font-size: 0.8rem; color: var(--muted); }
 
+/* ── Today strip & burn card ── */
+.today-card { padding-bottom: 14px; }
+.today-head { display: flex; align-items: center; justify-content: space-between; }
+.today-head h2 { margin-bottom: 10px; }
+.streak-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #a05a12;
+  background: #fdf0dc;
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin-bottom: 8px;
+}
+.burn-card {
+  background: linear-gradient(160deg, #fff7ef 0%, #ffffff 75%);
+  border: 1px solid #f3ddc4;
+}
+.burn-text { margin: 0 0 10px; font-size: 0.88rem; }
+.burn-options { display: flex; flex-direction: column; gap: 7px; }
+.burn-opt {
+  background: #fff;
+  border: 1px solid #f0e2d2;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 0.9rem;
+}
+.burn-opt span { color: var(--muted); font-size: 0.78rem; }
+
+/* ── Follow-up ── */
+.history-card { padding-bottom: 12px; }
+.followup-area { margin-top: 10px; }
+.followup-line {
+  font-size: 0.85rem;
+  background: var(--green-soft);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.btn.tiny {
+  padding: 2px 10px;
+  font-size: 0.72rem;
+  margin: 0 0 0 auto;
+  border-radius: 999px;
+}
+.followup-add { margin: 0; }
+.followup-form { padding-top: 4px; }
+.fu-label { font-size: 0.8rem; color: var(--muted); margin: 8px 0 5px; }
+.seg { display: flex; gap: 6px; }
+.seg-btn {
+  flex: 1;
+  padding: 9px 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--text);
+}
+.emoji-seg .seg-btn { font-size: 1.25rem; padding: 6px 0; }
+.seg-btn.on {
+  background: var(--green-soft);
+  border-color: var(--green);
+  font-weight: 700;
+  color: var(--green-deep);
+}
+.fu-glucose { margin-bottom: 10px; }
+.fu-save { margin-top: 2px; }
+
 /* ── 紀錄 ── */
 .history-item { display: flex; gap: 12px; }
 .history-thumb {
