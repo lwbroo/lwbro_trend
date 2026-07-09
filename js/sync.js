@@ -13,8 +13,8 @@ const Sync = (() => {
 
   /* GitHub OAuth 一鍵登入設定：部署步驟見 oauth-relay/README.md，設定前這兩個留空即可，
      UI 會自動隱藏「使用 GitHub 登入」按鈕、改用下面既有的手動貼 Token 方式。 */
-  const OAUTH_CLIENT_ID = '';
-  const OAUTH_RELAY_URL = '';
+  const OAUTH_CLIENT_ID = 'Ov23liAxeW22ndK8q7iA';
+  const OAUTH_RELAY_URL = 'https://ziwei-bazi-oauth-relay.kurtchiang.workers.dev/token';
   const OAUTH_STATE_KEY = 'zwbz.oauth.state';
 
   let pushTimer = null;
