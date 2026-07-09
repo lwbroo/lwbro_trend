@@ -19,7 +19,8 @@
   - 自動摘要：樣本數 ≥3 的分組中，狀態最高與最低的流日類型
 - **資料庫管理**：JSON 匯出／匯入（跨裝置合併）、CSV 匯出（含排盤欄位，可丟進試算表分析）
 - **雲端同步（選用）**：透過你自己 GitHub 帳號的私密 Gist 同步，家裡／辦公室／手機多裝置共用同一份資料；
-  開啟即自動同步（啟動時拉取合併、每次記錄後自動上傳），不經過任何第三方伺服器
+  開啟即自動同步（啟動時拉取合併、每次記錄後自動上傳），不經過任何第三方伺服器；
+  可用「GitHub 一鍵登入」（需設定，見 `oauth-relay/README.md`）或手動貼 Personal Access Token 兩種方式連線
 
 ## 使用方式
 
@@ -45,11 +46,19 @@ python3 -m http.server 8000
 
 ### 雲端同步（選用）
 
-到「設定 → 雲端同步」貼上 GitHub Personal Access Token（只需 `gist` 權限，
-[一鍵建立](https://github.com/settings/tokens/new?scopes=gist&description=ziwei-bazi-trend)）即可開啟。
-資料會存進**你自己 GitHub 帳號的私密 Gist**（僅你本人可見），App 直接與 GitHub API 溝通，
-沒有任何中間伺服器。其他裝置輸入同一個 Token 就會自動找到並合併同一份資料；
-合併規則為「依日期、較新的修改優先」。Token 只存在各裝置的 localStorage。
+到「設定 → 雲端同步」開啟即可，有兩種連線方式：
+
+- **GitHub 一鍵登入**（需先設定一次，見 `oauth-relay/README.md`）：點按鈕跳轉 GitHub
+  授權頁，同意後自動導回並連線，不用手動申請或貼 Token。
+- **手動貼 Personal Access Token**（只需 `gist` 權限，
+  [一鍵建立](https://github.com/settings/tokens/new?scopes=gist&description=ziwei-bazi-trend)）：
+  免設定即可用，適合還沒部署 OAuth relay 前先用。
+
+不管哪種方式，資料都會存進**你自己 GitHub 帳號的私密 Gist**（僅你本人可見），App 直接與
+GitHub API 溝通，沒有任何中間伺服器保存資料（OAuth relay 只做一次性的 code→token 交換，
+不落地任何資料，見下方說明）。其他裝置用同一個 GitHub 帳號登入或輸入同一個 Token，就會
+自動找到並合併同一份資料；合併規則為「依日期、較新的修改優先」。Token 只存在各裝置的
+localStorage。
 
 **免重複輸入 Token**：連線後按「複製同步連結」可產生一鍵連線網址（連線資訊放在
 網址 `#` 之後，瀏覽器不會把它送到任何伺服器）。存進書籤或傳給自己，
@@ -69,6 +78,7 @@ js/app.js         UI 主邏輯
 vendor/           排盤函式庫（lunar-javascript、iztro，皆 MIT）
                   預設自動從 CDN 載入鎖定版本；想離線使用
                   請依 vendor/README.md 下載兩個檔案放入此資料夾
+oauth-relay/      GitHub OAuth 一鍵登入用的 Cloudflare Worker（選用，設定步驟見該資料夾 README）
 ```
 
 ## 排盤規則說明

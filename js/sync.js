@@ -11,6 +11,12 @@ const Sync = (() => {
   const FILE_NAME = 'ziwei-bazi-trend.json';
   const GIST_DESC = '紫微八字個人趨勢資料庫（App 自動同步，請勿手動編輯）';
 
+  /* GitHub OAuth 一鍵登入設定：部署步驟見 oauth-relay/README.md，設定前這兩個留空即可，
+     UI 會自動隱藏「使用 GitHub 登入」按鈕、改用下面既有的手動貼 Token 方式。 */
+  const OAUTH_CLIENT_ID = 'Ov23liAxeW22ndK8q7iA';
+  const OAUTH_RELAY_URL = 'https://ziwei-bazi-oauth-relay.kurtchiang.workers.dev/token';
+  const OAUTH_STATE_KEY = 'zwbz.oauth.state';
+
   let pushTimer = null;
   const listeners = [];
 
@@ -137,6 +143,54 @@ const Sync = (() => {
     emit('off', '已中斷雲端連線（本地資料保留）');
   }
 
+  /* ---------- GitHub 一鍵登入（OAuth，免手動貼 Token） ---------- */
+
+  function oauthConfigured() { return !!(OAUTH_CLIENT_ID && OAUTH_RELAY_URL); }
+
+  /** 導向 GitHub 授權頁；使用者同意後，GitHub 會帶著 code 導回本頁 */
+  function loginWithGitHub() {
+    const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    sessionStorage.setItem(OAUTH_STATE_KEY, state);
+    const redirectUri = location.origin + location.pathname;
+    const authUrl = 'https://github.com/login/oauth/authorize?' + new URLSearchParams({
+      client_id: OAUTH_CLIENT_ID,
+      redirect_uri: redirectUri,
+      scope: 'gist',
+      state
+    });
+    location.href = authUrl;
+  }
+
+  /** 啟動時呼叫：若網址帶有 GitHub 導回的 ?code=&state=，用 relay 換成 token 並自動連線 */
+  async function handleOAuthCallback() {
+    const params = new URLSearchParams(location.search);
+    const code = params.get('code');
+    const returnedState = params.get('state');
+    if (!code) return false;
+    history.replaceState(null, '', location.pathname + location.hash);
+    const savedState = sessionStorage.getItem(OAUTH_STATE_KEY);
+    sessionStorage.removeItem(OAUTH_STATE_KEY);
+    if (!returnedState || returnedState !== savedState) {
+      emit('error', 'GitHub 登入驗證失敗，請重新點擊登入');
+      return false;
+    }
+    emit('busy', '登入中…');
+    try {
+      const res = await fetch(OAUTH_RELAY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.access_token) throw new Error(data.error || ('HTTP ' + res.status));
+      await connect(data.access_token);
+      return true;
+    } catch (e) {
+      emit('error', 'GitHub 登入失敗：' + e.message);
+      return false;
+    }
+  }
+
   /* ---------- 同步連結：把連線資訊放在網址 # 之後（fragment 不會送出到伺服器） ---------- */
 
   /** 產生一鍵連線網址：任何裝置開啟即自動連上同一份雲端資料 */
@@ -160,5 +214,8 @@ const Sync = (() => {
     } catch (e) { return false; }
   }
 
-  return { connect, pull, push, syncNow, schedulePush, disconnect, isConnected, onStatus, config, makeLink, adoptFromUrl };
+  return {
+    connect, pull, push, syncNow, schedulePush, disconnect, isConnected, onStatus, config, makeLink, adoptFromUrl,
+    oauthConfigured, loginWithGitHub, handleOAuthCallback
+  };
 })();

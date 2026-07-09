@@ -545,10 +545,15 @@
     const connected = Sync.isConnected();
     $('#sync-disconnected').hidden = connected;
     $('#sync-connected').hidden = !connected;
+    if (!connected) {
+      const oauthReady = Sync.oauthConfigured();
+      $('#btn-sync-github-login').hidden = !oauthReady;
+      $('#sync-token-details').open = !oauthReady;
+    }
     if (connected) {
       const c = Sync.config();
       const last = c.lastSyncAt ? new Date(c.lastSyncAt).toLocaleString() : '尚未同步';
-      $('#sync-info').innerHTML = `已連線雲端資料庫（Gist <code>${esc(String(c.gistId).slice(0, 8))}…</code>）｜最後同步：${esc(last)}<br>其他裝置只要輸入同一個 Token 連線，就會自動找到並合併這份資料。`;
+      $('#sync-info').innerHTML = `已連線雲端資料庫（Gist <code>${esc(String(c.gistId).slice(0, 8))}…</code>）｜最後同步：${esc(last)}<br>其他裝置用同樣方式（GitHub 登入或同一個 Token）連線，就會自動找到並合併這份資料。`;
     }
   }
   function refreshActiveTab() {
@@ -560,6 +565,9 @@
     el.textContent = message;
     el.style.color = state === 'error' ? 'var(--danger)' : state === 'busy' ? 'var(--muted)' : 'var(--lu)';
     if (state === 'ok' || state === 'off') renderSyncUI();
+  });
+  $('#btn-sync-github-login').addEventListener('click', () => {
+    Sync.loginWithGitHub();
   });
   $('#btn-sync-connect').addEventListener('click', async () => {
     const token = $('#sync-token').value.trim();
@@ -662,4 +670,12 @@
       if (adoptedFromLink || stats.added || stats.updated) refreshActiveTab();
     }).catch(() => { /* 離線或失敗時保持本地資料，狀態列已顯示訊息 */ });
   }
+  // GitHub 登入導回時（網址帶 ?code=&state=）：換取 token 並自動連線
+  Sync.handleOAuthCallback().then(ok => {
+    if (ok) {
+      renderProfileChip();
+      switchTab('settings');
+      refreshActiveTab();
+    }
+  });
 })();
