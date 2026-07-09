@@ -53,4 +53,22 @@ The key is stored only in your browser; the app talks directly to the Anthropic 
 - [ ] HealthKit / CGM integration
 - [ ] Capacitor wrap → App Store (with backend proxy so users don't need their own API key)
 
+## Development notes (session handoff)
+
+- **Live URL**: https://lwbroo.github.io/lwbro_trend/glyco/ — GitHub Pages serves the repo's
+  **default branch** (`claude/zi-wei-ba-zi-planner-rnaz10`) from the root; this app lives in `glyco/`.
+- **Deploy convention**: commit on a work branch, then fast-forward push it onto the default branch
+  (`git push origin <work-branch>:claude/zi-wei-ba-zi-planner-rnaz10`). Pages redeploys automatically (~40s).
+- **Verification**: drive the app in headless Chromium with the Anthropic API mocked
+  (`page.route("https://api.anthropic.com/**", ...)` returning a recognition JSON) — checks DB matching,
+  order engine, follow-up persistence without spending tokens.
+- **Current state (v0.4)**: English UI · hybrid architecture (see table above) · meal log with follow-up
+  (followed-order / feeling 1–5 / optional glucose, stored as `record.followup`) · Today strip + streak +
+  burn-it-off card (triggers when today's GL > 60).
+- **Pending decision**: visual redesign — four directions (A Clinical Calm / B Midnight Metabolic /
+  C Kitchen Journal / D Citrus Energy) were proposed; waiting for the owner to pick one, then rebuild
+  `css/style.css` (and only it, ideally) in that direction.
+- **Next on roadmap** (owner-approved order): design rebuild → trends charts (reuse `../js/charts.js`)
+  → guided meal mode → Capacitor/App Store with backend proxy.
+
 > For dietary-order guidance only — not medical advice. If you have diabetes, follow your doctor's and dietitian's instructions.
