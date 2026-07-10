@@ -121,18 +121,20 @@
       badge.classList.toggle("hidden", streak < 2);
       badge.textContent = t("streak", { n: streak });
     }
+  }
 
-    const excess = OrderEngine.stats(allFoods).totalGL - 60;
-    $("burn-card").classList.toggle("hidden", excess <= 0);
-    if (excess > 0) {
-      const walk = Math.min(60, Math.max(15, Math.round(excess)));
-      const m = t("unit_min");
-      $("burn-text").textContent = t("burn_text", { gl: Math.round(st.totalGL) });
-      $("burn-options").innerHTML = `
-        <div class="burn-opt">${t("burn_walk")} <b>${walk} ${m}</b> <span>${t("burn_walk_note")}</span></div>
-        <div class="burn-opt">${t("burn_cycle")} <b>${Math.max(10, Math.round(walk * 0.7))} ${m}</b></div>
-        <div class="burn-opt">${t("burn_squats")} <b>3 × 15</b> <span>${t("burn_squats_note")}</span></div>`;
-    }
+  /* ── Burn it off — based on THIS meal's glycemic load, shown in the result ── */
+  function renderBurn(gl) {
+    const show = gl >= 20; // moderate or high
+    $("burn-card").classList.toggle("hidden", !show);
+    if (!show) return;
+    const walk = Math.min(45, Math.max(12, Math.round(gl * 0.45)));
+    const m = t("unit_min");
+    $("burn-text").textContent = t("burn_text", { gl: Math.round(gl) });
+    $("burn-options").innerHTML = `
+      <div class="burn-opt">${t("burn_walk")} <b>${walk} ${m}</b> <span>${t("burn_walk_note")}</span></div>
+      <div class="burn-opt">${t("burn_cycle")} <b>${Math.max(10, Math.round(walk * 0.7))} ${m}</b></div>
+      <div class="burn-opt">${t("burn_squats")} <b>3 × 15</b> <span>${t("burn_squats_note")}</span></div>`;
   }
 
   /* ── Photo ── */
@@ -183,6 +185,8 @@
       <div class="chip"><div class="chip-value">${st.count}</div><div class="chip-label">${t("chip_items")}</div></div>
       <div class="chip"><div class="chip-value">${Math.round(st.totalCarbs)}g</div><div class="chip-label">${t("chip_carbs")}</div></div>
       <div class="chip ${glClass}"><div class="chip-value">${Math.round(st.totalGL)}</div><div class="chip-label">${t("chip_gl_short")} · ${t("gl_" + st.level)}</div></div>`;
+
+    renderBurn(st.totalGL);
 
     const note = r.photo_note || "";
     $("meal-summary").textContent = note ? `📷 ${note}` : "";

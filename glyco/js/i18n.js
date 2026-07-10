@@ -88,7 +88,7 @@ const I18n = (() => {
       summary: "{n} items · ~{c}g carbs · glycemic load ≈ {gl} ({level}).",
       no_food: "No food detected.",
 
-      burn_text: "Today's glycemic load (≈{gl}) is running high. Working muscles pull glucose out of your blood without needing insulin — any of these helps:",
+      burn_text: "This meal's glycemic load (≈{gl}) is on the higher side. Working muscles pull glucose out of your blood without needing insulin — any of these helps:",
       burn_walk: "🚶 Brisk walk",
       burn_walk_note: "(best right after your meal)",
       burn_cycle: "🚴 Easy cycling",
@@ -207,7 +207,7 @@ const I18n = (() => {
       summary: "{n} 項 · 碳水約 {c}g · 升糖負荷 ≈ {gl}（{level}）",
       no_food: "沒有辨識到食物。",
 
-      burn_text: "今日升糖負荷（≈{gl}）偏高。運動時肌肉不需胰島素就能消耗血糖——以下任一都有幫助：",
+      burn_text: "這一餐的升糖負荷（≈{gl}）偏高。運動時肌肉不需胰島素就能消耗血糖——以下任一都有幫助：",
       burn_walk: "🚶 快走",
       burn_walk_note: "（餐後馬上走最好）",
       burn_cycle: "🚴 輕鬆騎車",
