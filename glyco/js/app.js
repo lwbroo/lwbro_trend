@@ -32,12 +32,34 @@
 
   $("save-settings-btn").addEventListener("click", () => {
     Store.saveSettings({
+      ...Store.getSettings(),
       apiKey: $("api-key-input").value.trim(),
       model: $("model-select").value
     });
     flash("settings-saved");
     updateSetupHint();
   });
+
+  /* ── Theme (auto → light → dark) ── */
+  const THEMES = ["auto", "light", "dark"];
+  const THEME_ICON = { auto: "🌗", light: "☀️", dark: "🌙" };
+  let theme = Store.getSettings().theme || "auto";
+
+  function applyTheme() {
+    const root = document.documentElement;
+    if (theme === "auto") root.removeAttribute("data-theme");
+    else root.setAttribute("data-theme", theme);
+    $("theme-toggle").textContent = THEME_ICON[theme];
+    $("theme-toggle").title = `Theme: ${theme}`;
+  }
+
+  $("theme-toggle").addEventListener("click", () => {
+    theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    Store.saveSettings({ ...Store.getSettings(), theme });
+    applyTheme();
+  });
+
+  applyTheme();
 
   $("show-key").addEventListener("change", e => {
     $("api-key-input").type = e.target.checked ? "text" : "password";
