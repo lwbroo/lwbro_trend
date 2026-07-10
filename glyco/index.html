@@ -14,9 +14,12 @@
 <body>
 
 <header class="app-header">
-  <button id="theme-toggle" class="theme-toggle" title="Switch theme" aria-label="Switch theme">🌗</button>
+  <div class="header-actions">
+    <button id="lang-toggle" class="round-btn" title="Language" aria-label="Switch language">EN</button>
+    <button id="theme-toggle" class="round-btn" title="Switch theme" aria-label="Switch theme">🌗</button>
+  </div>
   <h1>GlycoOrder</h1>
-  <p class="tagline">Snap your meal → eat in the smartest order → steadier glucose</p>
+  <p class="tagline" data-i18n="tagline"></p>
 </header>
 
 <main>
@@ -25,20 +28,20 @@
 <section id="tab-analyze" class="tab-panel active">
 
   <div id="setup-hint" class="card warn hidden">
-    ⚠️ No API key yet — add your Anthropic API key in Settings to start analyzing photos.
-    <button class="btn small" id="goto-settings">Open Settings</button>
+    <span data-i18n="setup_hint"></span>
+    <button class="btn small" id="goto-settings" data-i18n="open_settings"></button>
   </div>
 
   <div id="today-card" class="card today-card hidden">
     <div class="today-head">
-      <h2>Today</h2>
+      <h2 data-i18n="today"></h2>
       <span id="streak-badge" class="streak-badge hidden"></span>
     </div>
     <div id="today-chips" class="chips"></div>
   </div>
 
   <div id="burn-card" class="card burn-card hidden">
-    <h2>🔥 Burn it off</h2>
+    <h2 data-i18n="burn_title"></h2>
     <p id="burn-text" class="burn-text"></p>
     <div id="burn-options" class="burn-options"></div>
   </div>
@@ -48,113 +51,111 @@
       <input type="file" id="photo-input" accept="image/*" hidden>
       <div id="photo-placeholder">
         <div class="big-icon">📷</div>
-        <div>Tap to snap or choose a meal photo</div>
+        <div data-i18n="photo_ph"></div>
       </div>
       <img id="photo-preview" class="hidden" alt="meal photo preview">
     </label>
 
-    <input type="text" id="meal-note" class="text-input" placeholder="Optional note, e.g. “bowl of rice, chicken leg, greens”">
+    <input type="text" id="meal-note" class="text-input" data-i18n-ph="note_ph">
 
-    <button class="btn primary full" id="analyze-btn" disabled>Analyze this meal</button>
+    <button class="btn primary full" id="analyze-btn" data-i18n="analyze" disabled></button>
   </div>
 
   <div id="loading" class="card center hidden">
     <div class="spinner"></div>
-    <div id="loading-text">Recognizing your food… (GI comes from the built-in database)</div>
+    <div id="loading-text" data-i18n="loading"></div>
   </div>
 
   <div id="error-box" class="card error hidden"></div>
 
   <div id="result" class="hidden">
     <div class="card order-card">
-      <h2>🥢 Eat in this order</h2>
+      <h2 data-i18n="order_title"></h2>
       <ol id="order-list" class="order-list"></ol>
-      <p class="hint-text">Fiber first, then protein & fat, starches last — proven to blunt the post-meal glucose spike.</p>
+      <p class="hint-text" data-i18n="order_hint"></p>
     </div>
 
     <div class="card">
-      <h2>🍽️ This meal</h2>
+      <h2 data-i18n="meal_title"></h2>
       <div id="summary-chips" class="chips"></div>
       <p id="meal-summary" class="summary"></p>
       <div id="food-list"></div>
     </div>
 
     <div class="card">
-      <h2>💡 Tips</h2>
+      <h2 data-i18n="tips_title"></h2>
       <ul id="tips-list" class="tips-list"></ul>
     </div>
 
-    <button class="btn primary full" id="save-btn">Save to log</button>
-    <p id="save-done" class="center hint-text hidden">✅ Saved</p>
+    <button class="btn primary full" id="save-btn" data-i18n="save"></button>
+    <p id="save-done" class="center hint-text hidden" data-i18n="saved"></p>
   </div>
 
 </section>
 
 <!-- ═══════════ Log ═══════════ -->
 <section id="tab-history" class="tab-panel">
-  <div id="history-empty" class="card center">
-    No meals logged yet.<br>Analyze a meal and save it — it'll show up here.
-  </div>
+  <div id="history-empty" class="card center" data-i18n-html="log_empty"></div>
   <div id="history-list"></div>
 </section>
 
 <!-- ═══════════ Settings ═══════════ -->
 <section id="tab-settings" class="tab-panel">
   <div class="card">
-    <h2>Anthropic API Key</h2>
+    <h2 data-i18n="lang_title"></h2>
+    <div class="seg" id="lang-seg">
+      <button class="seg-btn" data-lang="en">English</button>
+      <button class="seg-btn" data-lang="zh">中文</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="set_key_title"></h2>
     <p class="hint-text">
-      Photo analysis uses Claude's vision model with your own API key
-      (stored only in this device's browser — never uploaded anywhere).
-      Create one at <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com</a>.
+      <span data-i18n="set_key_desc"></span>
+      <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com</a>.
     </p>
     <input type="password" id="api-key-input" class="text-input" placeholder="sk-ant-...">
-    <label class="hint-text"><input type="checkbox" id="show-key"> Show key</label>
+    <label class="hint-text"><input type="checkbox" id="show-key"> <span data-i18n="show_key"></span></label>
   </div>
 
   <div class="card">
-    <h2>Model</h2>
+    <h2 data-i18n="model_title"></h2>
     <select id="model-select" class="text-input">
-      <option value="claude-haiku-4-5">Claude Haiku 4.5 (default — fast & cheap)</option>
-      <option value="claude-opus-4-8">Claude Opus 4.8 (most accurate recognition)</option>
+      <option value="claude-haiku-4-5" data-i18n="model_haiku"></option>
+      <option value="claude-opus-4-8" data-i18n="model_opus"></option>
     </select>
-    <p class="hint-text">AI only identifies what's in the photo; GI values come from the built-in
-    database and the eating order is computed locally. ≈ US$0.003 per photo (Haiku) / US$0.03 (Opus).</p>
+    <p class="hint-text" data-i18n="model_desc"></p>
   </div>
 
   <div class="card">
-    <button class="btn primary full" id="save-settings-btn">Save settings</button>
-    <p id="settings-saved" class="center hint-text hidden">✅ Saved</p>
+    <button class="btn primary full" id="save-settings-btn" data-i18n="save_settings"></button>
+    <p id="settings-saved" class="center hint-text hidden" data-i18n="saved"></p>
   </div>
 
   <div class="card">
-    <h2>Data</h2>
-    <button class="btn full" id="export-btn">Export log (JSON)</button>
-    <button class="btn full danger" id="clear-btn">Delete all logged meals</button>
+    <h2 data-i18n="data_title"></h2>
+    <button class="btn full" id="export-btn" data-i18n="export"></button>
+    <button class="btn full danger" id="clear-btn" data-i18n="clear"></button>
   </div>
 
   <div class="card">
-    <h2>Data sources</h2>
-    <p class="hint-text">
-      The built-in GI database covers ~190 common foods (Western & Asian). GI values are primarily
-      referenced from the University of Sydney GI Database and nutrition literature; carb contents are
-      approximate. Foods not in the database fall back to AI estimates, marked with 🤖.
-    </p>
+    <h2 data-i18n="sources_title"></h2>
+    <p class="hint-text" data-i18n="sources_desc"></p>
   </div>
 
-  <p class="hint-text center">
-    For dietary-order guidance only — not medical advice.<br>
-    If you have diabetes, follow your doctor's and dietitian's instructions.
-  </p>
+  <p class="hint-text center" data-i18n-html="disclaimer"></p>
 </section>
 
 </main>
 
 <nav class="bottom-nav" id="tabs">
-  <button class="tab active" data-tab="analyze"><span class="tab-icon">📷</span>Analyze</button>
-  <button class="tab" data-tab="history"><span class="tab-icon">📒</span>Log</button>
-  <button class="tab" data-tab="settings"><span class="tab-icon">⚙️</span>Settings</button>
+  <button class="tab active" data-tab="analyze"><span class="tab-icon">📷</span><span data-i18n="nav_analyze"></span></button>
+  <button class="tab" data-tab="history"><span class="tab-icon">📒</span><span data-i18n="nav_log"></span></button>
+  <button class="tab" data-tab="settings"><span class="tab-icon">⚙️</span><span data-i18n="nav_settings"></span></button>
 </nav>
 
+<script src="js/i18n.js"></script>
 <script src="js/store.js"></script>
 <script src="js/gidb.js"></script>
 <script src="js/order.js"></script>

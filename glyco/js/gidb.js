@@ -250,7 +250,7 @@ const GIDB = (() => {
   }
 
   function giLevel(gi) {
-    return gi <= 55 ? "Low" : gi <= 69 ? "Medium" : "High";
+    return gi <= 55 ? "low" : gi <= 69 ? "med" : "high";
   }
 
   return { lookup, giLevel, size: F.length };

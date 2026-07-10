@@ -62,7 +62,13 @@ The key is stored only in your browser; the app talks directly to the Anthropic 
 - **Verification**: drive the app in headless Chromium with the Anthropic API mocked
   (`page.route("https://api.anthropic.com/**", ...)` returning a recognition JSON) — checks DB matching,
   order engine, follow-up persistence without spending tokens.
-- **Current state (v0.4)**: English UI · hybrid architecture (see table above) · meal log with follow-up
+- **i18n**: `js/i18n.js` holds en/zh dictionaries; `I18n.t(key, params)` for dynamic strings,
+  `[data-i18n]` / `[data-i18n-html]` / `[data-i18n-ph]` attributes for static DOM. Language persists
+  in settings, defaults from `navigator.language`. The recognition prompt (`api.js`) switches per
+  language so food names come back localized; the order/tips/summary are rebuilt at render time so a
+  live language switch re-translates the on-screen result. Food names in *saved* records are a snapshot
+  in the language they were analyzed in.
+- **Current state (v0.6)**: EN + 繁中 UI · hybrid architecture (see table above) · meal log with follow-up
   (followed-order / feeling 1–5 / optional glucose, stored as `record.followup`) · Today strip + streak +
   burn-it-off card (triggers when today's GL > 60).
 - **Pending decision**: visual redesign — four directions (A Clinical Calm / B Midnight Metabolic /

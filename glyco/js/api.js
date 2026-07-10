@@ -5,13 +5,22 @@
 const GlycoAPI = (() => {
   const API_URL = "https://api.anthropic.com/v1/messages";
 
-  const SYSTEM_PROMPT = `You are a food recognition assistant. The user sends a photo of a meal (possibly with a text note). Identify every food and drink in the photo.
+  const SYSTEM_PROMPT = {
+    en: `You are a food recognition assistant. The user sends a photo of a meal (possibly with a text note). Identify every food and drink in the photo.
 Rules:
 - Use common everyday food names in English (e.g. "White rice", "Fried chicken", "Bubble tea"); one entry per distinct item, don't merge
 - grams = estimated weight of that item's portion (use ml as grams for drinks)
 - For each item also include your own GI estimate and carbs per 100g as backup reference values
 - If the photo is blurry or an item is uncertain, say so in photo_note; if there is no food, return an empty foods array
-Recognition only — do not give any advice.`;
+Recognition only — do not give any advice.`,
+    zh: `你是食物辨識助手。使用者會給你一張餐點照片（可能附文字補充），請辨識照片中所有食物與飲料。
+規則：
+- 名稱用台灣常見的通用稱呼（例如：白飯、炸雞、珍珠奶茶），一項一筆，不要合併
+- grams 為該項份量的估計克數（飲料以毫升當克數）
+- 每項附上你對該食物的 GI 估計值與每100克碳水克數，作為備用參考
+- 若照片模糊或無法確認，在 photo_note 說明；照片中沒有食物則 foods 回傳空陣列
+只做辨識，不要給任何建議。`
+  };
 
   const OUTPUT_SCHEMA = {
     type: "object",
@@ -54,7 +63,7 @@ Recognition only — do not give any advice.`;
           reject(e);
         }
       };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Couldn't read this image.")); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(I18n.t("err_read_image"))); };
       img.src = url;
     });
   }
@@ -70,14 +79,15 @@ Recognition only — do not give any advice.`;
 
   /** Step 1: AI recognizes the photo → { foods: [...], photo_note } */
   async function recognize({ apiKey, model, imageBase64, note }) {
-    const userText = note
-      ? `Identify the foods in this meal photo. User note: ${note}`
-      : "Identify the foods in this meal photo.";
+    const lang = I18n.getLang();
+    const userText = lang === "zh"
+      ? (note ? `請辨識這張餐點照片裡的食物。使用者補充：${note}` : "請辨識這張餐點照片裡的食物。")
+      : (note ? `Identify the foods in this meal photo. User note: ${note}` : "Identify the foods in this meal photo.");
 
     const body = {
       model,
       max_tokens: 2048,
-      system: SYSTEM_PROMPT,
+      system: SYSTEM_PROMPT[lang] || SYSTEM_PROMPT.en,
       output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
       messages: [{
         role: "user",
@@ -102,33 +112,29 @@ Recognition only — do not give any advice.`;
         body: JSON.stringify(body)
       });
     } catch (e) {
-      throw new Error("Network error — please check your connection and try again.");
+      throw new Error(I18n.t("err_network"));
     }
 
     if (!resp.ok) {
       let detail = "";
       try { detail = (await resp.json()).error?.message || ""; } catch {}
-      if (resp.status === 401) throw new Error("Invalid API key — please check it in Settings.");
-      if (resp.status === 429) throw new Error("Too many requests — please wait a moment and retry.");
-      throw new Error(`Analysis failed (${resp.status}) ${detail}`);
+      if (resp.status === 401) throw new Error(I18n.t("err_key"));
+      if (resp.status === 429) throw new Error(I18n.t("err_rate"));
+      throw new Error(`${I18n.t("err_failed")} (${resp.status}) ${detail}`);
     }
 
     const message = await resp.json();
 
-    if (message.stop_reason === "refusal") {
-      throw new Error("The model declined to analyze this photo — please try a different meal photo.");
-    }
-    if (message.stop_reason === "max_tokens") {
-      throw new Error("The response was cut off — please try again.");
-    }
+    if (message.stop_reason === "refusal") throw new Error(I18n.t("err_refusal"));
+    if (message.stop_reason === "max_tokens") throw new Error(I18n.t("err_maxtokens"));
 
     const textBlock = (message.content || []).find(b => b.type === "text");
-    if (!textBlock) throw new Error("No result received — please try again.");
+    if (!textBlock) throw new Error(I18n.t("err_noresult"));
 
     try {
       return JSON.parse(textBlock.text);
     } catch {
-      throw new Error("Unexpected result format — please try again.");
+      throw new Error(I18n.t("err_format"));
     }
   }
 
@@ -164,18 +170,11 @@ Recognition only — do not give any advice.`;
     return { foods, photo_note: recognized.photo_note || "" };
   }
 
-  /** Full pipeline: recognize → DB match → local order engine */
+  /** Full pipeline: recognize → DB match. The order/tips/summary are built by the
+   *  app at render time so they always follow the current UI language. */
   async function analyzeMeal(opts) {
     const recognized = await recognize(opts);
-    const { foods, photo_note } = enrich(recognized);
-    const { steps, tips, summary } = OrderEngine.plan(foods);
-    return {
-      meal_summary: summary,
-      photo_note,
-      foods,
-      eating_order: steps,
-      tips
-    };
+    return enrich(recognized); // { foods, photo_note }
   }
 
   return { prepareImage, analyzeMeal, recognize, enrich };
