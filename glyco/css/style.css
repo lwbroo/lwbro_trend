@@ -14,6 +14,8 @@
   --muted: #7c8c86;
   --line: #e4ebe8;
   --line-strong: #d3ded9;
+  --grid: #e4ebe8;
+  --baseline: #d3ded9;
 
   --accent: #0e7c66;
   --accent-ink: #0b5f4f;
@@ -43,6 +45,8 @@
     --muted: #78867e;
     --line: #27332d;
     --line-strong: #34423b;
+    --grid: #27332d;
+    --baseline: #34423b;
 
     --accent: #23967a;
     --accent-ink: #56c19d;
@@ -63,7 +67,7 @@
 :root[data-theme="light"] {
   --bg: #f2f6f5; --surface: #ffffff; --surface-2: #f7faf9;
   --ink: #12241f; --ink-2: #43544e; --muted: #7c8c86;
-  --line: #e4ebe8; --line-strong: #d3ded9;
+  --line: #e4ebe8; --line-strong: #d3ded9; --grid: #e4ebe8; --baseline: #d3ded9;
   --accent: #0e7c66; --accent-ink: #0b5f4f; --accent-wash: #eef6f3; --accent-line: #cde5dd;
   --good: #2e9e6b; --good-wash: #e9f5ee; --warn: #b7841a; --warn-wash: #fbf3e0; --crit: #b3423d; --crit-wash: #fbeceb;
   --shadow: 0 1px 2px rgba(18,45,38,0.05), 0 6px 20px rgba(18,45,38,0.045);
@@ -71,7 +75,7 @@
 :root[data-theme="dark"] {
   --bg: #101613; --surface: #18211d; --surface-2: #1e2823;
   --ink: #e5ece8; --ink-2: #a7b5ae; --muted: #78867e;
-  --line: #27332d; --line-strong: #34423b;
+  --line: #27332d; --line-strong: #34423b; --grid: #27332d; --baseline: #34423b;
   --accent: #23967a; --accent-ink: #56c19d; --accent-wash: #16241f; --accent-line: #274a3d;
   --good: #43ab79; --good-wash: #16241c; --warn: #cba24f; --warn-wash: #272013; --crit: #d97a73; --crit-wash: #2a1917;
   --shadow: 0 1px 2px rgba(0,0,0,0.35);
@@ -519,3 +523,17 @@ main {
 .history-del:hover { color: var(--crit); }
 
 a { color: var(--accent-ink); }
+
+/* ── Trends / personal evidence ── */
+.empty-hint { color: var(--muted); padding: 20px 4px; text-align: center; font-size: 0.86rem; }
+.chart-box { position: relative; }
+.chart-tooltip {
+  display: none; position: absolute; z-index: 5; pointer-events: none;
+  background: var(--ink); color: var(--surface); font-size: 0.76rem;
+  border-radius: 6px; padding: 6px 10px; max-width: 220px; line-height: 1.45;
+}
+.chart-tooltip i { color: var(--muted); }
+.chart-legend { display: flex; gap: 16px; font-size: 0.78rem; color: var(--ink-2); margin-bottom: 6px; }
+.legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+.evid-insight { font-size: 0.84rem; color: var(--ink-2); margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--line); }

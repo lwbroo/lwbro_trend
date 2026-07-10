@@ -26,6 +26,7 @@
     document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === "tab-" + name));
     if (name === "history") renderHistory();
     if (name === "analyze") { updateSetupHint(); renderToday(); }
+    if (name === "trends") renderTrends();
     if (name === "settings") markLangSeg();
   }
   $("goto-settings").addEventListener("click", () => switchTab("settings"));
@@ -45,6 +46,7 @@
     if (currentResult) renderResult(currentResult);
     renderToday();
     if (document.getElementById("tab-history").classList.contains("active")) renderHistory();
+    if (document.getElementById("tab-trends").classList.contains("active")) renderTrends();
   }
   $("lang-toggle").addEventListener("click", () => setLanguage(I18n.other()));
   document.querySelectorAll("#lang-seg .seg-btn").forEach(b =>
@@ -89,6 +91,7 @@
     theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
     Store.saveSettings({ ...Store.getSettings(), theme });
     applyTheme();
+    if ($("tab-trends").classList.contains("active")) renderTrends();
   });
 
   /* ── Today + Burn ── */
@@ -328,6 +331,116 @@
       Store.updateRecord(id, { followup: { followed, feeling, glucose, at: new Date().toISOString() } });
       renderHistory();
     });
+  }
+
+  /* ── Trends (personal evidence dashboard) ──
+   * Turns record.followup (followed order? feeling 1–5? glucose?) into:
+   * - adherence comparison (avg feeling / avg glucose, followed vs partly vs not)
+   * - feeling & glucose trend over time (daily average)
+   * Reuses the sibling app's ../js/charts.js (SVG line/bar charts). */
+  const FU_ORDER = ["yes", "partly", "no"];
+  const FU_COLOR = { yes: "#1baf7a", partly: "#e8a23a", no: "#d64f4f" };
+
+  function dayKey(iso) { return iso.slice(0, 10); }
+
+  function followupRecords() {
+    return Store.getRecords().filter(r => r.followup && r.followup.followed);
+  }
+
+  function adherenceGroups(records, field) {
+    return FU_ORDER.map(key => {
+      const vals = records.filter(r => r.followup.followed === key && r.followup[field] != null).map(r => r.followup[field]);
+      if (!vals.length) return null;
+      return { key, label: t("fu_" + key), value: vals.reduce((a, b) => a + b, 0) / vals.length, count: vals.length, color: FU_COLOR[key] };
+    }).filter(Boolean);
+  }
+
+  function dailyTrend(records, field) {
+    const byDay = new Map();
+    records.forEach(r => {
+      const v = r.followup[field];
+      if (v == null) return;
+      const k = dayKey(r.time);
+      if (!byDay.has(k)) byDay.set(k, []);
+      byDay.get(k).push(v);
+    });
+    return [...byDay.entries()]
+      .map(([x, vals]) => ({ x, y: vals.reduce((a, b) => a + b, 0) / vals.length }))
+      .sort((a, b) => a.x.localeCompare(b.x));
+  }
+
+  function niceGlucoseRange(points) {
+    const vals = points.map(p => p.y);
+    const min = Math.min(...vals), max = Math.max(...vals);
+    const yMin = Math.max(0, Math.floor((min - 15) / 10) * 10);
+    const yMax = Math.ceil((max + 15) / 10) * 10;
+    const yStep = Math.max(10, Math.round((yMax - yMin) / 5 / 10) * 10);
+    return { yMin, yMax, yStep };
+  }
+
+  function tipFormat(decimals) {
+    return (d, low) => t("chart_tip_avg", { v: d.value.toFixed(decimals) }) + "／" + t("chart_tip_n", { n: d.count }) +
+      (low ? `<br><i>${t("chart_tip_low")}</i>` : "");
+  }
+
+  function insightLine(groups, key, decimals) {
+    const yes = groups.find(g => g.key === "yes");
+    const no = groups.find(g => g.key === "no");
+    if (!yes || !no) return "";
+    const fmt = v => v.toFixed(decimals);
+    return t(key, { a: fmt(yes.value), na: yes.count, b: fmt(no.value), nb: no.count });
+  }
+
+  function renderTrends() {
+    const records = followupRecords();
+    const box = $("trends-content");
+    if (!records.length) {
+      box.innerHTML = `<div class="card center"><p class="empty-hint">${esc(t("trends_empty"))}</p></div>`;
+      return;
+    }
+
+    const feelingGroups = adherenceGroups(records, "feeling");
+    const glucoseGroups = adherenceGroups(records, "glucose");
+    const feelingTrend = dailyTrend(records, "feeling");
+    const glucoseTrend = dailyTrend(records, "glucose");
+    const feelingInsight = insightLine(feelingGroups, "trends_insight_feeling", 1);
+    const glucoseInsight = insightLine(glucoseGroups, "trends_insight_glucose", 0);
+
+    box.innerHTML = `
+      <div class="card center"><p class="hint-text">${t("trends_n_logs", { n: records.length })}</p></div>
+      <div class="card">
+        <h2>${t("trends_feeling_title")}</h2>
+        <div id="tr-feeling-bar"></div>
+        ${feelingInsight ? `<p class="evid-insight">${esc(feelingInsight)}</p>` : ""}
+      </div>
+      <div class="card">
+        <h2>${t("trends_glucose_title")}</h2>
+        <div id="tr-glucose-bar"></div>
+        ${glucoseInsight ? `<p class="evid-insight">${esc(glucoseInsight)}</p>` : ""}
+      </div>
+      <div class="card">
+        <h2>${t("trends_feeling_trend_title")}</h2>
+        <div id="tr-feeling-line"></div>
+      </div>
+      <div class="card">
+        <h2>${t("trends_glucose_trend_title")}</h2>
+        <div id="tr-glucose-line"></div>
+      </div>`;
+
+    Charts.barChart($("tr-feeling-bar"), feelingGroups, { emptyText: t("chart_empty"), tipFormat: tipFormat(1) });
+    Charts.barChart($("tr-glucose-bar"), glucoseGroups, {
+      yMax: glucoseGroups.length ? Math.ceil(Math.max(...glucoseGroups.map(g => g.value)) / 20) * 20 + 20 : 5,
+      decimals: 0,
+      emptyText: t("trends_glucose_empty"),
+      tipFormat: tipFormat(0)
+    });
+    Charts.lineChart($("tr-feeling-line"), [{ name: t("metric_feeling"), points: feelingTrend }], { emptyText: t("chart_empty") });
+    if (glucoseTrend.length) {
+      const range = niceGlucoseRange(glucoseTrend);
+      Charts.lineChart($("tr-glucose-line"), [{ name: t("metric_glucose"), points: glucoseTrend }], { ...range, emptyText: t("trends_glucose_empty") });
+    } else {
+      $("tr-glucose-line").innerHTML = `<p class="empty-hint">${esc(t("trends_glucose_empty"))}</p>`;
+    }
   }
 
   /* ── Export / clear ── */

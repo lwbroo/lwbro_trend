@@ -12,6 +12,7 @@ The goal: don't change *what* you eat — change the *order* you eat it in.
 - **Eating order**: step-by-step plan with the reason for each step
 - **Tips**: 2–4 concrete suggestions for this exact meal
 - **Meal log with follow-up**: log meals, then record whether you followed the order, how you felt 1–2h later, and (optionally) your post-meal glucose — building your personal evidence that order matters
+- **Trends dashboard**: turns your follow-up log into personal evidence — average feeling & post-meal glucose broken down by whether you followed the order, plus both metrics' trend over time (reuses `../js/charts.js`)
 - **Today strip & streak**: today's meals / carbs / glycemic load at a glance, logging streak
 - **Burn it off**: when today's glycemic load runs high, concrete exercise suggestions sized to the excess
 - All data stays in your browser's localStorage; JSON export available
@@ -47,7 +48,7 @@ The key is stored only in your browser; the app talks directly to the Anthropic 
 
 ## Roadmap
 
-- [ ] Trends: followed-order vs not, feeling & glucose over time (reuse lwbro_trend charts)
+- [x] Trends: followed-order vs not, feeling & glucose over time (reuse lwbro_trend charts)
 - [ ] Guided meal mode ("start eating" → step-by-step pacing)
 - [ ] Reminders / gamification
 - [ ] HealthKit / CGM integration
@@ -68,13 +69,21 @@ The key is stored only in your browser; the app talks directly to the Anthropic 
   language so food names come back localized; the order/tips/summary are rebuilt at render time so a
   live language switch re-translates the on-screen result. Food names in *saved* records are a snapshot
   in the language they were analyzed in.
-- **Current state (v0.6)**: EN + 繁中 UI · hybrid architecture (see table above) · meal log with follow-up
-  (followed-order / feeling 1–5 / optional glucose, stored as `record.followup`) · Today strip + streak +
-  burn-it-off card (triggers when today's GL > 60).
-- **Pending decision**: visual redesign — four directions (A Clinical Calm / B Midnight Metabolic /
-  C Kitchen Journal / D Citrus Energy) were proposed; waiting for the owner to pick one, then rebuild
-  `css/style.css` (and only it, ideally) in that direction.
-- **Next on roadmap** (owner-approved order): design rebuild → trends charts (reuse `../js/charts.js`)
+- **Current state (v0.7)**: EN + 繁中 UI · Clinical Calm design (light/dark theme) · hybrid architecture
+  (see table above) · meal log with follow-up (followed-order / feeling 1–5 / optional glucose, stored
+  as `record.followup`) · Today strip + streak + burn-it-off card (triggers when today's GL > 60) ·
+  **Trends tab** — personal-evidence dashboard: avg feeling / avg post-meal glucose grouped by whether
+  the order was followed (bar charts, low-n bars dimmed), plus feeling/glucose trend lines over time.
+- **charts.js is now theme- and domain-generic** (shared with the sibling app at `../js/charts.js`):
+  `lineChart`/`barChart` read ink/grid/baseline colors from CSS custom properties at render time
+  (`--ink`/`--ink-2`/`--muted`/`--grid`/`--baseline`/`--surface` — falls back to the sibling app's
+  original light-theme hex if a variable isn't defined) instead of a hardcoded light palette, so dark
+  mode renders correctly. `lineChart` accepts `opts.yMin`/`yMax`/`yStep` (default 1/5/1, the mood scale)
+  and `barChart` accepts `opts.yMax`/`yStep`/`decimals` (default 5/1/1) for arbitrary ranges like
+  glucose mg/dL. Both also accept `opts.emptyText`/`opts.tipFormat` so callers can localize the
+  previously hardcoded Chinese empty-state and tooltip strings. `glyco/css/style.css` defines
+  `--grid`/`--baseline` (aliased to `--line`/`--line-strong`) so this resolves per theme.
+- **Next on roadmap** (owner-approved order): shareable result card (canvas → PNG) → PWA push reminders
   → guided meal mode → Capacitor/App Store with backend proxy.
 
 > For dietary-order guidance only — not medical advice. If you have diabetes, follow your doctor's and dietitian's instructions.

@@ -6,7 +6,7 @@
 const Charts = (() => {
   'use strict';
 
-  const INK = {
+  const INK_FALLBACK = {
     primary: '#0b0b0b',
     secondary: '#52514e',
     muted: '#898781',
@@ -16,6 +16,21 @@ const Charts = (() => {
   };
   const SERIES = ['#2a78d6', '#1baf7a']; // 1: 藍（心情）2: 綠（精力）
 
+  // 讀取 CSS 變數（--ink/--ink-2/--muted/--grid/--baseline/--surface），
+  // 讓深色主題也能正確配色；沒有定義對應變數的頁面則沿用預設淺色值。
+  function readInk() {
+    const cs = getComputedStyle(document.documentElement);
+    const v = (name, fallback) => (cs.getPropertyValue(name) || '').trim() || fallback;
+    return {
+      primary: v('--ink', INK_FALLBACK.primary),
+      secondary: v('--ink-2', INK_FALLBACK.secondary),
+      muted: v('--muted', INK_FALLBACK.muted),
+      grid: v('--grid', INK_FALLBACK.grid),
+      baseline: v('--baseline', INK_FALLBACK.baseline),
+      surface: v('--surface', INK_FALLBACK.surface)
+    };
+  }
+
   const NS = 'http://www.w3.org/2000/svg';
   function el(tag, attrs, children) {
     const node = document.createElementNS(NS, tag);
@@ -24,7 +39,7 @@ const Charts = (() => {
     return node;
   }
   function txt(x, y, str, attrs) {
-    const t = el('text', Object.assign({ x, y, 'font-size': 11, fill: INK.muted }, attrs || {}));
+    const t = el('text', Object.assign({ x, y, 'font-size': 11, fill: readInk().muted }, attrs || {}));
     t.textContent = str;
     return t;
   }
@@ -55,6 +70,7 @@ const Charts = (() => {
    */
   function lineChart(container, series, opts) {
     opts = opts || {};
+    const INK = readInk();
     container.innerHTML = '';
     container.classList.add('chart-box');
 
@@ -72,22 +88,29 @@ const Charts = (() => {
     }
 
     const dates = [...new Set(series.flatMap(s => s.points.map(p => p.x)))].sort();
-    if (!dates.length) return;
+    if (!dates.length) {
+      container.innerHTML = `<p class="empty-hint">${opts.emptyText || '尚無足夠資料'}</p>`;
+      return;
+    }
 
     const W = Math.max(container.clientWidth || 640, 320);
     const H = opts.height || 220;
     const pad = { top: 12, right: 16, bottom: 28, left: 30 };
     const iw = W - pad.left - pad.right, ih = H - pad.top - pad.bottom;
-    const yMin = 1, yMax = 5;
+    // 預設 1–5（心情/精力量表）；傳入 yMin/yMax/yStep 可畫任意數值域（例如血糖 mg/dL）
+    const yMin = opts.yMin != null ? opts.yMin : 1;
+    const yMax = opts.yMax != null ? opts.yMax : 5;
+    const yStep = opts.yStep || 1;
     const xPos = d => pad.left + (dates.length === 1 ? iw / 2 : dates.indexOf(d) / (dates.length - 1) * iw);
     const yPos = v => pad.top + (yMax - v) / (yMax - yMin) * ih;
 
     const svg = el('svg', { width: '100%', viewBox: `0 0 ${W} ${H}`, role: 'img' });
 
     // 髮絲格線 + y 軸刻度
-    for (let v = yMin; v <= yMax; v++) {
-      svg.appendChild(el('line', { x1: pad.left, x2: W - pad.right, y1: yPos(v), y2: yPos(v), stroke: v === yMin ? INK.baseline : INK.grid, 'stroke-width': 1 }));
-      svg.appendChild(txt(pad.left - 8, yPos(v) + 4, String(v), { 'text-anchor': 'end' }));
+    for (let v = yMin; v <= yMax + 1e-6; v += yStep) {
+      const vr = Math.round(v * 100) / 100;
+      svg.appendChild(el('line', { x1: pad.left, x2: W - pad.right, y1: yPos(vr), y2: yPos(vr), stroke: vr === yMin ? INK.baseline : INK.grid, 'stroke-width': 1 }));
+      svg.appendChild(txt(pad.left - 8, yPos(vr) + 4, Number.isInteger(vr) ? String(vr) : vr.toFixed(1), { 'text-anchor': 'end' }));
     }
     // x 軸標籤（最多 6 個，避免擁擠）
     const step = Math.max(1, Math.ceil(dates.length / 6));
@@ -139,10 +162,11 @@ const Charts = (() => {
    */
   function barChart(container, data, opts) {
     opts = opts || {};
+    const INK = readInk();
     container.innerHTML = '';
     container.classList.add('chart-box');
     if (!data.length) {
-      container.innerHTML = '<p class="empty-hint">尚無足夠資料</p>';
+      container.innerHTML = `<p class="empty-hint">${opts.emptyText || '尚無足夠資料'}</p>`;
       return;
     }
 
@@ -150,15 +174,19 @@ const Charts = (() => {
     const H = opts.height || 200;
     const pad = { top: 20, right: 12, bottom: 34, left: 30 };
     const iw = W - pad.left - pad.right, ih = H - pad.top - pad.bottom;
-    const yMax = 5;
+    // 預設 0–5（心情/精力量表）；傳入 yMax/yStep 可畫任意數值域（例如血糖 mg/dL）
+    const yMax = opts.yMax != null ? opts.yMax : 5;
+    const yStep = opts.yStep || (yMax > 10 ? Math.ceil(yMax / 5) : 1);
+    const decimals = opts.decimals != null ? opts.decimals : 1;
     const bw = Math.min(40, iw / data.length * 0.62);
     const xPos = i => pad.left + (i + 0.5) * (iw / data.length);
     const yPos = v => pad.top + (yMax - v) / yMax * ih;
 
     const svg = el('svg', { width: '100%', viewBox: `0 0 ${W} ${H}`, role: 'img' });
-    for (let v = 0; v <= yMax; v++) {
-      svg.appendChild(el('line', { x1: pad.left, x2: W - pad.right, y1: yPos(v), y2: yPos(v), stroke: v === 0 ? INK.baseline : INK.grid, 'stroke-width': 1 }));
-      svg.appendChild(txt(pad.left - 8, yPos(v) + 4, String(v), { 'text-anchor': 'end' }));
+    for (let v = 0; v <= yMax + 1e-6; v += yStep) {
+      const vr = Math.round(v * 100) / 100;
+      svg.appendChild(el('line', { x1: pad.left, x2: W - pad.right, y1: yPos(vr), y2: yPos(vr), stroke: vr === 0 ? INK.baseline : INK.grid, 'stroke-width': 1 }));
+      svg.appendChild(txt(pad.left - 8, yPos(vr) + 4, String(vr), { 'text-anchor': 'end' }));
     }
 
     const tip = makeTooltip(container);
@@ -169,10 +197,10 @@ const Charts = (() => {
       const r = Math.min(4, bw / 2);
       // 圓角只在頂端（資料端），底部貼齊基準線
       const path = `M${x},${yPos(0)} L${x},${y + r} Q${x},${y} ${x + r},${y} L${x + bw - r},${y} Q${x + bw},${y} ${x + bw},${y + r} L${x + bw},${yPos(0)} Z`;
-      const bar = el('path', { d: path, fill: '#2a78d6', 'fill-opacity': low ? 0.35 : 1 });
+      const bar = el('path', { d: path, fill: d.color || '#2a78d6', 'fill-opacity': low ? 0.35 : 1 });
       svg.appendChild(bar);
       // 直接標籤：平均值
-      svg.appendChild(txt(xPos(i), y - 5, d.value.toFixed(1), { 'text-anchor': 'middle', fill: INK.secondary, 'font-size': 10.5 }));
+      svg.appendChild(txt(xPos(i), y - 5, d.value.toFixed(decimals), { 'text-anchor': 'middle', fill: INK.secondary, 'font-size': 10.5 }));
       // 類別 + 樣本數
       svg.appendChild(txt(xPos(i), H - 20, d.label, { 'text-anchor': 'middle', fill: INK.primary, 'font-size': 12 }));
       svg.appendChild(txt(xPos(i), H - 6, `n=${d.count}`, { 'text-anchor': 'middle', 'font-size': 9.5 }));
@@ -180,8 +208,10 @@ const Charts = (() => {
       const hit = el('rect', { x: xPos(i) - iw / data.length / 2, y: pad.top, width: iw / data.length, height: ih, fill: 'transparent' });
       hit.addEventListener('mousemove', ev => {
         const rect = svg.getBoundingClientRect();
-        showTip(tip, container, (ev.clientX - rect.left), y * (rect.height / H),
-          `<b>${d.label}</b><br>平均 ${d.value.toFixed(2)}／樣本 ${d.count} 天${low ? '<br><i>樣本數少，僅供參考</i>' : ''}`);
+        const body = opts.tipFormat
+          ? opts.tipFormat(d, low)
+          : `平均 ${d.value.toFixed(2)}／樣本 ${d.count} 天${low ? '<br><i>樣本數少，僅供參考</i>' : ''}`;
+        showTip(tip, container, (ev.clientX - rect.left), y * (rect.height / H), `<b>${d.label}</b><br>${body}`);
       });
       hit.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
       svg.appendChild(hit);
