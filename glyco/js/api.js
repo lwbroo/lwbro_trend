@@ -6,8 +6,7 @@
  * only for foods the database doesn't know. Eating order & tips are computed locally
  * (order.js) at zero token cost. */
 const GlycoAPI = (() => {
-  // TODO: point at the deployed glyco-server Render URL once it exists.
-  const PROXY_BASE = "https://glycoorder-api.onrender.com";
+  const PROXY_BASE = "https://lwbro-trend.onrender.com";
   const PROXY_URL = `${PROXY_BASE}/api/analyze`;
 
   /** Downscale the photo for upload; returns { data, thumb } (raw base64 JPEG) */
