@@ -25,12 +25,10 @@
     document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
     document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === "tab-" + name));
     if (name === "history") renderHistory();
-    if (name === "analyze") { updateSetupHint(); renderToday(); }
+    if (name === "analyze") { refreshQuota(); renderToday(); }
     if (name === "trends") renderTrends();
-    if (name === "settings") markLangSeg();
+    if (name === "settings") { markLangSeg(); updateSubscriptionCard(); }
   }
-  $("goto-settings").addEventListener("click", () => switchTab("settings"));
-
   /* ── Language ── */
   function markLangSeg() {
     document.querySelectorAll("#lang-seg .seg-btn").forEach(b =>
@@ -52,29 +50,67 @@
   document.querySelectorAll("#lang-seg .seg-btn").forEach(b =>
     b.addEventListener("click", () => setLanguage(b.dataset.lang)));
 
-  /* ── Settings ── */
-  function loadSettings() {
-    const s = Store.getSettings();
-    $("api-key-input").value = s.apiKey || "";
-    $("model-select").value = s.model || "claude-haiku-4-5";
-    updateSetupHint();
+  /* ── Native platform + subscription (RevenueCat wiring lands in the Capacitor/App
+   * Store phase — this session only wires the UI shell + backend calls behind a
+   * feature-detect, since there's no purchase surface on the plain web PWA). ── */
+  function isNative() {
+    return typeof Capacitor !== "undefined" && !!Capacitor.isNativePlatform?.();
   }
-  $("save-settings-btn").addEventListener("click", () => {
-    Store.saveSettings({
-      ...Store.getSettings(),
-      apiKey: $("api-key-input").value.trim(),
-      model: $("model-select").value
-    });
-    flash("settings-saved");
-    updateSetupHint();
+  let unlimited = false; // last-known entitlement state, refreshed via /api/quota + /api/entitlement/sync
+
+  function updateSubscriptionCard() {
+    $("subscription-card").classList.toggle("hidden", !isNative());
+    $("subscription-status").textContent = t(unlimited ? "subscription_active" : "subscription_free");
+  }
+  $("restore-purchases-btn").addEventListener("click", async () => {
+    if (isNative() && typeof Purchases !== "undefined") {
+      // TODO (Mac/Capacitor phase): await Purchases.restorePurchases(), then sync below.
+    }
+    try {
+      const resp = await fetch(`${GlycoAPI.PROXY_BASE}/api/entitlement/sync`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ deviceId: Store.getDeviceId() })
+      });
+      const body = await resp.json();
+      unlimited = !!body.unlimited;
+    } catch { /* offline or proxy unreachable — keep last-known state */ }
+    updateSubscriptionCard();
+    refreshQuota();
   });
-  $("show-key").addEventListener("change", e => {
-    $("api-key-input").type = e.target.checked ? "text" : "password";
-  });
-  function updateSetupHint() {
-    $("setup-hint").classList.toggle("hidden", !!Store.getSettings().apiKey);
+
+  /* ── Quota chip + paywall ── */
+  async function refreshQuota() {
+    try {
+      const resp = await fetch(`${GlycoAPI.PROXY_BASE}/api/quota?deviceId=${encodeURIComponent(Store.getDeviceId())}`);
+      const q = await resp.json();
+      unlimited = !!q.unlimited;
+      renderQuotaChip(q);
+    } catch {
+      $("quota-chip").classList.add("hidden"); // offline — let Analyze attempt and surface the real error
+    }
     updateAnalyzeBtn();
   }
+  function renderQuotaChip(q) {
+    const chip = $("quota-chip");
+    if (q.unlimited) { chip.classList.add("hidden"); return; }
+    chip.classList.remove("hidden");
+    chip.textContent = t("quota_remaining", { n: q.remaining, limit: q.limit });
+    chip.classList.toggle("quota-empty", q.remaining <= 0);
+  }
+  function showPaywall(quota) {
+    $("paywall-body").textContent = quota
+      ? t("quota_resets", { date: formatTime(quota.resetAt) })
+      : "";
+    $("paywall-upgrade-btn").classList.toggle("hidden", !isNative());
+    $("paywall-web-hint").classList.toggle("hidden", isNative());
+    show("paywall-modal");
+  }
+  $("paywall-close-btn").addEventListener("click", () => hide("paywall-modal"));
+  $("paywall-upgrade-btn").addEventListener("click", () => {
+    // TODO (Mac/Capacitor phase): Purchases.getOfferings() → Purchases.purchasePackage(...),
+    // then POST /api/entitlement/sync and hide("paywall-modal") on success.
+  });
 
   /* ── Theme (auto → light → dark) ── */
   const THEMES = ["auto", "light", "dark"];
@@ -156,25 +192,27 @@
     updateAnalyzeBtn();
   });
   function updateAnalyzeBtn() {
-    $("analyze-btn").disabled = !(currentImage && Store.getSettings().apiKey);
+    $("analyze-btn").disabled = !currentImage;
   }
 
   /* ── Analyze ── */
   $("analyze-btn").addEventListener("click", async () => {
-    const s = Store.getSettings();
-    if (!s.apiKey || !currentImage) return;
+    if (!currentImage) return;
     hide("result"); hide("error-box"); show("loading");
     $("analyze-btn").disabled = true;
     try {
       currentResult = await GlycoAPI.analyzeMeal({
-        apiKey: s.apiKey,
-        model: s.model || "claude-haiku-4-5",
+        deviceId: Store.getDeviceId(),
         imageBase64: currentImage.data,
         note: $("meal-note").value.trim()
       });
       renderResult(currentResult);
+      renderQuotaChip(currentResult.quota || { unlimited });
       show("result"); hide("save-done");
-    } catch (err) { showError(err.message); }
+    } catch (err) {
+      if (err.code === "quota_exceeded") { showPaywall(err.quota); renderQuotaChip(err.quota || {}); }
+      else showError(err.message);
+    }
     finally { hide("loading"); $("analyze-btn").disabled = false; }
   });
 
@@ -475,6 +513,7 @@
   $("lang-toggle").textContent = I18n.DICT[I18n.other()].lang_name;
   markLangSeg();
   applyTheme();
-  loadSettings();
+  refreshQuota();
+  updateSubscriptionCard();
   renderToday();
 })();
