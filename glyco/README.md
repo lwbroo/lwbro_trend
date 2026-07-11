@@ -23,9 +23,10 @@ Static PWA frontend + a small backend proxy (`../glyco-server/`) that holds the 
 server-side so users don't need their own:
 
 ```bash
-cd glyco
+# from the repo root — index.html loads ../js/charts.js (shared with the sibling app),
+# which 404s if you serve from inside glyco/ instead
 python3 -m http.server 8000
-# open http://localhost:8000
+# open http://localhost:8000/glyco/
 ```
 
 The frontend calls a deployed `glyco-server` instance by default (see `js/api.js` →
