@@ -15,6 +15,17 @@ const Store = (() => {
     localStorage.setItem(KEY_SETTINGS, JSON.stringify(s));
   }
 
+  /* Anonymous per-install identity used for the backend's weekly quota tracking and,
+   * later, as RevenueCat's appUserID — generated once and persisted alongside the
+   * other settings so quota tracking and entitlement lookups share one ID. */
+  function getDeviceId() {
+    const s = getSettings();
+    if (s.deviceId) return s.deviceId;
+    const id = crypto.randomUUID();
+    saveSettings({ ...s, deviceId: id });
+    return id;
+  }
+
   function getRecords() {
     try {
       return JSON.parse(localStorage.getItem(KEY_RECORDS)) || [];
@@ -51,5 +62,5 @@ const Store = (() => {
     return JSON.stringify({ app: "glyco-order", exported_at: new Date().toISOString(), records: getRecords() }, null, 2);
   }
 
-  return { getSettings, saveSettings, getRecords, addRecord, updateRecord, deleteRecord, clearRecords, exportJSON };
+  return { getSettings, saveSettings, getDeviceId, getRecords, addRecord, updateRecord, deleteRecord, clearRecords, exportJSON };
 })();

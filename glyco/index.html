@@ -27,9 +27,16 @@
 <!-- ═══════════ Analyze ═══════════ -->
 <section id="tab-analyze" class="tab-panel active">
 
-  <div id="setup-hint" class="card warn hidden">
-    <span data-i18n="setup_hint"></span>
-    <button class="btn small" id="goto-settings" data-i18n="open_settings"></button>
+  <div id="quota-chip" class="quota-chip hidden"></div>
+
+  <div id="paywall-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2 data-i18n="quota_exceeded_title"></h2>
+      <p id="paywall-body" class="hint-text"></p>
+      <button class="btn primary full hidden" id="paywall-upgrade-btn" data-i18n="upgrade_cta"></button>
+      <p class="hint-text center" id="paywall-web-hint" data-i18n="upgrade_native_only_hint"></p>
+      <button class="btn full" id="paywall-close-btn" data-i18n="paywall_close"></button>
+    </div>
   </div>
 
   <div id="today-card" class="card today-card hidden">
@@ -118,28 +125,10 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2 data-i18n="set_key_title"></h2>
-    <p class="hint-text">
-      <span data-i18n="set_key_desc"></span>
-      <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com</a>.
-    </p>
-    <input type="password" id="api-key-input" class="text-input" placeholder="sk-ant-...">
-    <label class="hint-text"><input type="checkbox" id="show-key"> <span data-i18n="show_key"></span></label>
-  </div>
-
-  <div class="card">
-    <h2 data-i18n="model_title"></h2>
-    <select id="model-select" class="text-input">
-      <option value="claude-haiku-4-5" data-i18n="model_haiku"></option>
-      <option value="claude-opus-4-8" data-i18n="model_opus"></option>
-    </select>
-    <p class="hint-text" data-i18n="model_desc"></p>
-  </div>
-
-  <div class="card">
-    <button class="btn primary full" id="save-settings-btn" data-i18n="save_settings"></button>
-    <p id="settings-saved" class="center hint-text hidden" data-i18n="saved"></p>
+  <div id="subscription-card" class="card hidden">
+    <h2 data-i18n="subscription_title"></h2>
+    <p id="subscription-status" class="hint-text" data-i18n="subscription_free"></p>
+    <button class="btn full" id="restore-purchases-btn" data-i18n="subscription_restore"></button>
   </div>
 
   <div class="card">
