@@ -1,0 +1,17 @@
+{
+  "name": "glycoorder",
+  "version": "1.0.0",
+  "description": "GlycoOrder — snap a meal photo, get the smartest eating order to blunt post-meal glucose spikes.",
+  "private": true,
+  "scripts": {
+    "build:www": "rsync -a --delete index.html css js manifest.webmanifest www/",
+    "sync": "npm run build:www && npx cap sync"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/ios": "^8.4.1"
+  }
+}
