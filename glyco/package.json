@@ -4,7 +4,8 @@
   "description": "GlycoOrder — snap a meal photo, get the smartest eating order to blunt post-meal glucose spikes.",
   "private": true,
   "scripts": {
-    "build:www": "rsync -a --delete index.html css js icons manifest.webmanifest www/",
+    "build:purchases": "esbuild js/native/purchases-entry.js --bundle --format=iife --outfile=js/vendor/purchases-capacitor.js",
+    "build:www": "npm run build:purchases && rsync -a --delete index.html css js icons manifest.webmanifest www/",
     "sync": "npm run build:www && npx cap sync"
   },
   "license": "UNLICENSED",
@@ -12,9 +13,11 @@
     "@capacitor/android": "^8.4.1",
     "@capacitor/cli": "^8.4.1",
     "@capacitor/core": "^8.4.1",
-    "@capacitor/ios": "^8.4.1"
+    "@capacitor/ios": "^8.4.1",
+    "@revenuecat/purchases-capacitor": "^13.2.2"
   },
   "devDependencies": {
-    "@capacitor/assets": "^3.0.5"
+    "@capacitor/assets": "^3.0.5",
+    "esbuild": "^0.28.1"
   }
 }

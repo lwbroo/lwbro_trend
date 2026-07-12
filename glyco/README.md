@@ -12,7 +12,7 @@ The goal: don't change *what* you eat — change the *order* you eat it in.
 - **Eating order**: step-by-step plan with the reason for each step
 - **Tips**: 2–4 concrete suggestions for this exact meal
 - **Meal log with follow-up**: log meals, then record whether you followed the order, how you felt 1–2h later, and (optionally) your post-meal glucose — building your personal evidence that order matters
-- **Trends dashboard**: turns your follow-up log into personal evidence — average feeling & post-meal glucose broken down by whether you followed the order, plus both metrics' trend over time (reuses `../js/charts.js`)
+- **Trends dashboard**: turns your follow-up log into personal evidence — average feeling & post-meal glucose broken down by whether you followed the order, plus both metrics' trend over time (uses `js/charts.js`, vendored from the sibling app so the Capacitor native build — which can only bundle files inside `glyco/` — stays self-contained)
 - **Today strip & streak**: today's meals / carbs / glycemic load at a glance, logging streak
 - **Burn it off**: when today's glycemic load runs high, concrete exercise suggestions sized to the excess
 - All data stays in your browser's localStorage; JSON export available
@@ -23,10 +23,9 @@ Static PWA frontend + a small backend proxy (`../glyco-server/`) that holds the 
 server-side so users don't need their own:
 
 ```bash
-# from the repo root — index.html loads ../js/charts.js (shared with the sibling app),
-# which 404s if you serve from inside glyco/ instead
+cd glyco
 python3 -m http.server 8000
-# open http://localhost:8000/glyco/
+# open http://localhost:8000/
 ```
 
 The frontend calls a deployed `glyco-server` instance by default (see `js/api.js` →

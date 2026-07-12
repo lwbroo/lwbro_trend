@@ -143,7 +143,10 @@ const I18n = (() => {
       subscription_title: "Subscription",
       subscription_free: "Free plan — 5 analyses/week",
       subscription_active: "✅ Unlimited analyses active",
-      subscription_restore: "Restore purchases"
+      subscription_restore: "Restore purchases",
+      purchase_unavailable: "No subscription plan is available right now — please try again later.",
+      purchase_failed: "Purchase couldn't be completed — please try again.",
+      restore_failed: "Couldn't find any purchases to restore."
     },
     zh: {
       lang_name: "中",
@@ -284,7 +287,10 @@ const I18n = (() => {
       subscription_title: "訂閱",
       subscription_free: "免費方案——每週 5 次分析",
       subscription_active: "✅ 已解鎖無限次數",
-      subscription_restore: "還原購買"
+      subscription_restore: "還原購買",
+      purchase_unavailable: "目前沒有可購買的方案，請稍後再試。",
+      purchase_failed: "購買未完成，請再試一次。",
+      restore_failed: "找不到可還原的購買紀錄。"
     }
   };
 

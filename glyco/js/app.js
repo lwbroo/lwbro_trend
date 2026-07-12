@@ -50,22 +50,38 @@
   document.querySelectorAll("#lang-seg .seg-btn").forEach(b =>
     b.addEventListener("click", () => setLanguage(b.dataset.lang)));
 
-  /* ── Native platform + subscription (RevenueCat wiring lands in the Capacitor/App
-   * Store phase — this session only wires the UI shell + backend calls behind a
-   * feature-detect, since there's no purchase surface on the plain web PWA). ── */
+  /* ── Native platform + subscription (RevenueCat) ── */
+  // Public SDK keys, filled in once the products are configured in the RevenueCat
+  // dashboard (App Store Connect + Play Console subscriptions attached there first).
+  const REVENUECAT_API_KEYS = {
+    ios: "REVENUECAT_IOS_PUBLIC_SDK_KEY",
+    android: "REVENUECAT_ANDROID_PUBLIC_SDK_KEY"
+  };
+  const REVENUECAT_ENTITLEMENT_ID = "unlimited";
+
   function isNative() {
     return typeof Capacitor !== "undefined" && !!Capacitor.isNativePlatform?.();
   }
+  function hasPurchases() {
+    return isNative() && typeof Purchases !== "undefined";
+  }
   let unlimited = false; // last-known entitlement state, refreshed via /api/quota + /api/entitlement/sync
+
+  async function configurePurchases() {
+    if (!hasPurchases()) return;
+    const platform = Capacitor.getPlatform(); // "ios" | "android"
+    const apiKey = REVENUECAT_API_KEYS[platform];
+    if (!apiKey || apiKey.startsWith("REVENUECAT_")) return; // dashboard not wired up yet
+    try {
+      await Purchases.configure({ apiKey, appUserID: Store.getDeviceId() });
+    } catch { /* configure failures shouldn't block app startup */ }
+  }
 
   function updateSubscriptionCard() {
     $("subscription-card").classList.toggle("hidden", !isNative());
     $("subscription-status").textContent = t(unlimited ? "subscription_active" : "subscription_free");
   }
-  $("restore-purchases-btn").addEventListener("click", async () => {
-    if (isNative() && typeof Purchases !== "undefined") {
-      // TODO (Mac/Capacitor phase): await Purchases.restorePurchases(), then sync below.
-    }
+  async function syncEntitlement() {
     try {
       const resp = await fetch(`${GlycoAPI.PROXY_BASE}/api/entitlement/sync`, {
         method: "POST",
@@ -75,7 +91,17 @@
       const body = await resp.json();
       unlimited = !!body.unlimited;
     } catch { /* offline or proxy unreachable — keep last-known state */ }
-    updateSubscriptionCard();
+  }
+  $("restore-purchases-btn").addEventListener("click", async () => {
+    if (hasPurchases()) {
+      try {
+        await Purchases.restorePurchases();
+      } catch {
+        showError(t("restore_failed"));
+      }
+    }
+    await syncEntitlement();
+    updateSubscriptionCard(); // status line ("Unlimited active" vs "Free plan") is the confirmation
     refreshQuota();
   });
 
@@ -107,9 +133,20 @@
     show("paywall-modal");
   }
   $("paywall-close-btn").addEventListener("click", () => hide("paywall-modal"));
-  $("paywall-upgrade-btn").addEventListener("click", () => {
-    // TODO (Mac/Capacitor phase): Purchases.getOfferings() → Purchases.purchasePackage(...),
-    // then POST /api/entitlement/sync and hide("paywall-modal") on success.
+  $("paywall-upgrade-btn").addEventListener("click", async () => {
+    if (!hasPurchases()) return;
+    try {
+      const offerings = await Purchases.getOfferings();
+      const pkg = offerings.current?.availablePackages?.[0];
+      if (!pkg) { showError(t("purchase_unavailable")); return; }
+      await Purchases.purchasePackage({ aPackage: pkg });
+      await syncEntitlement();
+      updateSubscriptionCard();
+      refreshQuota();
+      hide("paywall-modal");
+    } catch (err) {
+      if (!err?.userCancelled) showError(t("purchase_failed"));
+    }
   });
 
   /* ── Theme (auto → light → dark) ── */
@@ -513,6 +550,7 @@
   $("lang-toggle").textContent = I18n.DICT[I18n.other()].lang_name;
   markLangSeg();
   applyTheme();
+  configurePurchases();
   refreshQuota();
   updateSubscriptionCard();
   renderToday();
