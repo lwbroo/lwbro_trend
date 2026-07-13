@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build:purchases": "esbuild js/native/purchases-entry.js --bundle --format=iife --outfile=js/vendor/purchases-capacitor.js",
-    "build:www": "npm run build:purchases && rsync -a --delete index.html css js icons manifest.webmanifest www/",
+    "build:www": "npm run build:purchases && rsync -a --delete index.html privacy.html css js icons manifest.webmanifest www/",
     "sync": "npm run build:www && npx cap sync"
   },
   "license": "UNLICENSED",
