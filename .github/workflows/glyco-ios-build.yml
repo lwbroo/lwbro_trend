@@ -1,0 +1,75 @@
+name: glyco iOS simulator build
+
+# Verifies the Capacitor iOS project actually compiles, using GitHub's macOS
+# runners (which ship full Xcode — unlike any environment this repo's dev
+# sessions have had local access to). Builds for the iOS Simulator only, which
+# needs no code signing, no Apple Developer Program membership, and no Apple
+# ID — so this runs on every push/PR with zero account setup.
+#
+# This is a build-and-boot smoke test, not a release pipeline: it does not
+# archive, sign, or upload anywhere. See glyco/store/ios-release-runbook.md
+# for the actual TestFlight/App Store submission steps, which do require a
+# real Apple Developer account.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "glyco/**"
+      - ".github/workflows/glyco-ios-build.yml"
+  pull_request:
+    paths:
+      - "glyco/**"
+      - ".github/workflows/glyco-ios-build.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: glyco
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build web assets + sync native project
+        run: npm run sync
+
+      - name: Resolve Swift Package dependencies
+        run: xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
+
+      - name: Build for iOS Simulator (no signing required)
+        run: |
+          xcodebuild build \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Boot a simulator and install the app
+        run: |
+          set -e
+          DEVICE_ID=$(xcrun simctl list devices available | grep -m1 "iPhone" | grep -oE '[0-9A-F-]{36}')
+          echo "Using simulator: $DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "App.app" -path "*iphonesimulator*" | head -1)
+          echo "App path: $APP_PATH"
+          xcrun simctl install "$DEVICE_ID" "$APP_PATH"
+          xcrun simctl launch "$DEVICE_ID" com.lwbroo.glycoorder
+          sleep 5
+          mkdir -p screenshots
+          xcrun simctl io "$DEVICE_ID" screenshot screenshots/ios-boot.png
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-screenshot
+          path: glyco/screenshots/ios-boot.png
