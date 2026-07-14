@@ -11,9 +11,16 @@ API 36), not mockups — `adb exec-out screencap` against the actual native buil
   showing "Free plan — 5 analyses/week" + Restore purchases: this only renders on a
   native build (`Capacitor.isNativePlatform()`), confirmed working here for real
 - `android-05-dark.png` — Settings tab, dark theme
+- `ios-01-analyze.png` — Analyze tab on a real iOS Simulator, captured by
+  `.github/workflows/glyco-ios-build.yml` (GitHub's macOS runners have full Xcode;
+  this local dev environment only has Command Line Tools, no iOS compiler at all).
+  This is a genuine Xcode build + simulator boot, not a mockup — proof the iOS
+  project actually compiles, even before an Apple Developer account exists for
+  signing/device/App Store builds.
 
-These are raw device captures (1080×2400) — crop/frame them in whatever tool you use
-for the actual Play Store listing (device frames, required aspect ratios, etc.).
-Retake once real meal data exists to show the Analyze-result/Trends-with-data states,
-and once iOS is buildable, get the equivalent set from a simulator/device for App
-Store Connect (`ios-release-runbook.md`).
+These are raw device captures — crop/frame them in whatever tool you use for the
+actual store listings (device frames, required aspect ratios, etc.). Retake once real
+meal data exists to show the Analyze-result/Trends-with-data states. For more iOS
+screens (Log/Trends/Settings, dark mode), extend the CI workflow's screenshot step the
+same way the Android ones were captured, or just run it once Xcode is available
+locally/on a real device.

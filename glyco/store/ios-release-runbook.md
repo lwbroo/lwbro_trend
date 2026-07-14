@@ -1,11 +1,18 @@
 # iOS release runbook
 
 Everything up to "Install Xcode" was already done from the command line in this repo
-(Capacitor `ios/` project, RevenueCat SPM dependency wired in, real icons/splash). The
-steps below are the ones that need a full Xcode.app + your Apple ID, which is why they
-couldn't be completed from this environment (only Xcode Command Line Tools are
-installed here, not the full IDE — installing it requires signing into the Mac App
-Store).
+(Capacitor `ios/` project, RevenueCat SPM dependency wired in, real icons/splash).
+Beyond that, **the project's actual buildability is already verified** —
+`.github/workflows/glyco-ios-build.yml` builds it on GitHub's macOS runners (which
+ship full Xcode) and boots it in the iOS Simulator on every push; see
+`store/screenshots/ios-01-analyze.png` for a real screenshot from that run. Simulator
+builds need no signing/Apple Developer account at all, which is how that's possible
+without step 1 below being done yet.
+
+The steps below are the ones that need a full Xcode.app + your Apple ID on your own
+Mac, which is why they couldn't be completed from this dev environment (only Xcode
+Command Line Tools are installed here, not the full IDE — installing it requires
+signing into the Mac App Store).
 
 ## 1. Enroll in the Apple Developer Program
 https://developer.apple.com/programs/enroll/ — $99/year, needs your Apple ID.
