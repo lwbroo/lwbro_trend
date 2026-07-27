@@ -1,0 +1,56 @@
+name: glyco tests
+
+# Fast feedback on every change to the app or its backend: the glyco-server unit/route
+# suite and the headless-Chromium UI verification. Both use in-process stubs — no
+# Anthropic key, no Upstash instance, no RevenueCat account, no cost.
+#
+# The heavier native builds live in glyco-ios-build.yml / glyco-android-build.yml.
+
+on:
+  push:
+    branches: [claude/zi-wei-ba-zi-planner-rnaz10]
+    paths:
+      - "glyco/**"
+      - "glyco-server/**"
+      - ".github/workflows/glyco-checks.yml"
+  pull_request:
+    paths:
+      - "glyco/**"
+      - "glyco-server/**"
+      - ".github/workflows/glyco-checks.yml"
+  workflow_dispatch:
+
+jobs:
+  backend:
+    name: glyco-server tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: glyco-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: glyco-server/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  ui:
+    name: frontend UI verification
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: glyco
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: glyco/package-lock.json
+      - run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - run: npm run test:ui

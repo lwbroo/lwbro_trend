@@ -73,20 +73,44 @@ Play Store only — the plain web PWA stays free-tier).
   **default branch** (`claude/zi-wei-ba-zi-planner-rnaz10`) from the root; this app lives in `glyco/`.
 - **Deploy convention**: commit on a work branch, then fast-forward push it onto the default branch
   (`git push origin <work-branch>:claude/zi-wei-ba-zi-planner-rnaz10`). Pages redeploys automatically (~40s).
-- **Verification**: drive the app in headless Chromium with `glyco-server`'s endpoints mocked
-  (`page.route("**/api/analyze", ...)` / `**/api/quota**` returning canned JSON) — checks DB matching,
-  order engine, follow-up persistence, quota chip/paywall behavior without spending tokens or needing
-  real Upstash/RevenueCat accounts. `glyco-server` itself has its own `node --test` suite
-  (`glyco-server/test/`) using in-process HTTP stubs for Anthropic/Upstash/RevenueCat — no real
-  credentials needed there either. Periodically also run one **non-mocked** local pass (real
-  `glyco-server` + stubbed Anthropic/Redis, real frontend, real browser fetch) to catch CORS
-  misconfiguration between the two origins — the one failure mode pure route-mocking can't surface.
+- **Verification** — two committed suites, both stubbed end to end (no Anthropic key, no
+  Upstash instance, no RevenueCat account, no cost). Both run in CI on every push/PR
+  (`.github/workflows/glyco-checks.yml`):
+  ```bash
+  cd glyco-server && npm test     # 26 tests: quota, entitlement, webhook auth, IP throttle
+  cd glyco && npm run test:ui     # 23 checks: headless Chromium against the real UI
+  ```
+  `test/verify-ui.js` serves `glyco/` and drives Chromium with the proxy's endpoints mocked
+  via `page.route`, covering DB matching, the order engine, the quota chip, the paywall, and
+  the native-vs-web branching. Set `CHROMIUM_PATH` to reuse a pre-installed browser instead of
+  Playwright's managed download.
+  - *Why it's committed:* this used to be a convention documented here but written from scratch
+    each session in a scratch directory. The rewrites drifted — one silently "failed" three
+    checks because it still stubbed `window.Capacitor` the pre-Capacitor way (see the i18n note
+    below for the two real bugs the maintained version then caught).
+  - Periodically also run one **non-mocked** local pass (real `glyco-server` + stubbed
+    Anthropic/Redis, real frontend, real browser fetch) to catch CORS misconfiguration between
+    the two origins — the one failure mode pure route-mocking can't surface.
+- **Native builds in CI**: `glyco-ios-build.yml` (macOS runner, simulator build + boot
+  screenshot) and `glyco-android-build.yml` (debug APK). Neither needs signing, a developer
+  account, or secrets. Note the push trigger must name this repo's actual default branch —
+  it was originally `[main]`, which doesn't exist here, so the trigger silently never fired
+  and the workflow only ever ran manually.
 - **i18n**: `js/i18n.js` holds en/zh dictionaries; `I18n.t(key, params)` for dynamic strings,
   `[data-i18n]` / `[data-i18n-html]` / `[data-i18n-ph]` attributes for static DOM. Language persists
   in settings, defaults from `navigator.language`. The recognition prompt (`api.js`) switches per
   language so food names come back localized; the order/tips/summary are rebuilt at render time so a
   live language switch re-translates the on-screen result. Food names in *saved* records are a snapshot
   in the language they were analyzed in.
+  - **Gotcha — anything written with `textContent` needs explicit re-rendering.** `I18n.apply()`
+    only walks `[data-i18n*]` attributes, so dynamically-written text is invisible to it and must
+    be re-rendered from `setLanguage()`. The quota chip missed this and stayed in the old language
+    until you left and re-entered the Analyze tab.
+  - **Gotcha — don't put `data-i18n` on an element holding dynamic state.** `#subscription-status`
+    carried `data-i18n="subscription_free"`, so `I18n.apply()` overwrote a *subscribed* user's
+    "unlimited active" line with the free-plan string on every language switch. The attribute was
+    removed; `updateSubscriptionCard()` owns that text. Both bugs now have regression checks in
+    `test/verify-ui.js`.
 - **Current state (v0.8)**: EN + 繁中 UI · Clinical Calm design (light/dark theme) · hybrid architecture
   (see table above) · meal log with follow-up (followed-order / feeling 1–5 / optional glucose, stored
   as `record.followup`) · Today strip + streak + burn-it-off card (triggers when today's GL > 60) ·

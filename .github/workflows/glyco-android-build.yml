@@ -1,0 +1,59 @@
+name: glyco Android debug build
+
+# Android counterpart to glyco-ios-build.yml. A *debug* build is signed with the
+# auto-generated debug keystore, so this needs no Play Console account, no upload key,
+# and no secrets — it just proves the Capacitor Android project actually assembles.
+#
+# Release/AAB signing and Play Console upload are deliberately out of scope; see
+# glyco/store/android-release-runbook.md for those steps, which do need real credentials.
+
+on:
+  push:
+    branches: [claude/zi-wei-ba-zi-planner-rnaz10]
+    paths:
+      - "glyco/**"
+      - ".github/workflows/glyco-android-build.yml"
+  pull_request:
+    paths:
+      - "glyco/**"
+      - ".github/workflows/glyco-android-build.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: glyco
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: glyco/package-lock.json
+
+      # Capacitor 8's Android Gradle Plugin requires JDK 21.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build web assets + sync native project
+        run: npm run sync
+
+      - name: Assemble debug APK
+        working-directory: glyco/android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: glyco-debug-apk
+          path: glyco/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
