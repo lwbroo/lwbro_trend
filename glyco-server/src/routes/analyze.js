@@ -2,6 +2,7 @@ const express = require("express");
 const anthropic = require("../lib/anthropicClient");
 const quota = require("../lib/quota");
 const entitlement = require("../lib/entitlement");
+const ipThrottle = require("../lib/ipThrottle");
 
 const router = express.Router();
 
@@ -14,6 +15,13 @@ router.post("/analyze", async (req, res) => {
   const { active } = await entitlement.isActive(deviceId);
 
   if (!active) {
+    // Per-IP daily ceiling first — this is the backstop against cycling deviceIds to
+    // farm fresh weekly quotas. Paying subscribers skip it entirely.
+    const throttle = await ipThrottle.consume(req.ip);
+    if (!throttle.allowed) {
+      return res.status(429).json({ error: "ip_rate_limited", message: "too many analyses from this network today" });
+    }
+
     const current = await quota.status(deviceId);
     if (current.remaining <= 0) {
       return res.status(402).json({ error: "quota_exceeded", quota: { ...current, unlimited: false } });

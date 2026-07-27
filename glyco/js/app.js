@@ -40,7 +40,11 @@
     I18n.apply();
     $("lang-toggle").textContent = I18n.DICT[I18n.other()].lang_name; // shows the OTHER lang to switch to
     markLangSeg();
-    // re-render dynamic content in the new language
+    // re-render dynamic content in the new language. The quota chip and subscription
+    // status are written with textContent (not [data-i18n]), so I18n.apply() above
+    // doesn't reach them — they have to be re-rendered explicitly.
+    renderQuotaChip();
+    updateSubscriptionCard();
     if (currentResult) renderResult(currentResult);
     renderToday();
     if (document.getElementById("tab-history").classList.contains("active")) renderHistory();
@@ -117,12 +121,15 @@
     }
     updateAnalyzeBtn();
   }
+  /** Remembered so a live language switch can re-render the chip without refetching. */
+  let lastQuota = null;
   function renderQuotaChip(q) {
+    if (q) lastQuota = q;
     const chip = $("quota-chip");
-    if (q.unlimited) { chip.classList.add("hidden"); return; }
+    if (!lastQuota || lastQuota.unlimited) { chip.classList.add("hidden"); return; }
     chip.classList.remove("hidden");
-    chip.textContent = t("quota_remaining", { n: q.remaining, limit: q.limit });
-    chip.classList.toggle("quota-empty", q.remaining <= 0);
+    chip.textContent = t("quota_remaining", { n: lastQuota.remaining, limit: lastQuota.limit });
+    chip.classList.toggle("quota-empty", lastQuota.remaining <= 0);
   }
   function showPaywall(quota) {
     $("paywall-body").textContent = quota

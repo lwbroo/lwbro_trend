@@ -13,7 +13,10 @@ name: glyco iOS simulator build
 
 on:
   push:
-    branches: [main]
+    # This repo's default branch is claude/zi-wei-ba-zi-planner-rnaz10 — there is no
+    # `main`, so `branches: [main]` silently never fires (every run so far has been a
+    # manual workflow_dispatch).
+    branches: [claude/zi-wei-ba-zi-planner-rnaz10]
     paths:
       - "glyco/**"
       - ".github/workflows/glyco-ios-build.yml"

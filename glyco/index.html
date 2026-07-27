@@ -128,7 +128,9 @@
 
   <div id="subscription-card" class="card hidden">
     <h2 data-i18n="subscription_title"></h2>
-    <p id="subscription-status" class="hint-text" data-i18n="subscription_free"></p>
+    <!-- Filled by updateSubscriptionCard(); no data-i18n, or I18n.apply() would clobber
+         a subscribed user's status with the free-plan string on every language switch. -->
+    <p id="subscription-status" class="hint-text"></p>
     <button class="btn full" id="restore-purchases-btn" data-i18n="subscription_restore"></button>
   </div>
 
