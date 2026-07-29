@@ -72,8 +72,8 @@ for guidance from your doctor or dietitian, particularly if you have diabetes or
 another condition affecting blood glucose.
 
 FREE TO START
-5 meal analyses per week, free, forever — including the Trends dashboard, which stays
-free for everyone. Upgrade for unlimited analyses.
+3 meal analyses per week, free, forever — including the Trends dashboard, which stays
+free for everyone. Upgrade for unlimited analyses, with a free trial before billing starts.
 ```
 
 ## Traditional Chinese (繁體中文) full description
@@ -117,7 +117,7 @@ free for everyone. Upgrade for unlimited analyses.
 專業指示，糖尿病患者尤其應遵循專業意見。
 
 免費開始使用
-每週 5 次免費分析，永久免費——「趨勢」頁面對所有人永久免費。升級後可無限次分析。
+每週 3 次免費分析，永久免費——「趨勢」頁面對所有人永久免費。升級後可無限次分析，並享有免費試用期。
 ```
 
 ## What's New (first release)

@@ -39,7 +39,7 @@ npm start               # listens on :8080
 ```
 
 No Settings screen setup is required anymore — analysis "just works" up to the free-tier
-weekly quota (5 photos/week); unlimited access is a subscription (RevenueCat, App Store /
+weekly quota (3 photos/week); unlimited access is a subscription (RevenueCat, App Store /
 Play Store only — the plain web PWA stays free-tier).
 
 ## Architecture (hybrid: AI recognizes, local data decides)
@@ -56,7 +56,7 @@ Play Store only — the plain web PWA stays free-tier).
 - Photos are downscaled client-side (1344px long edge JPEG) and POSTed base64 to `glyco-server`'s `/api/analyze`, which relays to the Claude Messages API with the key never leaving the server
 - [Structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) (`output_config.format` + JSON Schema) guarantee a fixed response shape
 - Model is fixed server-side to `claude-haiku-4-5` (~US$0.003/photo) — no client-side model choice anymore, both for cost control and so a compromised/tampered client can't force expensive calls through the proxy
-- Free tier: 5 analyses/week (device-scoped, tracked in Redis). Paid tier: unlimited, managed by RevenueCat; the same device ID doubles as RevenueCat's `appUserID` so quota tracking and entitlement lookups share one identity
+- Free tier: 3 analyses/week (device-scoped, tracked in Redis; `LIMIT` in `glyco-server/src/lib/quota.js`). Paid tier: unlimited via RevenueCat, with an introductory free-trial period configured store-side (App Store Connect / Play Console) before billing starts — the same device ID doubles as RevenueCat's `appUserID` so quota tracking and entitlement lookups share one identity
 
 ## Roadmap
 
@@ -111,16 +111,21 @@ Play Store only — the plain web PWA stays free-tier).
     "unlimited active" line with the free-plan string on every language switch. The attribute was
     removed; `updateSubscriptionCard()` owns that text. Both bugs now have regression checks in
     `test/verify-ui.js`.
-- **Current state (v0.8)**: EN + 繁中 UI · Clinical Calm design (light/dark theme) · hybrid architecture
+- **Current state (v0.9)**: EN + 繁中 UI · Clinical Calm design (light/dark theme) · hybrid architecture
   (see table above) · meal log with follow-up (followed-order / feeling 1–5 / optional glucose, stored
   as `record.followup`) · Today strip + streak + burn-it-off card (triggers when today's GL > 60) ·
   **Trends tab** — personal-evidence dashboard: avg feeling / avg post-meal glucose grouped by whether
   the order was followed (bar charts, low-n bars dimmed), plus feeling/glucose trend lines over time
   (stays free for everyone — not a paywall differentiator) · **backend proxy** (`glyco-server/`) —
-  no more user-supplied API key; free tier 5 analyses/week (quota chip on the Analyze tab, paywall
-  modal on exhaustion), paid tier unlimited via RevenueCat. The RevenueCat purchase/restore calls
-  themselves are stubbed (`isNative()`-gated no-ops in `app.js`) pending the Capacitor phase — the
-  paywall UI, quota display, and backend quota/entitlement plumbing are real and tested.
+  no more user-supplied API key; free tier 3 analyses/week (quota chip on the Analyze tab, paywall
+  modal on exhaustion), paid tier unlimited via RevenueCat with a store-configured free-trial period.
+  The RevenueCat SDK calls in `app.js` are real (not stubs) — `configurePurchases()`, the
+  `paywall-upgrade-btn` handler, and `restorePurchases()` all call the live SDK, gated behind
+  `isNative()`/`hasPurchases()` so the plain web build degrades gracefully. What's still a
+  placeholder is `REVENUECAT_API_KEYS` (`ios`/`android` public SDK keys) — `configurePurchases()`
+  no-ops until those are swapped for real values from the RevenueCat dashboard. Capacitor projects
+  for iOS + Android exist under `ios/`/`android/`, with CI build verification (simulator boot /
+  debug APK) on every push — see `.github/workflows/glyco-*.yml`.
 - **charts.js is now theme- and domain-generic** (shared with the sibling app at `../js/charts.js`):
   `lineChart`/`barChart` read ink/grid/baseline colors from CSS custom properties at render time
   (`--ink`/`--ink-2`/`--muted`/`--grid`/`--baseline`/`--surface` — falls back to the sibling app's

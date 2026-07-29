@@ -7,9 +7,11 @@ API 36), not mockups — `adb exec-out screencap` against the actual native buil
 - `android-02-log.png` — Log tab, empty state
 - `android-03-trends.png` — Trends tab, empty state (fills in with charts once meals
   are logged with follow-up data)
-- `android-04-settings.png` — Settings tab, light theme — note the Subscription card
-  showing "Free plan — 5 analyses/week" + Restore purchases: this only renders on a
-  native build (`Capacitor.isNativePlatform()`), confirmed working here for real
+- `android-04-settings.png` — Settings tab, light theme — Subscription card + Restore
+  purchases, confirmed rendering only on a native build (`Capacitor.isNativePlatform()`).
+  **Stale as of the free-tier change to 3/week**: the captured image still reads "Free
+  plan — 5 analyses/week" (the app said 5 when this was taken). Retake before
+  submission — this sandbox has no Android emulator to redo it from here.
 - `android-05-dark.png` — Settings tab, dark theme
 - `ios-01-analyze.png` — Analyze tab on a real iOS Simulator, captured by
   `.github/workflows/glyco-ios-build.yml` (GitHub's macOS runners have full Xcode;

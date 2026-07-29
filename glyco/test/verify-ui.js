@@ -87,19 +87,19 @@ async function main() {
   {
     const page = await browser.newPage();
     let analyzeCalls = 0;
-    await mockQuota(page, { unlimited: false, limit: 5, remaining: 5, resetAt: resetAt() });
+    await mockQuota(page, { unlimited: false, limit: 3, remaining: 3, resetAt: resetAt() });
     await page.route("**/api/analyze", route => {
       analyzeCalls++;
       route.fulfill({
         status: 200, contentType: "application/json",
-        body: JSON.stringify({ ...RECOGNITION, quota: { unlimited: false, limit: 5, remaining: 4, resetAt: resetAt() } })
+        body: JSON.stringify({ ...RECOGNITION, quota: { unlimited: false, limit: 3, remaining: 2, resetAt: resetAt() } })
       });
     });
     await page.goto(url);
     await page.waitForTimeout(300);
 
     check("analyze is disabled until a photo is chosen", await page.locator("#analyze-btn").isDisabled());
-    check("quota chip shows the full weekly allowance", (await page.locator("#quota-chip").textContent()).includes("5"));
+    check("quota chip shows the full weekly allowance", (await page.locator("#quota-chip").textContent()).includes("3"));
 
     await pickPhoto(page);
     check("analyze enables with a photo and no API key configured", await page.locator("#analyze-btn").isEnabled());
@@ -110,7 +110,7 @@ async function main() {
     check("recognized food is rendered", (await page.locator("#food-list").textContent()).includes("White rice"));
     check("GI came from the local database, not the AI fallback", (await page.locator("#food-list").textContent()).includes("📚"));
     check("eating-order steps are rendered", (await page.locator("#order-list").textContent()).trim().length > 0);
-    check("quota chip decrements after analyzing", (await page.locator("#quota-chip").textContent()).includes("4"));
+    check("quota chip decrements after analyzing", (await page.locator("#quota-chip").textContent()).includes("2"));
 
     await page.locator('.tab[data-tab="settings"]').click();
     await page.waitForTimeout(100);
@@ -123,7 +123,7 @@ async function main() {
   // ── Quota exhausted → paywall, not the generic error banner ──────────────────
   {
     const page = await browser.newPage();
-    const spent = { unlimited: false, limit: 5, remaining: 0, resetAt: resetAt() };
+    const spent = { unlimited: false, limit: 3, remaining: 0, resetAt: resetAt() };
     await mockQuota(page, spent);
     await page.route("**/api/analyze", route =>
       route.fulfill({ status: 402, contentType: "application/json", body: JSON.stringify({ error: "quota_exceeded", quota: spent }) }));
@@ -148,7 +148,7 @@ async function main() {
   // ── Native (Capacitor) build surfaces the purchase UI ────────────────────────
   {
     const page = await browser.newPage();
-    const spent = { unlimited: false, limit: 5, remaining: 0, resetAt: resetAt() };
+    const spent = { unlimited: false, limit: 3, remaining: 0, resetAt: resetAt() };
     await mockQuota(page, spent);
     await page.route("**/api/analyze", route =>
       route.fulfill({ status: 402, contentType: "application/json", body: JSON.stringify({ error: "quota_exceeded", quota: spent }) }));
@@ -178,7 +178,7 @@ async function main() {
   // ── Language switch re-translates live ───────────────────────────────────────
   {
     const page = await browser.newPage();
-    await mockQuota(page, { unlimited: false, limit: 5, remaining: 5, resetAt: resetAt() });
+    await mockQuota(page, { unlimited: false, limit: 3, remaining: 3, resetAt: resetAt() });
     await page.goto(url);
     await page.waitForTimeout(300);
     await page.locator("#lang-toggle").click();

@@ -2,7 +2,7 @@
  * expiring itself ~12 days after first use so there's nothing to garbage-collect. */
 const redis = require("./redis");
 
-const LIMIT = 5;
+const LIMIT = 3;
 const BUCKET_TTL_SECONDS = 12 * 24 * 60 * 60; // 12 days — covers the week + clock-skew buffer
 
 /** ISO week string like "2026-W28" for the UTC date `now` falls in (Monday-start weeks). */
