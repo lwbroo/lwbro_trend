@@ -36,12 +36,11 @@ provide more detail — reach [YOUR NAME] at [YOUR CONTACT EMAIL].
 ## Subscriptions
 - Auto-renewable subscription, managed via RevenueCat + StoreKit/Play Billing.
 - Free tier: 3 photo analyses/week, no time limit on the app itself.
-- Paid tier: unlimited photo analyses, with a free-trial introductory offer before billing
-  starts. [FILL IN PRICE/TRIAL DURATION ONCE CONFIGURED IN APP STORE CONNECT — must match
-  what's entered in the subscription product itself.]
+- Paid tier: unlimited photo analyses, US$2.99/month, with a 7-day free trial before
+  billing starts (Introductory Offer, configured in App Store Connect — this note must
+  keep matching whatever's actually entered in the subscription product; update both
+  together if either changes).
 - "Restore purchases" is available in Settings → Subscription card at all times.
-- No free trial configured yet — confirm before submission whether App Store Connect's
-  subscription setup includes one, and adjust this note if so.
 
 ## Privacy Policy URL
 https://lwbroo.github.io/lwbro_trend/glyco/privacy.html
