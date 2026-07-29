@@ -35,9 +35,10 @@ provide more detail — reach [YOUR NAME] at [YOUR CONTACT EMAIL].
 
 ## Subscriptions
 - Auto-renewable subscription, managed via RevenueCat + StoreKit/Play Billing.
-- Free tier: 5 photo analyses/week, no time limit on the app itself.
-- Paid tier: unlimited photo analyses. [FILL IN PRICE/DURATION ONCE CONFIGURED IN APP
-  STORE CONNECT — must match what's entered in the subscription product itself.]
+- Free tier: 3 photo analyses/week, no time limit on the app itself.
+- Paid tier: unlimited photo analyses, with a free-trial introductory offer before billing
+  starts. [FILL IN PRICE/TRIAL DURATION ONCE CONFIGURED IN APP STORE CONNECT — must match
+  what's entered in the subscription product itself.]
 - "Restore purchases" is available in Settings → Subscription card at all times.
 - No free trial configured yet — confirm before submission whether App Store Connect's
   subscription setup includes one, and adjust this note if so.

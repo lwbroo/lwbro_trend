@@ -142,7 +142,7 @@ const I18n = (() => {
       paywall_close: "Close",
 
       subscription_title: "Subscription",
-      subscription_free: "Free plan — 5 analyses/week",
+      subscription_free: "Free plan — 3 analyses/week",
       subscription_active: "✅ Unlimited analyses active",
       subscription_restore: "Restore purchases",
       purchase_unavailable: "No subscription plan is available right now — please try again later.",
@@ -287,7 +287,7 @@ const I18n = (() => {
       paywall_close: "關閉",
 
       subscription_title: "訂閱",
-      subscription_free: "免費方案——每週 5 次分析",
+      subscription_free: "免費方案——每週 3 次分析",
       subscription_active: "✅ 已解鎖無限次數",
       subscription_restore: "還原購買",
       purchase_unavailable: "目前沒有可購買的方案，請稍後再試。",

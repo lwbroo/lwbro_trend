@@ -1,10 +1,10 @@
 /* Abuse backstop for the free tier.
  *
  * The weekly quota is keyed by a client-generated deviceId held in localStorage, so a
- * user who clears site data (or reinstalls) gets a fresh id and a fresh 5 free analyses.
+ * user who clears site data (or reinstalls) gets a fresh id and a fresh free analyses.
  * That's acceptable for honest users but trivially scriptable, and every analysis costs
  * a real Anthropic call — so this adds a coarse per-IP daily ceiling as a second line of
- * defense. It is deliberately generous: the free tier is 5/week per device, so a shared
+ * defense. It is deliberately generous: the free tier is 3/week per device, so a shared
  * NAT (household, small office, cafe) of several genuine users stays far below the cap,
  * while bulk deviceId cycling from one address hits it quickly.
  *
