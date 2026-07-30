@@ -4,7 +4,7 @@ Paste into **App Review Information → Notes** when submitting. Update the brac
 placeholders before submitting.
 
 ## Demo account
-None needed — GlycoOrder has no sign-in of any kind. The review flow is:
+None needed — Glyco Navigator has no sign-in of any kind. The review flow is:
 1. Open the app, tap "Analyze this meal", take or choose a photo of any meal.
 2. The app identifies the foods and shows the recommended eating order.
 3. Log tab shows past meals; Trends tab shows aggregate stats (works with 0 logs too,
@@ -17,7 +17,7 @@ Camera/photo-library access is used exclusively to photograph a meal for the cor
 food-order feature. No other use.
 
 ## Health/medical content — why this isn't a medical device
-GlycoOrder suggests an eating *order* (fiber → protein/fat → starches/sugars last) for
+Glyco Navigator suggests an eating *order* (fiber → protein/fat → starches/sugars last) for
 a photographed meal, based on published research that eating order affects post-meal
 glucose response. It does **not**:
 - Diagnose, treat, or claim to manage diabetes or any condition
@@ -35,6 +35,9 @@ provide more detail — reach [YOUR NAME] at [YOUR CONTACT EMAIL].
 
 ## Subscriptions
 - Auto-renewable subscription, managed via RevenueCat + StoreKit/Play Billing.
+- Subscription Display Name: **Glyco Navigator Pro** — must be entered exactly this way
+  in App Store Connect / Play Console so the store listing matches the in-app copy
+  (`js/i18n.js` → `subscription_active`).
 - Free tier: 3 photo analyses/week, no time limit on the app itself.
 - Paid tier: unlimited photo analyses, US$2.99/month, with a 7-day free trial before
   billing starts (Introductory Offer, configured in App Store Connect — this note must

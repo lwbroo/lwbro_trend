@@ -143,7 +143,7 @@ const I18n = (() => {
 
       subscription_title: "Subscription",
       subscription_free: "Free plan — 3 analyses/week",
-      subscription_active: "✅ Unlimited analyses active",
+      subscription_active: "✅ Glyco Navigator Pro active — unlimited analyses",
       subscription_restore: "Restore purchases",
       purchase_unavailable: "No subscription plan is available right now — please try again later.",
       purchase_failed: "Purchase couldn't be completed — please try again.",
@@ -288,7 +288,7 @@ const I18n = (() => {
 
       subscription_title: "訂閱",
       subscription_free: "免費方案——每週 3 次分析",
-      subscription_active: "✅ 已解鎖無限次數",
+      subscription_active: "✅ 已升級 Glyco Navigator Pro——無限次數分析",
       subscription_restore: "還原購買",
       purchase_unavailable: "目前沒有可購買的方案，請稍後再試。",
       purchase_failed: "購買未完成，請再試一次。",

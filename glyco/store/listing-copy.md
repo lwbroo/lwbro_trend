@@ -5,7 +5,7 @@ terminology used in-app) — ready to paste in, not placeholder text. Adjust fre
 everything here reflects what's really in the app today, nothing aspirational.
 
 ## App name
-**GlycoOrder**
+**Glyco Navigator**
 
 ## Subtitle (App Store, 30 chars) / Short description (Play, 80 chars)
 - App Store subtitle: `Eat in the smartest order` (26 chars)
@@ -32,11 +32,11 @@ how much your blood glucose spikes after a meal. Fiber and vegetables first, pro
 and fat next, starches and sugars last: this sequence alone can measurably blunt the
 post-meal spike, no diet change required.
 
-GlycoOrder turns that research into something you can actually use at every meal.
+Glyco Navigator turns that research into something you can actually use at every meal.
 
 HOW IT WORKS
 1. Snap a photo of your meal (or pick one from your library)
-2. GlycoOrder identifies each food and estimates portions
+2. Glyco Navigator identifies each food and estimates portions
 3. Get a step-by-step eating order, with the reason for each step
 4. See each food's glycemic index (GI), portion, and carbs
 
@@ -67,7 +67,7 @@ uploaded anywhere. Meal photos are sent to our server only to identify the foods
 them, and are not stored. Full details: [privacy policy URL]
 
 NOT MEDICAL ADVICE
-GlycoOrder provides general dietary-order suggestions only. It is not a substitute
+Glyco Navigator provides general dietary-order suggestions only. It is not a substitute
 for guidance from your doctor or dietitian, particularly if you have diabetes or
 another condition affecting blood glucose.
 
@@ -84,7 +84,7 @@ free for everyone. Upgrade for unlimited analyses — try it free for 7 days.
 再吃蛋白質與油脂、最後才吃澱粉與糖分，光是調整順序，就能明顯降低飯後血糖峰值，不需要
 改變你吃的內容。
 
-食序 GlycoOrder 把這個研究成果變成你每一餐都能用上的工具。
+食序 Glyco Navigator 把這個研究成果變成你每一餐都能用上的工具。
 
 使用方式
 1. 拍下這一餐的照片（或從相簿選取）
@@ -113,7 +113,7 @@ free for everyone. Upgrade for unlimited analyses — try it free for 7 days.
 分析後不會被保留。完整說明請見：[隱私權政策連結]
 
 非醫療建議
-食序 GlycoOrder 僅提供一般性的進食順序建議，並非醫療建議，不能取代醫師與營養師的
+食序 Glyco Navigator 僅提供一般性的進食順序建議，並非醫療建議，不能取代醫師與營養師的
 專業指示，糖尿病患者尤其應遵循專業意見。
 
 免費開始使用
@@ -122,7 +122,7 @@ free for everyone. Upgrade for unlimited analyses — try it free for 7 days.
 
 ## What's New (first release)
 ```
-GlycoOrder v1.0 — snap a meal photo, get the eating order that helps steady your
+Glyco Navigator v1.0 — snap a meal photo, get the eating order that helps steady your
 post-meal glucose. Built-in GI database, meal log with follow-up, and a Trends
 dashboard that turns your log into personal evidence.
 ```

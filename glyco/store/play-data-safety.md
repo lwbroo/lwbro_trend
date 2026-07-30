@@ -12,7 +12,7 @@ literal copy-paste.
 ### Photos
 - **Collected:** Yes — the meal photo you choose to analyze.
 - **Shared:** Yes, with Anthropic (processes the image server-side to identify foods;
-  not stored by Anthropic or by GlycoOrder's backend beyond the single request).
+  not stored by Anthropic or by Glyco Navigator's backend beyond the single request).
 - **Processed ephemerally:** Yes — mark "This data isn't stored" for the server hop if
   the form offers that option; the image is not persisted server-side.
 - **Purpose:** App functionality (core feature).
@@ -30,7 +30,7 @@ literal copy-paste.
 
 ### Purchase history
 - **Collected:** Yes — subscription status only (active/inactive), via RevenueCat.
-  GlycoOrder's own backend never sees payment method, card details, or price paid.
+  Glyco Navigator's own backend never sees payment method, card details, or price paid.
 - **Shared:** With RevenueCat (a subscription-management processor) and, per standard
   Play Billing flow, with Google.
 - **Purpose:** App functionality (unlocking unlimited analyses).

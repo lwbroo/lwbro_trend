@@ -1,7 +1,7 @@
 {
   "name": "glycoorder",
   "version": "1.0.0",
-  "description": "GlycoOrder — snap a meal photo, get the smartest eating order to blunt post-meal glucose spikes.",
+  "description": "Glyco Navigator — snap a meal photo, get the smartest eating order to blunt post-meal glucose spikes.",
   "private": true,
   "scripts": {
     "build:purchases": "esbuild js/native/purchases-entry.js --bundle --format=iife --outfile=js/vendor/purchases-capacitor.js",

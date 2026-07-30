@@ -1,4 +1,4 @@
-/* Calls the GlycoOrder backend proxy (glyco-server) instead of Anthropic directly.
+/* Calls the Glyco Navigator backend proxy (glyco-server) instead of Anthropic directly.
  * The proxy holds the Anthropic key server-side, runs recognition on Claude Haiku 4.5,
  * and enforces the free-tier weekly quota / paid-tier entitlement — this file no longer
  * needs (or accepts) a user-supplied API key or a model choice.
