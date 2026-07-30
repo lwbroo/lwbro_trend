@@ -6,6 +6,8 @@ const I18n = (() => {
   const DICT = {
     en: {
       lang_name: "EN",
+      app_name: "Glyco Navigator",
+      page_title: "Glyco Navigator · Eat in the Right Order",
       tagline: "Snap your meal → eat in the smartest order → steadier glucose",
       today: "Today",
       burn_title: "🔥 Burn it off",
@@ -151,6 +153,8 @@ const I18n = (() => {
     },
     zh: {
       lang_name: "中",
+      app_name: "順順控糖",
+      page_title: "順順控糖 · 這樣吃更順",
       tagline: "拍照 → 用最聰明的順序吃 → 血糖更平穩",
       today: "今日",
       burn_title: "🔥 動一動消耗",
@@ -288,7 +292,7 @@ const I18n = (() => {
 
       subscription_title: "訂閱",
       subscription_free: "免費方案——每週 3 次分析",
-      subscription_active: "✅ 已升級 Glyco Navigator Pro——無限次數分析",
+      subscription_active: "✅ 已升級順順控糖 Pro——無限次數分析",
       subscription_restore: "還原購買",
       purchase_unavailable: "目前沒有可購買的方案，請稍後再試。",
       purchase_failed: "購買未完成，請再試一次。",

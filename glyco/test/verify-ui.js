@@ -186,6 +186,8 @@ async function main() {
     await page.waitForTimeout(200);
     const zh = await page.locator("#quota-chip").textContent();
     check("quota chip re-renders in the switched language", /本週|次分析/.test(zh));
+    check("header switches to the Chinese app name", (await page.locator("h1").textContent()).trim() === "順順控糖");
+    check("tab title switches to the Chinese title", await page.title() === "順順控糖 · 這樣吃更順");
     await page.close();
   }
 

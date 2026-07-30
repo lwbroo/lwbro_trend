@@ -35,9 +35,10 @@ provide more detail — reach [YOUR NAME] at [YOUR CONTACT EMAIL].
 
 ## Subscriptions
 - Auto-renewable subscription, managed via RevenueCat + StoreKit/Play Billing.
-- Subscription Display Name: **Glyco Navigator Pro** — must be entered exactly this way
-  in App Store Connect / Play Console so the store listing matches the in-app copy
-  (`js/i18n.js` → `subscription_active`).
+- Subscription Display Name — set per storefront locale so the store listing matches
+  the in-app copy (`js/i18n.js` → `subscription_active`, EN+ZH):
+  - English storefronts: **Glyco Navigator Pro**
+  - Traditional Chinese storefront: **順順控糖 Pro**
 - Free tier: 3 photo analyses/week, no time limit on the app itself.
 - Paid tier: unlimited photo analyses, US$2.99/month, with a 7-day free trial before
   billing starts (Introductory Offer, configured in App Store Connect — this note must
