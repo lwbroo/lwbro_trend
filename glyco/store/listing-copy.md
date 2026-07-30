@@ -5,7 +5,13 @@ terminology used in-app) — ready to paste in, not placeholder text. Adjust fre
 everything here reflects what's really in the app today, nothing aspirational.
 
 ## App name
-**Glyco Navigator**
+Both App Store Connect and Play Console let you set the app's Name per storefront
+locale — enter these separately, not one name for everything:
+- **English storefronts**: **Glyco Navigator**
+- **Traditional Chinese (繁體中文) storefront (Taiwan/HK)**: **順順控糖**
+
+Subscription Display Name follows the same per-locale pattern — see
+`app-review-notes.md` for the exact values (Glyco Navigator Pro / 順順控糖 Pro).
 
 ## Subtitle (App Store, 30 chars) / Short description (Play, 80 chars)
 - App Store subtitle: `Eat in the smartest order` (26 chars)
@@ -84,7 +90,7 @@ free for everyone. Upgrade for unlimited analyses — try it free for 7 days.
 再吃蛋白質與油脂、最後才吃澱粉與糖分，光是調整順序，就能明顯降低飯後血糖峰值，不需要
 改變你吃的內容。
 
-食序 Glyco Navigator 把這個研究成果變成你每一餐都能用上的工具。
+順順控糖 把這個研究成果變成你每一餐都能用上的工具。
 
 使用方式
 1. 拍下這一餐的照片（或從相簿選取）
@@ -113,7 +119,7 @@ free for everyone. Upgrade for unlimited analyses — try it free for 7 days.
 分析後不會被保留。完整說明請見：[隱私權政策連結]
 
 非醫療建議
-食序 Glyco Navigator 僅提供一般性的進食順序建議，並非醫療建議，不能取代醫師與營養師的
+順順控糖 僅提供一般性的進食順序建議，並非醫療建議，不能取代醫師與營養師的
 專業指示，糖尿病患者尤其應遵循專業意見。
 
 免費開始使用
