@@ -1,4 +1,4 @@
-/* Headless UI verification for the GlycoOrder frontend.
+/* Headless UI verification for the Glyco Navigator frontend.
  *
  * The README calls this the project's verification convention, but for a long time the
  * script only ever existed in throwaway scratch directories — so every session rewrote
@@ -98,6 +98,7 @@ async function main() {
     await page.goto(url);
     await page.waitForTimeout(300);
 
+    check("header shows the current app name", (await page.locator("h1").textContent()).trim() === "Glyco Navigator");
     check("analyze is disabled until a photo is chosen", await page.locator("#analyze-btn").isDisabled());
     check("quota chip shows the full weekly allowance", (await page.locator("#quota-chip").textContent()).includes("3"));
 
@@ -202,6 +203,7 @@ async function main() {
 
     const before = await page.locator("#subscription-status").textContent();
     check("subscriber sees the unlimited status, not the free-plan line", before.includes("✅"));
+    check("subscriber status carries the Pro branding", before.includes("Pro"));
     await page.locator("#lang-toggle").click();
     await page.waitForTimeout(200);
     const after = await page.locator("#subscription-status").textContent();

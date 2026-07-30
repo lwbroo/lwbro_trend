@@ -1,7 +1,7 @@
 {
   "name": "glyco-server",
   "version": "1.0.0",
-  "description": "GlycoOrder backend proxy: Anthropic recognition calls, weekly quota, RevenueCat entitlement gating.",
+  "description": "Glyco Navigator backend proxy: Anthropic recognition calls, weekly quota, RevenueCat entitlement gating.",
   "type": "commonjs",
   "main": "src/index.js",
   "scripts": {

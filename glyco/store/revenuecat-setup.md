@@ -6,7 +6,7 @@ this setup, just filling in keys.
 
 ## 1. Create the project
 1. Sign up / log in at https://app.revenuecat.com
-2. Create a new project (e.g. "GlycoOrder")
+2. Create a new project (e.g. "Glyco Navigator")
 
 ## 2. Add the two apps
 - **iOS app**: bundle ID `com.lwbroo.glycoorder` (must match `glyco/capacitor.config.json`

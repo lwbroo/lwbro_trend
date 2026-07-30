@@ -1,4 +1,4 @@
-# GlycoOrder · Eat in the Right Order (POC)
+# Glyco Navigator · Eat in the Right Order (POC)
 
 Snap a photo of your meal — AI identifies the foods, the built-in database supplies each item's
 **glycemic index (GI)**, and a local rule engine tells you the smartest **eating order**

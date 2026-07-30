@@ -1,6 +1,6 @@
 {
-  "name": "GlycoOrder",
-  "short_name": "GlycoOrder",
+  "name": "Glyco Navigator",
+  "short_name": "Glyco Nav",
   "description": "Snap your meal, get the smartest eating order, keep your glucose steady",
   "start_url": ".",
   "display": "standalone",
