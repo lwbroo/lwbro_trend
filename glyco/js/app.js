@@ -58,10 +58,12 @@
   // Public SDK keys, filled in once the products are configured in the RevenueCat
   // dashboard (App Store Connect + Play Console subscriptions attached there first).
   const REVENUECAT_API_KEYS = {
-    ios: "REVENUECAT_IOS_PUBLIC_SDK_KEY",
+    ios: "appl_qrsrnGjDRwTaXXqMDhjWwNHurDL",
     android: "REVENUECAT_ANDROID_PUBLIC_SDK_KEY"
   };
-  const REVENUECAT_ENTITLEMENT_ID = "unlimited";
+  // Matches the entitlement identifier actually created in the RevenueCat dashboard
+  // (RevenueCat auto-derived it from the project name rather than "unlimited").
+  const REVENUECAT_ENTITLEMENT_ID = "Glyco_Navigator Pro";
 
   function isNative() {
     return typeof Capacitor !== "undefined" && !!Capacitor.isNativePlatform?.();

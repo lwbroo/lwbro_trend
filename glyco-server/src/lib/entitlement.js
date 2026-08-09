@@ -4,7 +4,9 @@
  * force-refreshed on demand via /api/entitlement/sync (right after a purchase/restore). */
 const redis = require("./redis");
 
-const ENTITLEMENT_ID = process.env.REVENUECAT_ENTITLEMENT_ID || "unlimited";
+// Matches the entitlement identifier actually created in the RevenueCat dashboard
+// (RevenueCat auto-derived it from the project name rather than "unlimited").
+const ENTITLEMENT_ID = process.env.REVENUECAT_ENTITLEMENT_ID || "Glyco_Navigator Pro";
 // Overridable only for tests (points the subscriber lookup at a local stub).
 const REVENUECAT_API_BASE = process.env.REVENUECAT_API_BASE || "https://api.revenuecat.com/v1";
 // Cache outlives the real expiry by this much so a lost cancellation/expiration webhook

@@ -24,17 +24,20 @@ release runbooks in this folder.)
 
 ## 3. Create the entitlement
 RevenueCat → **Entitlements** → New entitlement:
-- **Identifier: `unlimited`** — must be exactly this. It's hardcoded as the default in
-  `glyco-server/src/lib/entitlement.js` (`REVENUECAT_ENTITLEMENT_ID`) and in
-  `glyco/js/app.js` (`REVENUECAT_ENTITLEMENT_ID` constant). You *can* use a different
-  identifier, but then you must set `REVENUECAT_ENTITLEMENT_ID` in the server's env
-  AND change the constant in `app.js` to match — using `unlimited` avoids that.
+- **Identifier: `Glyco_Navigator Pro`** — must be exactly this (RevenueCat auto-derived
+  it from the project name rather than a plain `unlimited`, and that's what actually
+  got created in the dashboard, so the code matches it instead of the other way
+  around). It's hardcoded as the default in `glyco-server/src/lib/entitlement.js`
+  (`REVENUECAT_ENTITLEMENT_ID`) and in `glyco/js/app.js` (`REVENUECAT_ENTITLEMENT_ID`
+  constant). You *can* use a different identifier, but then you must set
+  `REVENUECAT_ENTITLEMENT_ID` in the server's env AND change the constant in `app.js`
+  to match.
 
 ## 4. Create the product(s) + attach to the entitlement
 Create the actual subscription product(s) in App Store Connect / Play Console first
 (see the release runbooks), then in RevenueCat:
 - **Products** → import/add the product identifiers from both stores
-- Attach each product to the `unlimited` entitlement
+- Attach each product to the `Glyco_Navigator Pro` entitlement
 
 Decide the subscription structure (monthly? annual? both?) — not decided yet in this
 codebase, so pick based on your pricing plan. A single monthly plan is the simplest
