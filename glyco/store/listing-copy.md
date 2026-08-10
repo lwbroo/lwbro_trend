@@ -140,5 +140,4 @@ dashboard that turns your log into personal evidence.
 - Play Console: **Health & Fitness**
 
 ## Support URL
-[FILL IN — reuse `privacy.html`'s contact section if you don't have a dedicated
-support page, or point to a GitHub Issues page]
+https://lwbroo.github.io/lwbro_trend/glyco/privacy.html

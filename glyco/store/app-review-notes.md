@@ -31,7 +31,7 @@ doctor's and dietitian's instructions." This is the same framing used throughout
 app — see `glyco/js/i18n.js` key `disclaimer`.
 
 If Review has follow-up questions about the health-content classification, happy to
-provide more detail — reach [YOUR NAME] at [YOUR CONTACT EMAIL].
+provide more detail — reach Kurt Chiang at kurt.chiang@gmail.com.
 
 ## Subscriptions
 - Auto-renewable subscription, managed via RevenueCat + StoreKit/Play Billing.
@@ -50,8 +50,7 @@ provide more detail — reach [YOUR NAME] at [YOUR CONTACT EMAIL].
 https://lwbroo.github.io/lwbro_trend/glyco/privacy.html
 
 ## Support URL
-[FILL IN — e.g. a GitHub Issues link, or reuse the privacy policy page with a contact
-section, which it already has]
+https://lwbroo.github.io/lwbro_trend/glyco/privacy.html
 
 ## Anything else Review might flag
 - The app calls an external backend (`glyco-server`, deployed on Render) to do photo
