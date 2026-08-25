@@ -64,7 +64,16 @@
 
     const [y, m, d] = currentDate.split('-').map(Number);
     const info = Engine.daily(profile, new Date(y, m - 1, d, 12, 0, 0));
+    const natal = Engine.baziNatal(profile);
     const b = info.bazi, z = info.ziwei;
+
+    const aiConfigured = AiReading.configured();
+    const cachedReading = aiConfigured ? AiReading.peekCache(profile, currentDate) : null;
+    const aiCard = aiConfigured ? `
+      <div class="card">
+        <h2>今日運勢 <span class="hint">AI 個人化解讀</span></h2>
+        <p id="ai-reading-text" class="reading-text${cachedReading ? '' : ' loading'}">${cachedReading ? esc(cachedReading) : '解讀中…'}</p>
+      </div>` : '';
 
     const baziRow = (label, o) => `
       <tr>
@@ -86,6 +95,7 @@
       </tr>`;
 
     box.innerHTML = `
+      ${aiCard}
       <div class="card">
         <h2>八字流運 <span class="hint">${esc(b.lunarDate)}${b.jieQi ? ' · 節氣：' + esc(b.jieQi) : ''}</span></h2>
         <table class="info-table">
@@ -97,7 +107,7 @@
             ${baziRow('流日', b.day)}
           </tbody>
         </table>
-        <p class="hint">十神以你的日主「${Engine.baziNatal(profile).dayMaster}」推算；流年以立春換年、流月以節氣換月。</p>
+        <p class="hint">十神以你的日主「${natal.dayMaster}」推算；流年以立春換年、流月以節氣換月。</p>
       </div>
       <div class="card">
         <h2>紫微流運</h2>
@@ -112,6 +122,23 @@
         </table>
         <p class="hint">「命宮落點」指該層流運命宮落在本命盤的哪一宮；四化為該層天干引動的祿權科忌。</p>
       </div>`;
+
+    if (aiConfigured && !cachedReading) {
+      const requestedDate = currentDate;
+      AiReading.getReading(profile, currentDate, info, natal).then(text => {
+        if (currentDate !== requestedDate) return;
+        const el = $('#ai-reading-text');
+        if (!el) return;
+        el.textContent = text;
+        el.classList.remove('loading');
+      }).catch(() => {
+        if (currentDate !== requestedDate) return;
+        const el = $('#ai-reading-text');
+        if (!el) return;
+        el.textContent = '解讀暫時無法取得，稍後再試。';
+        el.classList.remove('loading');
+      });
+    }
 
     loadCheckinForm();
   }
