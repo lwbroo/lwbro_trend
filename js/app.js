@@ -548,6 +548,7 @@
     if (!connected) {
       const oauthReady = Sync.oauthConfigured();
       $('#btn-sync-github-login').hidden = !oauthReady;
+      $('#sync-token-details').hidden = oauthReady;
       $('#sync-token-details').open = !oauthReady;
     }
     if (connected) {
