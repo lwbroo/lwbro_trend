@@ -38,7 +38,7 @@
   function switchTab(name) {
     $$('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
     $$('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
-    const render = { today: renderToday, chart: renderChartTab, records: renderRecords, trends: renderTrends, settings: renderSettings };
+    const render = { today: renderToday, chart: renderChartTab, records: renderRecords, trends: renderTrends, 'ai-chat': renderChatTab, settings: renderSettings };
     if (render[name]) render[name]();
   }
   $('#tabs').addEventListener('click', ev => {
@@ -566,6 +566,65 @@
   }
   $('#trend-range').addEventListener('change', renderTrends);
   $('#trend-metric').addEventListener('change', renderTrends);
+
+  /* ================= AI 問答 ================= */
+  let chatHistory = []; // 只存記憶體，重新整理頁面就清空
+  let chatBusy = false;
+
+  function renderChatTab() {
+    const profile = Store.getProfile();
+    $('#chat-need-profile').hidden = !!profile;
+    $('#chat-body').hidden = !profile;
+    if (!profile) return;
+    renderChatLog();
+  }
+
+  function renderChatLog() {
+    const log = $('#chat-log');
+    log.innerHTML = chatHistory.map(m =>
+      `<div class="chat-msg ${m.role}${m.pending ? ' pending' : ''}">${esc(m.content)}</div>`
+    ).join('');
+    log.scrollTop = log.scrollHeight;
+  }
+
+  $('#chat-form').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    if (chatBusy) return;
+    const profile = Store.getProfile();
+    if (!profile) return;
+    const input = $('#chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    if (!Chat.configured()) {
+      $('#chat-status').textContent = 'AI 問答尚未部署，稍後再試。';
+      return;
+    }
+
+    input.value = '';
+    chatHistory.push({ role: 'user', content: text });
+    chatHistory.push({ role: 'assistant', content: '思考中…', pending: true });
+    renderChatLog();
+    chatBusy = true;
+    $('#chat-status').textContent = '';
+
+    try {
+      const info = Engine.daily(profile, new Date());
+      const natal = Engine.baziNatal(profile);
+      const context = {
+        dayMaster: natal.dayMaster,
+        shengXiao: natal.shengXiao,
+        bazi: { year: info.bazi.year, month: info.bazi.month, day: info.bazi.day },
+        ziwei: { decadal: info.ziwei.decadal, yearly: info.ziwei.yearly, monthly: info.ziwei.monthly, daily: info.ziwei.daily }
+      };
+      const historyForApi = chatHistory.filter(m => !m.pending).map(m => ({ role: m.role, content: m.content }));
+      const reply = await Chat.send(historyForApi, context);
+      chatHistory[chatHistory.length - 1] = { role: 'assistant', content: reply };
+    } catch (e) {
+      chatHistory[chatHistory.length - 1] = { role: 'assistant', content: '暫時無法回應（' + e.message + '），稍後再試。' };
+    }
+    chatBusy = false;
+    renderChatLog();
+  });
 
   /* ================= 雲端同步 ================= */
   function renderSyncUI() {

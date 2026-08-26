@@ -19,6 +19,7 @@
     <button class="tab" data-tab="chart">本命盤</button>
     <button class="tab" data-tab="records">記錄</button>
     <button class="tab" data-tab="trends">趨勢分析</button>
+    <button class="tab" data-tab="ai-chat">AI 問答</button>
     <button class="tab" data-tab="settings">設定</button>
   </nav>
 </header>
@@ -128,6 +129,22 @@
   <div id="trends-content"></div>
 </section>
 
+<!-- ===== AI 問答 ===== -->
+<section id="tab-ai-chat" class="tab-panel">
+  <div class="card">
+    <h2>AI 問答 <span class="hint">根據你的八字紫微本命盤與今日流運回答</span></h2>
+    <div id="chat-need-profile" class="notice" hidden>請先到「設定」填寫出生資料，才能開始問答。</div>
+    <div id="chat-body" hidden>
+      <div id="chat-log" class="chat-log"></div>
+      <form id="chat-form" class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="問問今天適合做什麼、感情、事業…" autocomplete="off">
+        <button type="submit" class="btn-primary">送出</button>
+      </form>
+      <p id="chat-status" class="hint"></p>
+    </div>
+  </div>
+</section>
+
 <!-- ===== 設定 ===== -->
 <section id="tab-settings" class="tab-panel">
   <div class="card">
@@ -234,6 +251,7 @@ Promise.all([
   .then(() => loadScript(['js/store.js']))
   .then(() => loadScript(['js/sync.js']))
   .then(() => loadScript(['js/ai.js']))
+  .then(() => loadScript(['js/chat.js']))
   .then(() => loadScript(['js/charts.js']))
   .then(() => loadScript(['js/app.js']))
   .catch(err => {

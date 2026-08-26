@@ -65,6 +65,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 18px 16px 60px; }
 .empty-hint { color: var(--muted); padding: 24px 8px; text-align: center; }
 .reading-text { font-size: 0.98rem; line-height: 1.75; color: var(--ink); }
 .reading-text.loading { color: var(--muted); }
+
+.chat-log { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding: 4px 2px 12px; margin-bottom: 10px; }
+.chat-msg { max-width: 82%; padding: 8px 13px; border-radius: 12px; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; }
+.chat-msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 3px; }
+.chat-msg.assistant { align-self: flex-start; background: var(--page); border: 1px solid var(--grid); border-bottom-left-radius: 3px; }
+.chat-msg.assistant.pending { color: var(--muted); }
+.chat-input-row { display: flex; gap: 8px; }
+.chat-input-row input { flex: 1; padding: 8px 12px; border: 1px solid var(--grid); border-radius: 8px; font-size: 0.95rem; }
 .toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0; font-size: 0.9rem; }
 .toolbar input[type="date"], .toolbar select { margin-left: 4px; }
 
