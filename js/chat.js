@@ -7,7 +7,7 @@ const Chat = (() => {
   'use strict';
 
   /* 跟 js/ai.js 同一個 Worker，路徑是 /chat；部署步驟見 ai-relay/README.md。 */
-  const RELAY_URL = '';
+  const RELAY_URL = 'https://ziwei-bazi-ai-relay.kurtchiang.workers.dev/chat';
 
   function configured() { return !!RELAY_URL; }
 
