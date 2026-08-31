@@ -16,6 +16,11 @@ const Sync = (() => {
   const OAUTH_CLIENT_ID = 'Ov23liAxeW22ndK8q7iA';
   const OAUTH_RELAY_URL = 'https://ziwei-bazi-oauth-relay.kurtchiang.workers.dev/token';
   const OAUTH_STATE_KEY = 'zwbz.oauth.state';
+  /* GitHub OAuth App 只登記了這一個 callback URL。子頁面（如 shanshan/）登入時一律先
+     導回這裡完成換 token，再用下面的 OAUTH_RETURN_PATH_KEY 導回原本的頁面 —— 這樣
+     新增任何客製化入口頁都不用再回頭改 GitHub OAuth App 設定。 */
+  const OAUTH_REDIRECT_URI = 'https://lwbroo.github.io/lwbro_trend/';
+  const OAUTH_RETURN_PATH_KEY = 'zwbz.oauth.return-path';
 
   let pushTimer = null;
   const listeners = [];
@@ -151,10 +156,15 @@ const Sync = (() => {
   function loginWithGitHub() {
     const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
     sessionStorage.setItem(OAUTH_STATE_KEY, state);
-    const redirectUri = location.origin + location.pathname;
+    const currentPath = location.pathname + location.hash;
+    if (currentPath === new URL(OAUTH_REDIRECT_URI).pathname) {
+      sessionStorage.removeItem(OAUTH_RETURN_PATH_KEY);
+    } else {
+      sessionStorage.setItem(OAUTH_RETURN_PATH_KEY, currentPath);
+    }
     const authUrl = 'https://github.com/login/oauth/authorize?' + new URLSearchParams({
       client_id: OAUTH_CLIENT_ID,
-      redirect_uri: redirectUri,
+      redirect_uri: OAUTH_REDIRECT_URI,
       scope: 'gist',
       state
     });
@@ -184,6 +194,12 @@ const Sync = (() => {
       const data = await res.json();
       if (!res.ok || !data.access_token) throw new Error(data.error || ('HTTP ' + res.status));
       await connect(data.access_token);
+      const returnPath = sessionStorage.getItem(OAUTH_RETURN_PATH_KEY);
+      sessionStorage.removeItem(OAUTH_RETURN_PATH_KEY);
+      if (returnPath && returnPath !== (location.pathname + location.hash)) {
+        location.href = returnPath; // 導回原本發起登入的頁面（例如 shanshan/）；連線資訊已在 localStorage，到了那頁會直接顯示已連線
+        return false;
+      }
       return true;
     } catch (e) {
       emit('error', 'GitHub 登入失敗：' + e.message);
