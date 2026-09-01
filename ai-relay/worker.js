@@ -1,13 +1,14 @@
 /*
  * AI 個人化功能用的極簡 Cloudflare Worker（跟 oauth-relay 同一種做法）。
  * 前端只送「已經算好的」當日八字／紫微流運資料（無姓名、無完整生日），
- * 這裡呼叫 Claude 生成白話內容再回傳。不落地、不記錄任何請求內容；
- * ANTHROPIC_API_KEY 只存在 Worker 環境變數。
+ * 這裡呼叫 Grok（xAI，OpenAI 相容格式）生成白話內容再回傳。不落地、不記錄
+ * 任何請求內容；GROK_API_KEY 只存在 Worker 環境變數。
  *
  * 路徑：
  *   POST /reading  今日運勢一次性解讀
  *   POST /chat     跟 AI 問答（多輪對話）
  */
+const GROK_MODEL = 'grok-4-fast'; // 如果回傳「model not found」之類錯誤，去 console.x.ai 確認目前可用的模型名稱再換這裡
 const READING_SYSTEM_PROMPT = `你是一位溫和務實的命理老師，根據使用者提供的八字與紫微斗數當日流運資料，
 用白話寫一段今日運勢分析。規則：
 - 150-220 字，寫成連貫段落，不要條列
@@ -47,7 +48,7 @@ async function handleReading(request, env, cors) {
   const summary = buildSummary(payload);
   if (!summary) return json({ error: 'missing data' }, 400, cors);
 
-  const data = await callClaude(env, READING_SYSTEM_PROMPT, [{ role: 'user', content: summary }], 400);
+  const data = await callGrok(env, READING_SYSTEM_PROMPT, [{ role: 'user', content: summary }], 400);
   if (data.error) return json({ error: data.error }, data.status, cors);
   return json({ reading: data.text }, 200, cors);
 }
@@ -67,29 +68,27 @@ async function handleChat(request, env, cors) {
   const summary = buildSummary(payload.context || {});
   const system = CHAT_SYSTEM_PROMPT + (summary ? ('\n\n使用者的命盤與今日流運資料：\n' + summary) : '');
 
-  const data = await callClaude(env, system, history, 400);
+  const data = await callGrok(env, system, history, 400);
   if (data.error) return json({ error: data.error }, data.status, cors);
   return json({ reply: data.text }, 200, cors);
 }
 
-async function callClaude(env, system, messages, maxTokens) {
-  const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+async function callGrok(env, system, messages, maxTokens) {
+  const aiRes = await fetch('https://api.x.ai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': env.ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01'
+      'Authorization': 'Bearer ' + env.GROK_API_KEY
     },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
+      model: GROK_MODEL,
       max_tokens: maxTokens,
-      system,
-      messages
+      messages: [{ role: 'system', content: system }, ...messages]
     })
   });
   const data = await aiRes.json();
-  if (!aiRes.ok) return { error: (data.error && data.error.message) || 'AI 服務錯誤', status: 502 };
-  const text = (data.content && data.content[0] && data.content[0].text) || '';
+  if (!aiRes.ok) return { error: (data.error && (data.error.message || data.error)) || 'AI 服務錯誤', status: 502 };
+  const text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
   if (!text) return { error: '未取得回應內容', status: 502 };
   return { text: text.trim() };
 }
