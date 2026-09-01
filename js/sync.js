@@ -21,6 +21,10 @@ const Sync = (() => {
      新增任何客製化入口頁都不用再回頭改 GitHub OAuth App 設定。 */
   const OAUTH_REDIRECT_URI = 'https://lwbroo.github.io/lwbro_trend/';
   const OAUTH_RETURN_PATH_KEY = 'zwbz.oauth.return-path';
+  /* 換到的 token 先暫放這裡，等導回原本發起登入的頁面、以那頁自己的 window.ZWBZ_NAMESPACE
+     為準呼叫 connect()，才會存進那個客製化頁面自己的（namespaced）localStorage，
+     不會誤存成根頁的資料。 */
+  const OAUTH_PENDING_TOKEN_KEY = 'zwbz.oauth.pending-token';
 
   let pushTimer = null;
   const listeners = [];
@@ -171,8 +175,24 @@ const Sync = (() => {
     location.href = authUrl;
   }
 
-  /** 啟動時呼叫：若網址帶有 GitHub 導回的 ?code=&state=，用 relay 換成 token 並自動連線 */
+  /** 啟動時呼叫：處理 GitHub OAuth 登入的兩種情境 */
   async function handleOAuthCallback() {
+    // 情境一：帶著上一頁（根頁）已經換好、暫放的 token，導回這頁後在這頁自己的
+    // namespace 下完成連線（不是根頁的 namespace）。
+    const pendingToken = sessionStorage.getItem(OAUTH_PENDING_TOKEN_KEY);
+    if (pendingToken) {
+      sessionStorage.removeItem(OAUTH_PENDING_TOKEN_KEY);
+      emit('busy', '登入中…');
+      try {
+        await connect(pendingToken);
+        return true;
+      } catch (e) {
+        emit('error', 'GitHub 登入失敗：' + e.message);
+        return false;
+      }
+    }
+
+    // 情境二：網址帶著 GitHub 導回的 ?code=&state=（一定落在根頁，因為 redirect_uri 固定）
     const params = new URLSearchParams(location.search);
     const code = params.get('code');
     const returnedState = params.get('state');
@@ -193,13 +213,16 @@ const Sync = (() => {
       });
       const data = await res.json();
       if (!res.ok || !data.access_token) throw new Error(data.error || ('HTTP ' + res.status));
-      await connect(data.access_token);
+
       const returnPath = sessionStorage.getItem(OAUTH_RETURN_PATH_KEY);
       sessionStorage.removeItem(OAUTH_RETURN_PATH_KEY);
       if (returnPath && returnPath !== (location.pathname + location.hash)) {
-        location.href = returnPath; // 導回原本發起登入的頁面（例如 shanshan/）；連線資訊已在 localStorage，到了那頁會直接顯示已連線
+        // 先把 token 暫放，導回原本發起登入的頁面後，由那頁自己完成 connect()
+        sessionStorage.setItem(OAUTH_PENDING_TOKEN_KEY, data.access_token);
+        location.href = returnPath;
         return false;
       }
+      await connect(data.access_token);
       return true;
     } catch (e) {
       emit('error', 'GitHub 登入失敗：' + e.message);

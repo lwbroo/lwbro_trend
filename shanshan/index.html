@@ -230,6 +230,9 @@
 </main>
 
 <script>
+/* 這頁專屬的資料命名空間：讓出生資料/記錄/雲端連線都存進獨立的 localStorage 鍵，
+   跟主站（或其他客製化頁面）即使在同一個瀏覽器開也不會共用到彼此的資料。 */
+window.ZWBZ_NAMESPACE = 'shanshan';
 /* 依序嘗試多個來源載入 script（本地 vendor 優先，失敗時改用鎖定版本的 CDN） */
 function loadScript(candidates) {
   return candidates.reduce(

@@ -8,7 +8,8 @@ const AiReading = (() => {
 
   /* 部署步驟見 ai-relay/README.md，設定前留空即可，UI 會自動不顯示 AI 解讀卡片。 */
   const RELAY_URL = 'https://ziwei-bazi-ai-relay.kurtchiang.workers.dev/reading';
-  const CACHE_KEY = 'zwbz.ai-reading-cache';
+  const NS = (typeof window !== 'undefined' && window.ZWBZ_NAMESPACE) ? '.' + window.ZWBZ_NAMESPACE : '';
+  const CACHE_KEY = 'zwbz.ai-reading-cache' + NS;
 
   function configured() { return !!RELAY_URL; }
 

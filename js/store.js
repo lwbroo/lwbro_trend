@@ -6,9 +6,13 @@
 const Store = (() => {
   'use strict';
 
-  const PROFILE_KEY = 'zwbz.profile';
-  const RECORDS_KEY = 'zwbz.records';
-  const SYNC_KEY = 'zwbz.sync';
+  /* 客製化入口頁（如 shanshan/）在載入這個檔案前，會先設定 window.ZWBZ_NAMESPACE，
+     讓資料存進不同的 localStorage 鍵，即使跟主站在同一個瀏覽器開也不會共用到彼此的
+     出生資料/記錄/雲端連線設定（localStorage 是以 origin 為單位，不分路徑）。 */
+  const NS = (typeof window !== 'undefined' && window.ZWBZ_NAMESPACE) ? '.' + window.ZWBZ_NAMESPACE : '';
+  const PROFILE_KEY = 'zwbz.profile' + NS;
+  const RECORDS_KEY = 'zwbz.records' + NS;
+  const SYNC_KEY = 'zwbz.sync' + NS;
 
   /* ---------- profile ---------- */
   function getProfile() {
