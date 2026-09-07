@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jamie 紫微八字 · 個人趨勢</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%232a78d6'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23fff'%3E紫%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <h1>Jamie 紫微八字 <span class="sub">個人趨勢資料庫</span></h1>
+    <div id="profile-chip" class="profile-chip"></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="today">今日流運</button>
+    <button class="tab" data-tab="chart">本命盤</button>
+    <button class="tab" data-tab="records">記錄</button>
+    <button class="tab" data-tab="trends">趨勢分析</button>
+    <button class="tab" data-tab="ai-chat">AI 問答</button>
+    <button class="tab" data-tab="settings">設定</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ===== 今日流運 + 每日記錄 ===== -->
+<section id="tab-today" class="tab-panel active">
+  <div class="toolbar">
+    <label>日期 <input type="date" id="today-date"></label>
+    <button id="btn-goto-today" class="btn-ghost">回到今天</button>
+  </div>
+  <div id="today-need-profile" class="notice" hidden>
+    請先到「設定」輸入出生資料，才能排盤與比對流運。
+  </div>
+  <div id="today-content" class="grid-2col"></div>
+
+  <div class="card" id="checkin-card">
+    <h2>當日狀態記錄</h2>
+    <form id="checkin-form">
+      <div class="field-row">
+        <span class="field-label">心情</span>
+        <div class="rating" id="mood-rating" data-name="mood">
+          <label><input type="radio" name="mood" value="1"><span>😞<i>1</i></span></label>
+          <label><input type="radio" name="mood" value="2"><span>😕<i>2</i></span></label>
+          <label><input type="radio" name="mood" value="3"><span>😐<i>3</i></span></label>
+          <label><input type="radio" name="mood" value="4"><span>🙂<i>4</i></span></label>
+          <label><input type="radio" name="mood" value="5"><span>😄<i>5</i></span></label>
+        </div>
+      </div>
+      <div class="field-row">
+        <span class="field-label">精力</span>
+        <div class="rating" id="energy-rating" data-name="energy">
+          <label><input type="radio" name="energy" value="1"><span>🪫<i>1</i></span></label>
+          <label><input type="radio" name="energy" value="2"><span>😴<i>2</i></span></label>
+          <label><input type="radio" name="energy" value="3"><span>🙂<i>3</i></span></label>
+          <label><input type="radio" name="energy" value="4"><span>💪<i>4</i></span></label>
+          <label><input type="radio" name="energy" value="5"><span>⚡<i>5</i></span></label>
+        </div>
+      </div>
+      <div class="field-row">
+        <span class="field-label">狀態標籤</span>
+        <div id="tag-chips" class="tag-chips"></div>
+      </div>
+      <div class="field-row">
+        <span class="field-label">自訂標籤</span>
+        <input type="text" id="custom-tag" placeholder="輸入後按 Enter 加入" maxlength="12">
+      </div>
+      <div class="field-row">
+        <span class="field-label">筆記</span>
+        <textarea id="note" rows="2" placeholder="今天發生了什麼？（選填）"></textarea>
+      </div>
+      <div class="field-row">
+        <button type="submit" class="btn-primary">儲存記錄</button>
+        <span id="checkin-status" class="save-status"></span>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ===== 本命盤 ===== -->
+<section id="tab-chart" class="tab-panel">
+  <div id="chart-need-profile" class="notice" hidden>
+    請先到「設定」輸入出生資料。
+  </div>
+  <div id="ziwei-board-wrap">
+    <h2>紫微斗數本命盤 <span class="hint">（標記：本日的流年／流月／流日命宮與四化）</span></h2>
+    <div id="ziwei-board" class="ziwei-board"></div>
+  </div>
+  <div class="card" id="bazi-card">
+    <h2>八字命盤</h2>
+    <div id="bazi-table"></div>
+    <h3>五行分佈</h3>
+    <div id="wuxing-dist"></div>
+  </div>
+</section>
+
+<!-- ===== 記錄 ===== -->
+<section id="tab-records" class="tab-panel">
+  <div class="toolbar">
+    <button id="btn-export-json" class="btn-ghost">匯出 JSON</button>
+    <button id="btn-export-csv" class="btn-ghost">匯出 CSV</button>
+    <label class="btn-ghost file-label">匯入 JSON<input type="file" id="import-file" accept=".json" hidden></label>
+    <span id="records-io-status" class="save-status"></span>
+  </div>
+  <div id="records-list"></div>
+</section>
+
+<!-- ===== 趨勢分析 ===== -->
+<section id="tab-trends" class="tab-panel">
+  <div class="toolbar">
+    <label>期間
+      <select id="trend-range">
+        <option value="30">近 30 天</option>
+        <option value="90">近 90 天</option>
+        <option value="365">近一年</option>
+        <option value="all" selected>全部</option>
+      </select>
+    </label>
+    <label>指標
+      <select id="trend-metric">
+        <option value="mood" selected>心情</option>
+        <option value="energy">精力</option>
+      </select>
+    </label>
+  </div>
+  <div id="trends-content"></div>
+</section>
+
+<!-- ===== AI 問答 ===== -->
+<section id="tab-ai-chat" class="tab-panel">
+  <div class="card">
+    <h2>AI 問答 <span class="hint">根據你的八字紫微本命盤與今日流運回答</span></h2>
+    <div id="chat-need-profile" class="notice" hidden>請先到「設定」填寫出生資料，才能開始問答。</div>
+    <div id="chat-body" hidden>
+      <div id="chat-log" class="chat-log"></div>
+      <form id="chat-form" class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="問問今天適合做什麼、感情、事業…" autocomplete="off">
+        <button type="submit" class="btn-primary">送出</button>
+      </form>
+      <p id="chat-status" class="hint"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 設定 ===== -->
+<section id="tab-settings" class="tab-panel">
+  <div class="card">
+    <h2>出生資料</h2>
+    <form id="profile-form">
+      <div class="field-row">
+        <span class="field-label">姓名</span>
+        <input type="text" id="p-name" placeholder="（選填）" maxlength="20">
+      </div>
+      <div class="field-row">
+        <span class="field-label">出生日期</span>
+        <input type="date" id="p-date" required>
+        <span class="hint">（國曆／西元）</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">出生時間</span>
+        <input type="time" id="p-time" required>
+        <span class="hint">（當地時間，影響時柱與紫微命宮）</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">性別</span>
+        <label class="inline"><input type="radio" name="p-gender" value="男"> 男</label>
+        <label class="inline"><input type="radio" name="p-gender" value="女"> 女</label>
+      </div>
+      <div class="field-row">
+        <button type="submit" class="btn-primary">儲存並排盤</button>
+        <span id="profile-status" class="save-status"></span>
+      </div>
+    </form>
+  </div>
+  <div class="card">
+    <h2>雲端同步 <span class="hint">（GitHub Gist，選用）</span></h2>
+    <div id="sync-disconnected">
+      <p class="hint">
+        開啟後，資料會同步存到<b>你自己 GitHub 帳號的私密 Gist</b>，家裡、辦公室、手機都能同步使用；不經過任何第三方伺服器。
+      </p>
+      <div class="field-row">
+        <button type="button" id="btn-sync-github-login" class="btn-primary" hidden>使用 GitHub 登入</button>
+      </div>
+      <details id="sync-token-details">
+        <summary class="hint" style="cursor:pointer;">進階：改用 Personal Access Token 連線</summary>
+        <p class="hint">
+          到 GitHub 建立一個 <a href="https://github.com/settings/tokens/new?scopes=gist&description=ziwei-bazi-trend" target="_blank" rel="noopener">Personal Access Token</a>（只勾 <code>gist</code> 權限即可）→ 貼到下面 → 連線。
+        </p>
+        <div class="field-row">
+          <span class="field-label">Token</span>
+          <input type="password" id="sync-token" placeholder="ghp_… 或 github_pat_…" autocomplete="off">
+          <button type="button" id="btn-sync-connect" class="btn-primary">連線雲端</button>
+        </div>
+      </details>
+    </div>
+    <div id="sync-connected" hidden>
+      <p id="sync-info" class="hint"></p>
+      <div class="toolbar">
+        <button type="button" id="btn-sync-link" class="btn-primary">複製同步連結</button>
+        <button type="button" id="btn-sync-now" class="btn-ghost">立即同步</button>
+        <button type="button" id="btn-sync-disconnect" class="btn-danger">中斷連線</button>
+      </div>
+      <p class="hint">「同步連結」＝在其他裝置<b>免輸入 Token</b> 的一鍵連線網址：存到書籤或用通訊軟體傳給自己，
+      新裝置（含手機）打開這條連結就自動連上同一份雲端資料。<b>此連結等同你的資料鑰匙，請勿分享給別人。</b></p>
+      <p id="sync-link-out" class="hint" style="word-break:break-all;"></p>
+    </div>
+    <p id="sync-status" class="save-status"></p>
+  </div>
+  <div class="card">
+    <h2>資料管理</h2>
+    <p class="hint">未開啟雲端同步時，所有資料只儲存在你的瀏覽器（localStorage）。換裝置或清瀏覽器資料前，請先匯出 JSON 備份或開啟雲端同步。</p>
+    <div class="toolbar">
+      <button id="btn-settings-export" class="btn-ghost">匯出全部資料（JSON）</button>
+      <button id="btn-clear-all" class="btn-danger">清除全部資料</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>關於</h2>
+    <p class="hint">
+      排盤引擎：<a href="https://github.com/6tail/lunar-javascript" target="_blank" rel="noopener">lunar-javascript</a>（八字／農曆／節氣）、
+      <a href="https://github.com/SylarLong/iztro" target="_blank" rel="noopener">iztro</a>(紫微斗數／流年流月流日四化)，皆為 MIT 授權。<br>
+      流日以立春換年、節氣換月；紫微流運四化依 iztro 預設（中州派）安星規則。命理內容僅供自我觀察參考。<br>
+      <a href="../privacy.html">隱私權政策</a>
+    </p>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* 這頁專屬的資料命名空間：讓出生資料/記錄/雲端連線都存進獨立的 localStorage 鍵，
+   跟主站（或其他客製化頁面）即使在同一個瀏覽器開也不會共用到彼此的資料。 */
+window.ZWBZ_NAMESPACE = 'jamie';
+/* 依序嘗試多個來源載入 script（本地 vendor 優先，失敗時改用鎖定版本的 CDN） */
+function loadScript(candidates) {
+  return candidates.reduce(
+    (p, src) => p.catch(() => new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => { s.remove(); reject(new Error('載入失敗：' + src)); };
+      document.head.appendChild(s);
+    })),
+    Promise.reject()
+  );
+}
+Promise.all([
+  loadScript(['../vendor/lunar.js', 'https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js', 'https://unpkg.com/lunar-javascript@1.7.7/lunar.js']),
+  loadScript(['../vendor/iztro.min.js', 'https://cdn.jsdelivr.net/npm/iztro@2.5.8/dist/iztro.min.js', 'https://unpkg.com/iztro@2.5.8/dist/iztro.min.js'])
+])
+  .then(() => loadScript(['../js/engine.js']))
+  .then(() => loadScript(['../js/store.js']))
+  .then(() => loadScript(['../js/sync.js']))
+  .then(() => loadScript(['../js/ai.js']))
+  .then(() => loadScript(['../js/chat.js']))
+  .then(() => loadScript(['../js/charts.js']))
+  .then(() => loadScript(['../js/app.js']))
+  .catch(err => {
+    console.error(err);
+    document.querySelector('main').insertAdjacentHTML('afterbegin',
+      '<div class="notice">無法載入排盤引擎。請確認網路連線，或依 vendor/README.md 說明下載離線函式庫後重新整理。</div>');
+  });
+</script>
+</body>
+</html>
