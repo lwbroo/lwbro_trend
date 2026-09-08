@@ -4,3 +4,7 @@ compatibility_date = "2024-11-01"
 
 [vars]
 ALLOWED_ORIGIN = "https://lwbroo.github.io"
+
+# 用量上限（USAGE_KV）需要另外建立 KV namespace 才會生效，設定步驟見 README.md。
+# 故意不先放 [[kv_namespaces]] 區塊在這裡——填錯或忘記換成真的 id 會讓下次
+# deploy 直接失敗，等你實際建立好 namespace 那一刻再照 README 加上這段。

@@ -15,7 +15,7 @@ const Chat = (() => {
     const res = await fetch(RELAY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ history, context })
+      body: JSON.stringify({ clientId: AiReading.getClientId(), history, context })
     });
     const data = await res.json();
     if (!res.ok || !data.reply) throw new Error(data.error || ('HTTP ' + res.status));

@@ -10,8 +10,21 @@ const AiReading = (() => {
   const RELAY_URL = 'https://ziwei-bazi-ai-relay.kurtchiang.workers.dev/reading';
   const NS = (typeof window !== 'undefined' && window.ZWBZ_NAMESPACE) ? '.' + window.ZWBZ_NAMESPACE : '';
   const CACHE_KEY = 'zwbz.ai-reading-cache' + NS;
+  const CLIENT_ID_KEY = 'zwbz.client-id' + NS;
 
   function configured() { return !!RELAY_URL; }
+
+  /** 這台裝置（這個入口頁）的隨機識別碼，只用來讓 Worker 端做每日用量限制，不含任何個資。 */
+  function getClientId() {
+    try {
+      let id = localStorage.getItem(CLIENT_ID_KEY);
+      if (!id) {
+        id = 'c_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem(CLIENT_ID_KEY, id);
+      }
+      return id;
+    } catch (e) { return 'anon'; }
+  }
 
   function cacheKey(profile, dateStr) {
     return [profile.birthDate, profile.birthTime, profile.gender, dateStr].join('|');
@@ -38,6 +51,7 @@ const AiReading = (() => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        clientId: getClientId(),
         dayMaster: natal.dayMaster,
         shengXiao: natal.shengXiao,
         bazi: { year: info.bazi.year, month: info.bazi.month, day: info.bazi.day },
@@ -51,5 +65,5 @@ const AiReading = (() => {
     return data.reading;
   }
 
-  return { configured, peekCache, getReading };
+  return { configured, peekCache, getReading, getClientId };
 })();

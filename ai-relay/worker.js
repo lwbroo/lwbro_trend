@@ -9,6 +9,14 @@
  *   POST /chat     跟 AI 問答（多輪對話）
  */
 const GROK_MODEL = 'grok-4-fast'; // 如果回傳「model not found」之類錯誤，去 console.x.ai 確認目前可用的模型名稱再換這裡
+
+/* 用量上限（防止單一使用者或單一網路來源刷爆 API 額度）。
+   身分用前端隨機產生、存在 localStorage 的 clientId 辨識，不是真的帳號系統，
+   擋不住刻意繞過的人，但足夠擋住「不小心/正常使用」造成的失控用量。
+   USAGE_KV 沒設定（還沒建立 KV namespace）時會自動略過限制，不影響既有功能。 */
+const MAX_READING_PER_DAY_PER_CLIENT = 5;
+const MAX_CHAT_PER_DAY_PER_CLIENT = 30;
+const MAX_PER_DAY_PER_IP = 100; // 同一個網路來源（含所有 client）當日兩個功能加總上限
 const READING_SYSTEM_PROMPT = `你是一位溫和務實的命理老師，根據使用者提供的八字與紫微斗數當日流運資料，
 用白話寫一段今日運勢分析。規則：
 - 150-220 字，寫成連貫段落，不要條列
@@ -45,6 +53,10 @@ async function handleReading(request, env, cors) {
   let payload;
   try { payload = await request.json(); } catch (e) { return json({ error: 'invalid json' }, 400, cors); }
 
+  const limitError = await checkUsageLimit(request, env, 'reading', payload.clientId, MAX_READING_PER_DAY_PER_CLIENT,
+    '今天的「今日運勢」使用次數已達上限，明天再試。');
+  if (limitError) return json({ error: limitError }, 429, cors);
+
   const summary = buildSummary(payload);
   if (!summary) return json({ error: 'missing data' }, 400, cors);
 
@@ -56,6 +68,10 @@ async function handleReading(request, env, cors) {
 async function handleChat(request, env, cors) {
   let payload;
   try { payload = await request.json(); } catch (e) { return json({ error: 'invalid json' }, 400, cors); }
+
+  const limitError = await checkUsageLimit(request, env, 'chat', payload.clientId, MAX_CHAT_PER_DAY_PER_CLIENT,
+    '今天的「AI 問答」使用次數已達上限，明天再試。');
+  if (limitError) return json({ error: limitError }, 429, cors);
 
   const history = Array.isArray(payload.history)
     ? payload.history
@@ -71,6 +87,31 @@ async function handleChat(request, env, cors) {
   const data = await callGrok(env, system, history, 400);
   if (data.error) return json({ error: data.error }, data.status, cors);
   return json({ reply: data.text }, 200, cors);
+}
+
+/** 回傳 null 代表放行；回傳字串代表被擋下、附上要顯示給使用者的訊息 */
+async function checkUsageLimit(request, env, feature, clientId, maxPerClient, clientLimitMessage) {
+  if (!env.USAGE_KV) return null; // KV 還沒設定時直接放行，不影響既有功能
+
+  const day = new Date().toISOString().slice(0, 10);
+  const id = (typeof clientId === 'string' && clientId) ? clientId.slice(0, 100) : 'anon';
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+
+  const clientOk = await bumpCounter(env.USAGE_KV, `u:${feature}:${id}:${day}`, maxPerClient);
+  if (!clientOk) return clientLimitMessage;
+
+  const ipOk = await bumpCounter(env.USAGE_KV, `u:ip:${ip}:${day}`, MAX_PER_DAY_PER_IP);
+  if (!ipOk) return '這個網路來源今天的使用量已達上限，請稍後再試。';
+
+  return null;
+}
+
+async function bumpCounter(kv, key, max) {
+  const raw = await kv.get(key);
+  const count = raw ? parseInt(raw, 10) : 0;
+  if (count >= max) return false;
+  await kv.put(key, String(count + 1), { expirationTtl: 172800 }); // 48 小時，涵蓋時區誤差後自動清掉
+  return true;
 }
 
 async function callGrok(env, system, messages, maxTokens) {
