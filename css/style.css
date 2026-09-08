@@ -133,6 +133,9 @@ table.info-table, table.bazi-table, table.records-table { border-collapse: colla
   border-bottom: 1px solid var(--grid); padding: 6px 10px; text-align: left; vertical-align: top;
 }
 .info-table thead th, .bazi-table thead th, .records-table thead th { color: var(--muted); font-weight: 500; font-size: 0.8rem; }
+/* 記錄表格欄位較多，窄螢幕會被壓到中文字逐字換行，改成橫向捲動（跟本命盤格同一種做法） */
+#records-list { overflow-x: auto; }
+table.records-table { min-width: 620px; }
 .info-table tbody th, .bazi-table tbody th { color: var(--ink-2); font-weight: 600; white-space: nowrap; }
 .gz { font-size: 1.05rem; font-weight: 600; letter-spacing: 1px; }
 .bazi-table tr.big td { font-size: 1.3rem; font-weight: 700; }
