@@ -1,0 +1,20 @@
+{
+  "name": "ziweibazi",
+  "version": "1.0.0",
+  "description": "紫微八字 — 用你的出生資料排出八字紫微本命盤，每日流運 AI 個人化解讀、AI 問答、心情記錄與趨勢分析。",
+  "private": true,
+  "scripts": {
+    "build:www": "rm -rf www && mkdir -p www && cp -r index.html privacy.html css js vendor www/",
+    "sync": "npm run build:www && npx cap sync"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/ios": "^8.4.1"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5"
+  }
+}

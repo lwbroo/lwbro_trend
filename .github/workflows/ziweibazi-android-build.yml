@@ -1,0 +1,47 @@
+name: 紫微八字 Android debug build
+
+# 驗證 Capacitor Android 專案真的能組出 APK。Debug build 用自動產生的
+# debug keystore 簽章，不需要 Play Console 帳號、不需要 upload key、
+# 不需要任何 secrets，只證明 Android 專案真的組得起來。
+#
+# Release/AAB 簽章跟 Play Console 上傳刻意不在這個 workflow 範圍內，
+# 那部分需要真的帳號/憑證，見 store-listing/listing-copy.md。
+#
+# 故意只用 workflow_dispatch 手動觸發，理由同 ziweibazi-ios-build.yml。
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Capacitor 8 的 Android Gradle Plugin 需要 JDK 21。
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build web assets + sync native project
+        run: npm run sync
+
+      - name: Assemble debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ziweibazi-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

@@ -1,3 +1,7 @@
 # 離線用排盤函式庫（見 vendor/README.md，未下載時自動改用 CDN）
 vendor/*.js
 node_modules/
+
+# Capacitor：由 `npm run build:www` 產生，鏡射 index.html/css/js/vendor 給
+# native app 用，不是 source of truth，native build 前用 `npm run sync` 重新產生。
+www/

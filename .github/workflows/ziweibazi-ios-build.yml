@@ -1,0 +1,65 @@
+name: 紫微八字 iOS simulator build
+
+# 驗證 Capacitor iOS 專案真的能編譯，用 GitHub 的 macOS runner（內建完整
+# Xcode，這個 repo 的開發過程都沒有本機 macOS 環境）。只 build 給 iOS
+# Simulator，不需要簽章、不需要 Apple Developer 帳號、不需要 Apple ID，
+# 手動觸發即可執行，零帳號設定。
+#
+# 這只是「build 得起來、開得起來」的 smoke test，不是上架流程——不會
+# archive、簽章或上傳到任何地方。實際 TestFlight/App Store 送審需要
+# 真的 Apple Developer 帳號，見 store-listing/listing-copy.md。
+#
+# 故意只用 workflow_dispatch 手動觸發，不掛 push——這個 repo 目前
+# index.html/css/js 幾乎每次 commit 都會動到，掛自動觸發會太頻繁佔用
+# macOS runner 分鐘數。穩定下來後可以自行加回 push 觸發。
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build web assets + sync native project
+        run: npm run sync
+
+      - name: Resolve Swift Package dependencies
+        run: xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
+
+      - name: Build for iOS Simulator (no signing required)
+        run: |
+          xcodebuild build \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Boot a simulator and install the app
+        run: |
+          set -e
+          DEVICE_ID=$(xcrun simctl list devices available | grep -m1 "iPhone" | grep -oE '[0-9A-F-]{36}')
+          echo "Using simulator: $DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "App.app" -path "*iphonesimulator*" | head -1)
+          echo "App path: $APP_PATH"
+          xcrun simctl install "$DEVICE_ID" "$APP_PATH"
+          xcrun simctl launch "$DEVICE_ID" com.lwbroo.ziweibazi
+          sleep 5
+          mkdir -p screenshots
+          xcrun simctl io "$DEVICE_ID" screenshot screenshots/ios-boot.png
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ziweibazi-ios-simulator-screenshot
+          path: screenshots/ios-boot.png
