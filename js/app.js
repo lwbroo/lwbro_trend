@@ -5,6 +5,26 @@
 (() => {
   'use strict';
 
+  /* ================= 全域錯誤回報 ================= */
+  /* 最多回報 5 個，避免一個迴圈型錯誤瞬間灌爆 log。只送技術資訊，見 ai.js 的 reportError()。 */
+  let errorReportCount = 0;
+  function reportErrorOnce(info) {
+    if (errorReportCount >= 5) return;
+    errorReportCount++;
+    if (typeof AiReading !== 'undefined') AiReading.reportError(info);
+  }
+  window.addEventListener('error', ev => {
+    reportErrorOnce({ message: ev.message, source: ev.filename, line: ev.lineno });
+  });
+  window.addEventListener('unhandledrejection', ev => {
+    const reason = ev.reason;
+    reportErrorOnce({
+      message: '(unhandled promise) ' + (reason && reason.message ? reason.message : String(reason)),
+      source: (reason && reason.stack) ? String(reason.stack).split('\n')[1] || '' : '',
+      line: null
+    });
+  });
+
   const $ = sel => document.querySelector(sel);
   const $$ = sel => [...document.querySelectorAll(sel)];
 

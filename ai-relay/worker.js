@@ -7,6 +7,7 @@
  * 路徑：
  *   POST /reading  今日運勢一次性解讀
  *   POST /chat     跟 AI 問答（多輪對話）
+ *   POST /log      前端全域錯誤回報（純技術診斷用，見 handleLog）
  */
 const GROK_MODEL = 'grok-4-fast'; // 如果回傳「model not found」之類錯誤，去 console.x.ai 確認目前可用的模型名稱再換這裡
 
@@ -45,9 +46,30 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === '/reading') return handleReading(request, env, cors);
     if (url.pathname === '/chat') return handleChat(request, env, cors);
+    if (url.pathname === '/log') return handleLog(request, cors);
     return json({ error: 'not found' }, 404, cors);
   }
 };
+
+/*
+ * 前端全域錯誤回報，用 `wrangler tail` 或 Cloudflare dashboard 的 Logs 分頁即時看。
+ * 只收技術性的錯誤資訊（訊息、檔名、行號、哪個入口頁），不收使用者輸入的任何內容，
+ * 不落地、不存 KV，純粹印到 Worker 的即時 log。
+ */
+async function handleLog(request, cors) {
+  let payload;
+  try { payload = await request.json(); } catch (e) { return json({ ok: true }, 200, cors); } // 記錄本身失敗也不該讓前端出錯，靜默吞掉
+  const clip = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+  console.error('[client-error]', JSON.stringify({
+    page: clip(payload.page, 40),
+    message: clip(payload.message, 300),
+    source: clip(payload.source, 200),
+    line: Number.isFinite(payload.line) ? payload.line : null,
+    ua: clip(payload.ua, 200),
+    ts: new Date().toISOString()
+  }));
+  return json({ ok: true }, 200, cors);
+}
 
 async function handleReading(request, env, cors) {
   let payload;

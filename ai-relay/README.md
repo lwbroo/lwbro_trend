@@ -75,3 +75,17 @@
 現在用的是 `grok-4-fast`（模型名稱寫在 `worker.js` 開頭的 `GROK_MODEL` 常數，
 如果 xAI 那邊改了型號名稱，改這裡就好），一次解讀在 400 tokens 以內，
 成本很低，加上上面的用量上限後，帳單風險已經有基本的防護。
+
+## 看前端錯誤回報（/log）
+
+不用額外設定，`wrangler deploy` 之後就會生效。要看目前有沒有人的畫面壞掉：
+
+```bash
+cd ai-relay
+npx wrangler tail
+```
+
+保持這個指令開著，App 那邊一有錯誤發生就會即時印出 `[client-error]` 開頭的
+一行 JSON（哪個入口頁、錯誤訊息、檔名行數、瀏覽器版本）。不想一直開著終端機
+盯著看的話，也可以到 Cloudflare dashboard → Workers → `ziwei-bazi-ai-relay`
+→ Logs 分頁查歷史紀錄。

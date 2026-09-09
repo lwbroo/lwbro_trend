@@ -26,6 +26,27 @@ const AiReading = (() => {
     } catch (e) { return 'anon'; }
   }
 
+  /** 前端全域錯誤回報（fire-and-forget，失敗就算了，絕不能因為回報本身又出錯）。
+      只送技術性資訊，不含使用者輸入或個資；沒設定 RELAY_URL 時直接不送。 */
+  function reportError(info) {
+    if (!RELAY_URL) return;
+    try {
+      const logUrl = RELAY_URL.replace(/\/reading$/, '/log');
+      fetch(logUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          page: (typeof window !== 'undefined' && window.ZWBZ_NAMESPACE) || 'main',
+          message: info.message,
+          source: info.source,
+          line: info.line,
+          ua: (typeof navigator !== 'undefined' && navigator.userAgent) || ''
+        }),
+        keepalive: true
+      }).catch(() => {});
+    } catch (e) { /* 回報本身失敗就默默放棄 */ }
+  }
+
   function cacheKey(profile, dateStr) {
     return [profile.birthDate, profile.birthTime, profile.gender, dateStr].join('|');
   }
@@ -65,5 +86,5 @@ const AiReading = (() => {
     return data.reading;
   }
 
-  return { configured, peekCache, getReading, getClientId };
+  return { configured, peekCache, getReading, getClientId, reportError };
 })();
