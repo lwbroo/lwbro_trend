@@ -73,9 +73,11 @@ Apple 目前實際要求的尺寸/張數常常變動，送審當下以 App Store
   那個 binary
 
 ## 10. 送出審核
-App Store Connect 裡選好 build、填完 App Review Information，提交。
+App Store Connect 裡選好 build、填完 App Review Information，Notes 欄位貼
+`app-review-notes.md`（填好裡面的方括號佔位內容後）的內容，提交。
 
-命理類 App 常見的審核提醒：
-- 內容框架成「自我觀察／參考用」，不要用絕對斷言的語氣（App 內文案已經是這樣寫）
-- AI 問答功能如果被問到，可以在 App Review 備註裡簡單說明「AI 根據使用者命盤
-  生成內容，非人工諮詢服務」
+## 參考
+- `listing-copy.md` —— App 名稱、副標題、關鍵字、完整說明、分類文案
+- `app-review-notes.md` —— 貼進 App Review Information → Notes
+- `android-release-runbook.md` —— Android 對應版本，兩邊文案要保持一致時
+  可以互相對照
