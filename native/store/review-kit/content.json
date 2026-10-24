@@ -1,0 +1,379 @@
+{
+  "status": "OFFLINE-FIRST SCOPE APPROVED — release preparation only; no publication or submission",
+  "inspectedReleaseCommit": "d9f96344605e21f826acdd29e2556ecf9669a078",
+  "bundleId": "com.lwbroo.ziweibazi",
+  "version": "1.0",
+  "build": "1",
+  "uiLanguage": "Traditional Chinese",
+  "supportedTarget": "iPhone; iPad screenshots demonstrate iPhone compatibility mode only",
+  "localizations": {
+    "zh-Hant": {
+      "name": "紫微八字",
+      "subtitle": "排盤、心情紀錄與歷史趨勢",
+      "promotionalText": "把傳統排盤與每日狀態放在一起觀察。紀錄心情、精力與筆記，查看自己的歷史趨勢，透過 JSON／CSV 保留備份。此離線版本沒有 AI 服務或雲端同步。",
+      "keywords": "農曆曆法,天干地支,五行觀察,心情日記,精力紀錄,流日曆法,資料備份",
+      "description": "紫微八字把傳統命盤與個人日誌放在同一個地方，讓你回看自己的紀錄與曆法資訊。\n\n• 查看紫微斗數與八字本命盤，以及選定日期的流年、流月、流日資訊。\n• 每天記錄 1–5 分的心情與精力，加上狀態標籤與筆記；可編輯或刪除記錄。\n• 累積至少兩筆記錄後，查看心情與精力走勢，以及依曆法欄位、狀態標籤分組的歷史平均。\n• 累積至少 10 筆包含所選指標的紀錄後，流日預覽提供同類流日歷史平均的統計參考。\n• 在裝置內保存資料，使用 JSON 備份與合併匯入，或透過 iOS 分享面板匯出 JSON／CSV。\n\n此版本提供離線核心功能，沒有 AI 服務、雲端同步或登入帳號。選擇分享目的地時，該 App 或服務可能依自己的政策處理你交付的檔案。\n\n五個核心分頁可切換英文與繁體中文；星曜、宮名、干支等細部傳統命盤術語與 CSV 欄名仍保留中文。出生時間依輸入值計算，未做出生地時區、夏令時間不存在／重複時刻判別或真太陽時校正；國際出生資訊不可直接視為已校正。流日計算以所選日期中午 12:00 為參考。\n\n命理內容屬文化性詮釋；圖表與歷史平均預覽屬個人資料的相關性觀察，沒有經科學驗證的預測效力，也不構成醫療、心理健康或財務建議。\n\n公開品牌：lwbro\n支援信箱：lwbro@me.com",
+      "reviewNotes": "1019c38 候選的五個核心分頁可切換英文／繁中；細部傳統命盤術語與 CSV 欄名仍保留中文，候選原生 UI 尚未驗證。離線首版，無帳號或登入需求。核心曆法與排盤資源均隨 App 提供；沒有 AI 服務、雲端同步、廣告、App 內購買或自動診斷回報。 首版免費下載已由 Kurt 確認；後續商業模式僅作探索，沒有新增購買、廣告或 AI 服務。\n\n測試步驟：設定 → 使用合成資料（2000-01-01、12:00、女；姓名可填示範人物）→ 儲存 → 本命盤。今日流運 → 選定日期 → 記錄心情／精力。建立兩筆以上記錄後可查看趨勢分析；歷史平均預覽需要至少 10 筆相應指標資料。記錄 → 匯出 JSON／CSV 使用 iOS 分享面板；匯入 JSON 使用系統 Files picker，5 MB 上限。JSON 依日期合併，較新的更新時間優先，本機已有出生資料時不覆蓋該資料。\n\n命理內容是文化性詮釋。統計圖呈現使用者日誌的相關性，沒有預測保證；出生地時區、夏令時間不存在／重複時刻判別與真太陽時校正未實作；全球產品目標不代表全球算法已驗證。\n\n本次首版範圍已確定為離線命盤、日誌、趨勢與備份。正式導覽只有今日流運、本命盤、記錄、趨勢分析與設定；沒有 AI、同步、登入或購買入口。AI／OAuth／同步實作與 CDN 備援未打包，網路連線由離線 CSP 阻擋。網頁版未來功能保留在原始碼。\n\n此草稿不能直接送審：公開隱私／支援 URL、私人審查聯絡、App Store Connect 紀錄、distribution 簽名、最終聲明及 iPhone Files／實機驗證仍待完成。先前 9f737e0 開發版安裝與基本啟動成功；1019c38 只有背景檢查及 generic unsigned simulator 編譯通過，尚未完成原生 UI 驗證，不能視為送審包或完整功能驗證。\n\n公開品牌：lwbro\n支援信箱：lwbro@me.com"
+    },
+    "en-US": {
+      "name": "Ziwei Bazi Journal",
+      "subtitle": "Charts, moods and local backup",
+      "promotionalText": "Explore traditional charts, record mood and energy, and keep local backups. Core screens support English and Traditional Chinese; detailed chart terms remain Chinese.",
+      "keywords": "astrology,diary,energy,calendar,fiveelements,natalchart,reflection,offline,notes",
+      "description": "Core screens support English and Traditional Chinese. Detailed traditional chart terms, including star, palace and stem/branch names, remain in Chinese. CSV column headings also remain Chinese.\n\nZiwei Bazi Journal brings traditional Chinese charts and your personal daily notes together for reflection.\n\n• View Ziwei Doushu and Bazi natal charts, plus calendar-based information for a selected date.\n• Record mood and energy on a 1–5 scale, with tags and notes. Edit or delete entries as needed.\n• With at least two entries, view mood and energy history and grouped historical averages.\n• With at least 10 entries containing the selected metric, a day preview compares historical averages from similar calendar groups.\n• Keep data on your device. Export JSON or CSV with the iOS share sheet, and import JSON backups to merge records.\n\nCore features work offline. This version has no AI service, cloud sync, account login, or in-app purchases. A destination you select for sharing may process the file under its own policies.\n\nBirth date and time are used as entered. Birthplace time-zone conversion, DST gap/overlap handling and true-solar-time correction are not implemented. International birth data should not be treated as a corrected chart. Daily calculations use noon on the selected date.\n\nAstrological interpretations are cultural content. Charts and historical-average previews describe associations in your journal; they have no scientifically validated predictive accuracy and do not provide medical, mental-health, or financial advice.\n\nPublic-facing brand: lwbro\nSupport email: lwbro@me.com",
+      "reviewNotes": "Offline first release; no account or login is required. Calendar and chart resources are bundled. No AI service, cloud sync, ads, in-app purchases, or automatic diagnostic reporting is enabled. The 1019c38 candidate supports English and Traditional Chinese core screens using the Language control. Detailed traditional chart terms and CSV column headings remain Chinese; this update has not been installed or verified through native iOS UI. Kurt confirmed free download for the first release. Future business models remain exploratory; no purchases, ads or AI services are activated.\n\nSuggested review flow: Settings (設定) → enter fictitious data (2000-01-01, 12:00, female; optional name: Demo) → Save → Birth chart (本命盤). Daily (今日流運) → choose a date → save mood/energy. Create at least two entries for trend charts; the historical-average preview needs at least 10 entries with the selected metric. Entries (記錄) → export JSON/CSV using the iOS share sheet, or import JSON through the system Files picker (5 MB maximum). Import merges by date, prefers a newer updatedAt value, and retains an existing local birth profile.\n\nInterpretations are cultural content; journal statistics describe associations and do not promise predictive accuracy. Birthplace time-zone conversion, DST gap/overlap handling and true-solar-time correction are not implemented. The global product target is not a verified worldwide calculation capability.\n\nThe first-release scope is approved: offline charts, journal, trends and backups. Navigation contains Daily, Birth chart, Entries, Trends and Settings only. There are no AI, sync, login or purchase entry points. AI/OAuth/sync implementations and CDN fallback are excluded from this native package; the offline CSP blocks connections. Future web implementations remain in source.\n\nDO NOT SUBMIT this draft yet: public privacy/support URLs, private review contact, App Store Connect record, distribution signing, final declarations, and manual iPhone Files/physical checks must be completed. The earlier 9f737e0 development build installed and launched; 1019c38 has background checks and generic unsigned simulator compilation only. Its native UI has not been verified. Neither milestone establishes an upload-ready distribution build or complete functional validation.\n\nPublic-facing brand: lwbro\nSupport email: lwbro@me.com"
+    }
+  },
+  "ownerValues": {
+    "offlineFirstReleaseApproved": true,
+    "privacyPolicyUrl": null,
+    "supportUrl": null,
+    "supportEmail": "lwbro@me.com",
+    "legalOwner": "Kurt Chiang",
+    "copyright": null,
+    "price": "Free download for the first release",
+    "territories": null,
+    "categoryProposal": "Lifestyle",
+    "ageRating": null,
+    "teamAndAppRecordVerified": false,
+    "privacyDeclarationSubmitted": false,
+    "releaseScopeApprovalEvidence": "Kurt: ok, 先完成上線; approved offline-first scope relayed by parent on 2026-10-06",
+    "freeFirstReleaseApproved": true,
+    "businessModelStatus": "Exploratory only; no purchases, ads or AI service activation authorized",
+    "publicOperatorBrand": "lwbro",
+    "appleSellerLegalName": null,
+    "reviewContact": {
+      "name": null,
+      "email": "lwbro@me.com",
+      "phone": null
+    },
+    "policyEffectiveDate": null,
+    "supportMessageRetentionPolicy": null,
+    "supportMessageDeletionProcess": null,
+    "publicContactApprovalEvidence": "Kurt: lwbro , lwbro@me.com; public-facing operator/brand and support email approved on 2026-10-06, relayed by parent. No legal/copyright/reviewer/seller identity inferred.",
+    "developerAppIdVerified": true,
+    "developmentInstallationVerified": true,
+    "appStoreRecordVerified": false,
+    "distributionSigningVerified": false,
+    "productMarketTarget": {
+      "primary": "United States",
+      "reach": "Global",
+      "userConfirmed": true,
+      "actualStorefrontSettingsApprovedOrChanged": false
+    },
+    "distributionCreationAuthorized": true,
+    "copyrightOwnerName": "Kurt Chiang",
+    "ownerFactApprovalEvidence": {
+      "confirmedAtUtc": "2026-10-08T12:25:33Z",
+      "source": "Owner reply relayed by coordinating parent; local review drafts only",
+      "ownerReply": "1 Kurt Chiang\n\n2. lwbro@me.com",
+      "legalPublisherAndCopyrightOwnerName": "Kurt Chiang",
+      "privateAppReviewEmail": "lwbro@me.com",
+      "reviewerNameAndPhoneConfirmed": false,
+      "appleSellerAccountMatchVerified": false,
+      "fullCopyrightTextAndYearConfirmed": false,
+      "supportProcessPolicyURLsAndFinalPrivacyApproved": false
+    }
+  },
+  "dataFlows": [
+    {
+      "feature": "出生資料／排盤 | Birth profile / charts",
+      "data": "姓名（可選）、出生日期、時間、性別；推算命盤",
+      "storage": "App 本機儲存；命盤運算在裝置",
+      "destination": "無開發者傳輸",
+      "control": "設定儲存／清除出生資料；輸入時間直接計算",
+      "source": "js/store.js:13–26; js/engine.js; native/native-runtime.js"
+    },
+    {
+      "feature": "每日記錄 | Daily journal",
+      "data": "日期、心情、精力、標籤、筆記、建立／更新時間",
+      "storage": "App 本機儲存，每日一筆",
+      "destination": "無開發者傳輸",
+      "control": "編輯、刪除單日；清除全部資料",
+      "source": "js/store.js:28–90; js/app.js"
+    },
+    {
+      "feature": "趨勢／流日預覽 | Trends / day preview",
+      "data": "既有記錄與命盤欄位；分組平均、統計樣本數",
+      "storage": "裝置內計算及顯示；沒有額外外部資料庫",
+      "destination": "無外部傳輸",
+      "control": "期間／心情或精力篩選；不足資料顯示提示",
+      "source": "js/app.js (renderTrends / renderForecast); js/charts.js"
+    },
+    {
+      "feature": "JSON 匯出 | JSON export",
+      "data": "完整出生資料、記錄及備份版本／匯出時間",
+      "storage": "專用暫存目錄；完成／取消後與下次啟動清理",
+      "destination": "只交付使用者選擇的 iOS 分享目的地",
+      "control": "分享前自行檢查；可取消；目的地備份須另刪",
+      "source": "js/store.js:109–115; native/ios/App/App/ZiweiViewController.swift"
+    },
+    {
+      "feature": "CSV 匯出 | CSV export",
+      "data": "日誌欄位與推算的流日曆法欄位",
+      "storage": "專用暫存檔",
+      "destination": "使用者選擇的 App／Files／服務",
+      "control": "CSV 供檢視；App 復原使用 JSON",
+      "source": "js/app.js (CSV export handler); js/store.js:141–148"
+    },
+    {
+      "feature": "JSON 匯入 | JSON import",
+      "data": "使用者選定 .json；最多 5 MB；UTF-8",
+      "storage": "只在裝置讀取、先驗證全部、再合併寫入",
+      "destination": "不傳給開發者；不改來源檔",
+      "control": "取消／非法檔不改資料；同日期較新者優先；storage quota 寫入失敗回復原資料",
+      "source": "js/store.js:119–138; native/ios/App/App/ZiweiViewController.swift"
+    },
+    {
+      "feature": "AI／同步／自動診斷 | AI / sync / diagnostics",
+      "data": "沒有服務請求、client ID、OAuth 或同步 token 操作",
+      "storage": "原生包只載入離線介面；不讀取網頁服務快取／憑證",
+      "destination": "無開發者或 AI／GitHub 服務傳輸",
+      "control": "AI／同步入口隱藏且 inert；離線服務介面拒絕請求；connect-src none",
+      "source": "native/prepare.py; native/offline-services.js; native/native-runtime.js"
+    },
+    {
+      "feature": "系統備份／選擇分享 | System backup / sharing",
+      "data": "App 儲存或使用者選擇分享的檔案",
+      "storage": "依系統設定及使用者選定目的地",
+      "destination": "Apple 或使用者所選目的地；各自政策適用",
+      "control": "沒有宣稱所有系統備份永遠不上雲；不在 App 清除已分享檔",
+      "source": "native/privacy.html; system settings and chosen destination"
+    },
+    {
+      "feature": "主動聯絡支援 | Voluntary support contact",
+      "data": "使用者自行寄出的訊息及附件",
+      "storage": "支援信件保存期限與刪除做法尚待確認",
+      "destination": "lwbro 公開支援信箱 lwbro@me.com；App 不會自動寄信",
+      "control": "自行決定是否寄送；避免出生資料、私人筆記及未遮蔽備份",
+      "source": "Approved public contact; native/store/build_review_pack.py drafts; support retention/deletion decision pending"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Apple screenshot specifications",
+      "url": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/"
+    },
+    {
+      "title": "Apple platform version metadata",
+      "url": "https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information/"
+    },
+    {
+      "title": "Apple app privacy",
+      "url": "https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy/"
+    },
+    {
+      "title": "Apple app review guidelines",
+      "url": "https://developer.apple.com/app-store/review/guidelines/"
+    },
+    {
+      "title": "App record creation",
+      "url": "https://developer.apple.com/help/app-store-connect/create-an-app-record/add-a-new-app/"
+    },
+    {
+      "title": "App Store provisioning profile",
+      "url": "https://developer.apple.com/help/account/provisioning-profiles/create-an-app-store-provisioning-profile/"
+    },
+    {
+      "title": "App Privacy definition and optional disclosure",
+      "url": "https://developer.apple.com/app-store/app-privacy-details/"
+    },
+    {
+      "title": "Age rating questionnaire",
+      "url": "https://developer.apple.com/help/app-store-connect/manage-app-information/set-an-app-age-rating/"
+    },
+    {
+      "title": "Export questionnaire",
+      "url": "https://developer.apple.com/help/app-store-connect/manage-app-information/determine-and-upload-app-encryption-documentation/"
+    },
+    {
+      "title": "Screenshot specifications",
+      "url": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications"
+    }
+  ],
+  "installedReleaseCommit": "9f737e089583889df5e6abc2264b222722940145",
+  "storeSubmissionReadiness": "App Store record, distribution signing, owner declarations and physical/manual gates pending; no upload/submission",
+  "calculationSupport": {
+    "inputConvention": "entered civil Gregorian date/time",
+    "birthplaceTimezoneConversion": false,
+    "dstGapOverlapDisambiguation": false,
+    "trueSolarCorrection": false,
+    "globalCalculationValidationComplete": false
+  },
+  "englishCoreUIImplemented": true,
+  "englishCoreFlowDraft": "native/qa/ENGLISH_CORE_FLOW_DRAFT.md",
+  "fullEnglishChartTerminologyLocalized": false,
+  "interfaceLanguages": [
+    "en",
+    "zh-Hant"
+  ],
+  "currentEnglishCandidateNativeUIVerified": false,
+  "englishImplementationReport": "native/qa/ENGLISH_CORE_IMPLEMENTATION.md",
+  "currentRuntimeSourceCommit": "1019c380588bbf51f6d46d396798e034612f90aa",
+  "distributionCreationAuthorization": {
+    "authorized": true,
+    "scope": "Create Apple Distribution certificate and App Store profiles for the two Apps; parent confirms explicit Kurt consent on 2026-10-07",
+    "coordinator": "Glyco exclusively; Ziwei worker must not operate Claude/UI/phone/accounts/signing",
+    "executionVerifiedByThisWorker": false,
+    "existingCapabilitiesMustBeCheckedFirst": true
+  },
+  "privacyTechnicalEvidence": {
+    "runtimeSourceCommit": "1019c380588bbf51f6d46d396798e034612f90aa",
+    "localProfile": [
+      "optional name",
+      "entered birth date/time",
+      "chart gender"
+    ],
+    "localJournal": [
+      "date",
+      "mood/energy 1-5",
+      "tags",
+      "notes",
+      "createdAt/updatedAt"
+    ],
+    "languagePreference": "local zwbz.language key; excluded from JSON backups",
+    "drafts": "session memory only; not auto-saved",
+    "computation": "on-device bundled calendar/chart/statistics",
+    "developerTransmissionImplemented": false,
+    "nativeServices": "AI/OAuth/sync implementations and CDN fallback excluded; connect-src none; offline adapters reject services",
+    "automaticAdsTrackingDiagnosticsImplemented": false,
+    "import": "user-selected UTF-8 JSON up to 5MB; entire content validated before local date merge; source file not modified; existing profile retained",
+    "exports": "JSON profile/records/version/export time; CSV journal and derived calendar fields; native temporary file handed only to selected share destination",
+    "temporaryExportCleanup": "completion/cancellation and next plugin startup; external copies not deleted",
+    "delete": "profile/records removed locally; selected saved/shared copies and system backups unaffected; language preference is separate",
+    "sdkManifests": "App, bundled Capacitor and Cordova device manifests declare no collected types/tracking; declarations alone are not runtime proof or final App Privacy answers",
+    "support": "App sends no support email automatically; recipient/provider/use/retention/deletion are operator facts still unknown",
+    "systemAndShareDestinations": "iOS backup and selected Files/cloud/share providers follow user settings and their policies; no guarantee that every copy remains only on device",
+    "sourceFiles": [
+      "js/store.js",
+      "js/i18n.js",
+      "js/app.js",
+      "native/prepare.py",
+      "native/native-runtime.js",
+      "native/offline-services.js",
+      "native/ios/App/App/ZiweiViewController.swift",
+      "native/ios/App/App/PrivacyInfo.xcprivacy"
+    ],
+    "finalPrivacyLabelApproved": false,
+    "ownerFactsRequired": [
+      "Apple seller account identity/match, full copyright text/year, private reviewer name and phone (publisher/copyright owner name and review email confirmed 2026-10-08)",
+      "authorized public URLs and policy effective date",
+      "support mailbox operator/provider/use/forwarding/retention/deletion incl attachments",
+      "other versions/services or extra data uses for this App",
+      "content/icon rights"
+    ],
+    "sdkNativeNetworkCapability": "Pinned Capacitor binary contains NSURLSession and built-in CapacitorHttp/Cookies plugins; empty packageClassList does not remove built-ins. Default fetch/XHR patching is off and no packaged App JS invokes native HTTP. Web CSP does not prove native bridge isolation. Final native network observation remains pending.",
+    "latestPackageAudit": "build/submission-technical-audit.json; exact15 asset +4SDK hash +3manifest static checks, simulator only; historical device archives do not match candidate."
+  },
+  "technicalQuestionnaireDraft": {
+    "runtimeSourceCommit": "1019c380588bbf51f6d46d396798e034612f90aa",
+    "status": "REVIEW DRAFT; static exact simulator package only, not final signed device/account answers",
+    "auditReport": "build/submission-technical-audit.json",
+    "reproduce": "python3 native/audit_submission_technical.py; for final existing App use --app /absolute/path/App.app --report build/submission-technical-final-device.json",
+    "rows": [
+      {
+        "field": "App本身是否將出生／日誌資料收集到開發者或SDK伺服器？",
+        "draft": "No — 此候選沒有自動離機傳送流程；只有裝置內保存／計算。",
+        "evidence": "15個封裝資產SHA、全部9個JS網路呼叫掃描、Store本機寫入、native adapter／打包排除服務。",
+        "status": "技術候選已證實；最終device包／原生網路試跑待驗證。"
+      },
+      {
+        "field": "App Store總體Data Not Collected選項",
+        "draft": "條件式候選；最終選項保留空值，先核對支援收信及其他版本／服務等owner事實。",
+        "evidence": "Apple以離機可存取資料定義collection；本機欄位不因存在就自動算收集；不能自動套用支援optional-disclosure。",
+        "status": "待營運事實＋最終包核對；未批准帳號答案。"
+      },
+      {
+        "field": "追蹤／廣告／IDFA／行為分析／App自動診斷上報",
+        "draft": "No — 此候選未實作或載入上述資料用途／上報服務。",
+        "evidence": "封裝沒有AI/chat/sync模組、沒有App網路呼叫；Release executable沒有UI-test trace／fixture字串；App/Capacitor/Cordova manifests均無collected types/tracking。",
+        "status": "manifest是輔助證據；SDK仍有HTTP能力，不能稱作完全沒有native網路。"
+      },
+      {
+        "field": "帳號登入／審查測試帳號",
+        "draft": "No login；審查不需要登入帳號，仍需私人審查聯絡。",
+        "evidence": "五個離線入口；OAuth/sync實作未封裝，service adapter拒絕登入／同步。",
+        "status": "技術答案完成；2026-10-08 審查email lwbro@me.com已確認，審查姓名／電話仍空白。"
+      },
+      {
+        "field": "分享／匯入是否自動交給開發者？",
+        "draft": "No；使用者選擇Files或分享目的地。JSON含出生profile／日誌；CSV含日誌／推算欄位。",
+        "evidence": "ShareExport用UIActivityViewController及UIDocumentPicker；UTF-8 JSON最多5MB，驗證後本機合併。",
+        "status": "程式及舊版Files證據已有；候選原生Files未通過。外部副本／系統備份不受App刪除控制。"
+      },
+      {
+        "field": "是否含自訂／非Apple OS的資料加密實作？",
+        "draft": "未找到；沒有App backup/payload cipher或自訂密碼協定。SDK匯入Apple CC_SHA256雜湊與URLSession能力。",
+        "evidence": "9個封裝JS無encrypt/decrypt/WebCrypto呼叫；App／兩framework的nm與otool未找到自訂cipher依賴。SHA-256雜湊不能當成資料加密證據。",
+        "status": "掃描與來源支持技術草稿，不能以字串／symbol未命中作完整不存在的形式證明。"
+      },
+      {
+        "field": "ITSAppUsesNonExemptEncryption",
+        "draft": "False（目前source與精確compiled Info.plist一致）；建議維持，最終archive再核對。",
+        "evidence": "編譯包Info.plist與來源值；Apple對僅OS加密列為不需App Store文件。",
+        "status": "不是無任何crypto能力的聲明，也不是已提交／批准的法律答覆。"
+      },
+      {
+        "field": "若問卷問「任何加密（包含OS／SDK）」",
+        "draft": "不能僅因離線回答No；此SDK含Apple OS HTTP/TLS能力。以OS-only能力與無自訂cipher的證據解釋，對照實際題目再決定答案。",
+        "evidence": "Capacitor含NSURLSession及HTTP plugin；App沒有呼叫它，fetch/XHR native patching預設未啟用。",
+        "status": "最終分類待實際題目／device archive確認；French／CCATS文件需求不代判。"
+      },
+      {
+        "field": "公開UGC／聊天／購買／廣告／診療或財務決策功能",
+        "draft": "未提供公開發文／聊天、內購／廣告、診斷／治療／劑量或財務決策工具；私人心情日誌及文化性排盤存在。",
+        "evidence": "五分頁、local records、無AI/sync/login/purchase；listing及原生說明保留文化性與時間限制。",
+        "status": "供工程填年齡／功能題目參考，不推定年齡級別或法定醫療狀態。內容／圖示權利待owner確認。"
+      },
+      {
+        "field": "Accessibility支援標籤",
+        "draft": "不宣告尚未驗證的VoiceOver／Dynamic Type等能力。",
+        "evidence": "原生候選未驗收；舊嚴格a11y audit未通過，背景字體放大不是實機驗證。",
+        "status": "仍待協調原生／實機，不以靜態稽核代替。"
+      }
+    ],
+    "ownerFacts": {
+      "legalOperator": "Kurt Chiang",
+      "appleSellerLegalName": null,
+      "copyright": null,
+      "privateReviewContact": {
+        "name": null,
+        "email": "lwbro@me.com",
+        "phone": null
+      },
+      "privacyURL": null,
+      "supportURL": null,
+      "policyEffectiveDate": null,
+      "supportMailboxOperatorAndProvider": null,
+      "supportDataUsesAndForwarding": null,
+      "supportRetentionDeletionIncludingAttachments": null,
+      "otherAppVersionsServicesDataUses": null,
+      "contentAndIconRights": null,
+      "copyrightOwnerName": "Kurt Chiang"
+    },
+    "accountAnswersSubmitted": false,
+    "references": [
+      {
+        "title": "Apple App Privacy definitions",
+        "url": "https://developer.apple.com/app-store/app-privacy-details/"
+      },
+      {
+        "title": "Apple encryption documentation categories",
+        "url": "https://developer.apple.com/help/app-store-connect/reference/app-information/export-compliance-documentation-for-encryption"
+      },
+      {
+        "title": "Pinned Capacitor 8.4.1 built-in plugin registration",
+        "url": "https://raw.githubusercontent.com/ionic-team/capacitor/8.4.1/ios/Capacitor/Capacitor/CapacitorBridge.swift"
+      },
+      {
+        "title": "Pinned Capacitor 8.4.1 HTTP plugin",
+        "url": "https://raw.githubusercontent.com/ionic-team/capacitor/8.4.1/ios/Capacitor/Capacitor/Plugins/CapacitorHttp.swift"
+      },
+      {
+        "title": "Capacitor HTTP patching defaults",
+        "url": "https://capacitorjs.com/docs/apis/http"
+      }
+    ],
+    "sdkVersionScope": "Candidate binaries match the recorded8.4.1 hashes. Current shared Xcode checkout/receipts are8.5.0 and all4binary hashes differ: no candidate upgrade is inferred, do not use that fallback cache. Version8.4.1 label is historical provenance, not independent current official-zip verification."
+  }
+}

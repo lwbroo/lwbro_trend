@@ -1,0 +1,45 @@
+{
+  "syntheticOnly": true,
+  "notYetManuallyExecuted": true,
+  "expected": {
+    "initial": {
+      "added": 1,
+      "updated": 0,
+      "total": 1
+    },
+    "validMerge": {
+      "added": 1,
+      "updated": 1,
+      "total": 2,
+      "retainedBirthDate": "2000-01-01"
+    },
+    "repeatAndRoundTrip": {
+      "added": 0,
+      "updated": 0,
+      "total": 2
+    },
+    "invalidAndOversize": "unchanged profile and original record"
+  },
+  "files": [
+    {
+      "name": "manual-invalid.json",
+      "bytes": 9,
+      "sha256": "adc6108125c1695bcc60737d467fdb09cc68b8f11e008ee56803a6162d0b7240"
+    },
+    {
+      "name": "manual-large.json",
+      "bytes": 5242881,
+      "sha256": "29d92a909372c6fc9c902311a215fab54f8c1ce2249eb42b12030871e93c157e"
+    },
+    {
+      "name": "manual-original.json",
+      "bytes": 392,
+      "sha256": "e0b377a2ad33864eecd2a707f8d789b0d421d834092a61fbbfad2e1378483942"
+    },
+    {
+      "name": "manual-valid.json",
+      "bytes": 582,
+      "sha256": "88784fc05808b66bcba3ec544aeddd00f0fc9033cd819f466bcebb11329baeb0"
+    }
+  ]
+}

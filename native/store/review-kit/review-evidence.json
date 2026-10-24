@@ -1,0 +1,253 @@
+{
+  "scope": "Kurt approved offline-first release; local preparation only, no publication/submission",
+  "offlineFirstReleaseApproved": true,
+  "captureSourceCommit": "d9f96344605e21f826acdd29e2556ecf9669a078",
+  "releaseArtifactSourceCommit": "d9f96344605e21f826acdd29e2556ecf9669a078",
+  "currentReviewedScreenshots": 12,
+  "priorIpadReferences": 6,
+  "priorIpadSourceCommit": "0151c76ad80907bdf494b3b91bad701210f57f65",
+  "externalResourceLoads": 0,
+  "fieldChecks": "10/10 pass",
+  "layoutChecks": {
+    "passed": 165,
+    "report": "build/layout-checks.json",
+    "sizes": [
+      [
+        320,
+        16
+      ],
+      [
+        375,
+        16
+      ],
+      [
+        430,
+        16
+      ],
+      [
+        932,
+        16
+      ],
+      [
+        320,
+        24
+      ],
+      [
+        430,
+        24
+      ]
+    ],
+    "limits": "browser 150% font is a proxy; physical Dynamic Type/VoiceOver remain open"
+  },
+  "dataNetworkChecks": {
+    "passed": 35,
+    "report": "build/offline-release-checks.json",
+    "serviceFetchAttempts": 0,
+    "deliberateLoopbackFetchDeniedByCSP": 1,
+    "usesMockedNativeShare": true
+  },
+  "regressions": {
+    "browser": 51,
+    "report": "build/offline-smoke-checks.json",
+    "calendarAndInput": 20,
+    "javascriptSyntaxFiles": 11,
+    "AIResponses": "synthetic mocked only; future web implementation retained"
+  },
+  "nativeCaptureCases": [
+    {
+      "result": "build/native-iphone-debug-1791254103.xcresult",
+      "device": "iPhone 17 Pro Max",
+      "case": "testStoreScreenshots with offline layout/safe-area/local privacy/back navigation",
+      "outcome": "1/1 pass"
+    },
+    {
+      "result": "build/native-iphone-debug-1791254226.xcresult",
+      "device": "iPhone SE (3rd generation)",
+      "case": "testStoreScreenshots with offline layout/safe-area/local privacy/back navigation",
+      "outcome": "1/1 pass"
+    }
+  ],
+  "currentBuilds": {
+    "simulatorRelease": "BUILD SUCCEEDED",
+    "unsignedDeviceArchive": "ARCHIVE SUCCEEDED",
+    "packagedAssetHashes": 14,
+    "privacyManifests": 3,
+    "syntheticBootstrapExcludedFromRelease": true,
+    "networkModulesAndCDNFallbackExcluded": true
+  },
+  "signingReadonly": {
+    "checkedAtUtc": "2026-10-06T21:54:41.279834+00:00",
+    "validIdentityCount": 1,
+    "validDevelopmentIdentityCount": 1,
+    "validDistributionIdentityCount": 0,
+    "matchingZiweiProfiles": [
+      {
+        "name": "Ziwei Bazi Trend Development",
+        "type": "development",
+        "unexpired": true,
+        "matchesValidLocalIdentity": true,
+        "deviceCount": 1
+      }
+    ],
+    "exactAppStoreProfileVerified": false,
+    "appStoreConnectRecord": "UNVERIFIED: existing Apple account browser access blocker retained; no blind retry or account/session credential extraction",
+    "developerAppId": "User registered exact App ID; downloaded profile and signed installed build verify bundle/team/certificate/device. This does not establish an App Store Connect record.",
+    "phoneAccessThisPass": false,
+    "newCredentialProfileAccountOrSecurityChanges": false
+  },
+  "priorReleaseVerification": "build/pre-layout-local-verification.json",
+  "priorUnsignedArchives": [
+    "build/ZiweiUnsigned.ffb9fe5.xcarchive",
+    "build/ZiweiUnsigned.bc9753f.xcarchive",
+    "build/ZiweiUnsigned.72b4295.xcarchive"
+  ],
+  "supersededCurrentTurnCaptures": [
+    "build/native-iphone-debug-1791253628.xcresult",
+    "build/native-iphone-debug-1791253767.xcresult"
+  ],
+  "supersededCaptureFinding": "UI cases passed but visual QA found status-bar/title overlap; fixed in d9f9634 and recaptured; superseded PNGs excluded from current kit",
+  "visualQA": [
+    "Nine selected final large-iPhone attachments individually inspected",
+    "Four selected final small-iPhone captures individually inspected",
+    "Six prior iPad references retain earlier inspected provenance; clearly marked historical",
+    "Current review gallery rendered locally and inspected"
+  ],
+  "unresolved": [
+    "Owner adoption of current name/icon/category/manual release and actual storefront settings; product target confirmed United States first and global",
+    "Legal seller/copyright/private review contact and authorized HTTPS policy/support URLs; policy effective date/support retention/deletion",
+    "App Store Connect record and existing distribution credentials/profile; specific authorization before creating any new distribution credentials",
+    "Final privacy/age/export/content-rights/region-specific account declarations",
+    "Coordinated foreground iPhone Files manual gate and physical navigation/accessibility/real destinations",
+    "No upload/submission/publication performed; development installation is complete"
+  ],
+  "originalLibraryIconUnmodified": true,
+  "noBrowserForegroundChanges": true,
+  "noRealDeviceInstall": false,
+  "noFilesAutomationRerun": true,
+  "ownedSimulatorUUIDs": [
+    "506316F2-9440-4EA7-A008-6D3832DCCE9C",
+    "1D58C7E7-33D7-4F96-BB6E-26E4AE83AFAF",
+    "48560ACA-9934-4937-BB1A-D69AFC27FCA9",
+    "5D7F411B-5B14-48D5-935C-EE9C58B53CDE"
+  ],
+  "cleanupStatus": "all exact owned simulator UUIDs verified absent; no other simulator cleanup",
+  "ownedUUIDsRemaining": [],
+  "localLinkReferencesChecked": 63,
+  "freeFirstReleaseApproved": true,
+  "pricingAccountStateChanged": false,
+  "businessModelStatus": "Exploratory only; no features activated",
+  "publicContactDraftUpdate": {
+    "approvedOn": "2026-10-06",
+    "publicOperatorBrand": "lwbro",
+    "supportEmail": "lwbro@me.com",
+    "legalOrPrivateContactInferred": false,
+    "nativeRebuildOrFunctionalRetest": false,
+    "nativeContactTextPackaged": true,
+    "latestPolicyPagesVisuallyInspected": false,
+    "note": "Contact text packaged in verified installed development Release9f737e0. Old unsigned archive and screenshot/test provenance remain d9f9634. No distribution build or submission.",
+    "staticChecks": {
+      "publicOperatorBrand": "lwbro",
+      "supportEmail": "lwbro@me.com",
+      "unconfirmedFieldsRemainNull": [
+        "legalOwner",
+        "copyright",
+        "appleSellerLegalName",
+        "reviewContact",
+        "policyEffectiveDate",
+        "supportMessageRetentionPolicy",
+        "supportMessageDeletionProcess",
+        "privacyPolicyUrl",
+        "supportUrl"
+      ],
+      "localizationAndFlattenedMetadataConsistent": true,
+      "checkedHTMLPages": 5,
+      "validLocalHTMLReferences": 63,
+      "externalResourceReferences": 0,
+      "forms": 0,
+      "oldUnapprovedEmailInCurrentDrafts": false,
+      "iconHashUnchanged": true,
+      "nativeBuildOrFunctionalTestRerun": false,
+      "latestHTMLVisuallyInspected": false,
+      "nativeContactTextPackaged": false
+    }
+  },
+  "previousSigningReadonlyAtD9": {
+    "bundleId": "com.lwbroo.ziweibazi",
+    "version": "1.0",
+    "build": "1",
+    "teamConfiguredInProject": false,
+    "distributionProfileConfiguredInProject": false,
+    "signingStyle": "Automatic in existing source; unchanged, builds explicitly unsigned",
+    "appStoreAccountRecord": "unverified; no App Store connector exposed; no foreground account UI opened",
+    "profileMatches": [],
+    "validLocalCodeSigningIdentityCount": 0,
+    "identityReadStatus": "read succeeded",
+    "limits": "Matching certificate/team ownership/distribution eligibility and actual App Store record remain unverified. No credentials/private keys printed or changed; no account/security/signing mutation."
+  },
+  "developmentInstallMilestone": {
+    "sourceCommit": "9f737e089583889df5e6abc2264b222722940145",
+    "version": "1.0",
+    "build": "1",
+    "bundleId": "com.lwbroo.ziweibazi",
+    "developmentProfileValidated": true,
+    "deepStrictSignatureVerified": true,
+    "embeddedProfileMatchesDownload": true,
+    "nativeContactTextPackaged": true,
+    "installExitCode": 0,
+    "installedExactIdentityVerified": true,
+    "launchExitCode": 0,
+    "processStillRunningAfter2Seconds": true,
+    "fullUIFilesAccessibilityVerified": false,
+    "newPhoneActionsThisPreparationPass": false
+  },
+  "assetPreparation": {
+    "curatedPrimaryScreenshots": 5,
+    "changedPackagedAssetsSinceCapture": [
+      "privacy.html"
+    ],
+    "primaryScreenshotBytesUnchanged": true,
+    "privacyScreenshotHistoricalOnly": true,
+    "source": "upload-candidates/manifest.json",
+    "primarySizeRuleSource": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications"
+  },
+  "latestStoreMaterialChecks": {
+    "result": "PASS",
+    "storeFieldLimits": 10,
+    "checkedHTMLPages": 6,
+    "validLocalHTMLReferences": 72,
+    "externalResources": 0,
+    "forms": 0,
+    "curatedScreenshotHashesSizesOpaqueChecks": 5,
+    "allOriginalScreenshotHashesPreserved": 19,
+    "iconHashPreserved": true,
+    "ownerLegalPrivacyAgeExportValuesRemainUnconfirmed": true,
+    "regionAndReleaseModeRemainProposals": true,
+    "runtimeChangesThisPass": false,
+    "phoneActionsThisPass": false,
+    "newBuildOrFunctionalTestsThisPass": false,
+    "screenshotAssetDeltaD9To9f": [
+      "privacy.html"
+    ],
+    "distributionIdentityCount": 0,
+    "appStoreProfileAvailable": false,
+    "appRecordVerified": false,
+    "uploadOrSubmission": false,
+    "newHTMLVisuallyInspected": true,
+    "localReviewScreenshot": "build/current-submission-review.png",
+    "headlessRenderLifecycle": "Local page PNG rendered and inspected; Chrome process did not exit within 20 seconds and was stopped. Only exact fresh-profile Chrome process matches cleaned; other browser sessions unchanged.",
+    "ownedHeadlessProcessCleanupCount": 0
+  },
+  "priorIphonePrivacyReference": 1,
+  "totalOriginalIphoneCaptureFiles": 13,
+  "storeCopyAudit1019c38": {
+    "runtimeSourceCommit": "1019c380588bbf51f6d46d396798e034612f90aa",
+    "report": "build/store-copy-1019c38-audit.json",
+    "englishCoreImplemented": true,
+    "detailedChartTermsAndCSVHeadingsRemainChinese": true,
+    "nativeUIVerified": false,
+    "newIOSStoreScreenshotsCaptured": false,
+    "runtimeChangesThisPass": false,
+    "testsOrBuildRerunThisPass": false,
+    "phoneOrAccountActionsThisPass": false
+  }
+}

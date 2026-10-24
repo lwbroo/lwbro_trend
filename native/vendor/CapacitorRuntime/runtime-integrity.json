@@ -1,0 +1,11 @@
+{
+  "version": "8.4.1",
+  "source": "Existing Xcode SourcePackages cache; cached capacitor-swift-pm checkout git tag 8.4.1",
+  "license": "MIT",
+  "binaries": {
+    "Capacitor.xcframework/ios-arm64/Capacitor.framework/Capacitor": "d3c8b6c745d7867e68ca655fae712f7127b2094fb8e3ab9b97ab37cf1d7be2f9",
+    "Cordova.xcframework/ios-arm64/Cordova.framework/Cordova": "fd87eb78cba45a22dc9fdfd217a8e40c8ffa1563f037deab72573a57cfff5db9",
+    "Capacitor.xcframework/ios-arm64_x86_64-simulator/Capacitor.framework/Capacitor": "01e1e4744450ae03d5c1b2acf1915389179a2d446ebd2fb5b047aff07d5fa274",
+    "Cordova.xcframework/ios-arm64_x86_64-simulator/Cordova.framework/Cordova": "c5c9e7793f71c52fe6c9a43427941916a6e9ba47b6053e2514d1ba24a99d7a10"
+  }
+}

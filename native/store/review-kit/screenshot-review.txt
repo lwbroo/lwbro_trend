@@ -1,0 +1,31 @@
+截圖與 US 英文文案審閱 — 以程式 1019c38 為準（文件更新，未重拍）
+
+現有 PNG 來源 d9f96344605e21f826acdd29e2556ecf9669a078；它們是中文原生畫面，不是 1019c38 英文候選的截圖。五張主圖 1320×2868、無 alpha，SHA 與像素原樣保留。d9f9634→9f737e0「主畫面未變」僅歷史比較，不能套用新版安全區／英文介面。19 個原始圖片含 13 個 iPhone（其中 1 個隱私歷史證據）及 6 個前版 iPad 參考；另有 5 個主圖原樣複本。
+
+以下是待新版 iOS 畫面配用的英文文案，不是已合成或可提交的 Store 圖：
+
+1. Keep a daily journal
+   Record mood, energy, tags and notes for a date you choose.
+   拍攝要求：Daily：以合成資料顯示英文評分與筆記；不得宣稱每天自動保存。
+
+2. Explore your traditional chart
+   Read a twelve-palace Ziwei chart with a brief English guide.
+   拍攝要求：Birth chart：英文導覽／閱讀指引，細部術語中文；命盤兩側需局部滑動，不宣稱全部同時可見。
+
+3. View Bazi and the five elements
+   Explore the Four Pillars and five-element distribution.
+   拍攝要求：Birth chart 下方：細部八字術語仍中文；不承諾全球出生時間校正。
+
+4. Keep and back up your entries
+   Edit your notes, export JSON or CSV, and merge JSON backups.
+   拍攝要求：Entries：使用合成資料；不把尚未驗證的新原生 Files 操作標成已完成；CSV 欄名中文。
+
+5. Look back at your patterns
+   Compare mood and energy history from your own journal.
+   拍攝要求：Trends：至少兩筆合成紀錄；若展示歷史平均預覽，須至少10筆含所選指標，不使用預測保證。
+
+一致性要求：拍攝前選 English，保持五個核心分頁與實際產品相符；細部命盤術語及 CSV 欄名中文，使用者自填內容不被翻譯。僅使用合成 profile／日誌。英文版與繁中版素材應各配對實際介面，不能把中文像素改稱完整英文。現有 build/english-core-browser-*.png 是 headless browser 背景檢查，不是 iOS Store 截圖。
+
+新拍前先協調已解鎖 Mac 的前景；本輪未查詢／操作 UI、模擬器或手機。原生重測至少包含語言切換、長頁／兩側命盤、鍵盤安全區、旋轉、隱私返回與 Files。實機 VoiceOver／Dynamic Type 另列缺件，不用截圖代替。
+
+原始 settings、chart-right、edit、local-privacy／小 SE 圖是歷史操作證據；舊 local-privacy 不是更新後公開政策或商店主圖。前版 iPad compatibility 圖只作歷史參考，iPhone-only target 未改。全部 submissionReady=false；公開 URL／聯絡、最終聲明、distribution／App record 及原生／實機 gates 仍待完成。此輪沒有新拍攝、圖片修改、上傳或提交。

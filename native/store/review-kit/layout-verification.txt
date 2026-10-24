@@ -1,0 +1,24 @@
+歷史版面里程碑：bc9753f（非目前上架候選）。
+本次離線首版、安全區及最終驗證改見 offline-release-verification.txt；以下保留先前紀錄。
+
+紫微八字：iPhone 版面完成片段（原始碼 bc9753f）
+
+已完成：
+• 手機記錄表轉完整卡片；保留桌面表格、全部資料、編輯／刪除與 JSON／CSV 入口。
+• 十二宮排列與安星資料不變，寬盤限制在可命名／聚焦的局部捲動區。左右按鈕和方向鍵／Home／End 可到達各側宮位；標題保留在區域外。
+• 換頁回頂部；編輯指定記錄會帶到狀態表單並保留該日期值。背景同步觸發的重繪不會強制跳頂。
+• 操作按鈕至少 44px，名稱含日期；表格／列／欄與可捲動區保留可及性語義。長名、筆記、窄欄位和評分群組可以換行。
+• 原生 AI 入口明示未啟用；沒有 profile 時也只顯示未啟用說明。原生資料管理只說明本機備份，不再暗示同步可用。網頁 AI／同步原始功能及原生網路封鎖仍保留。
+
+驗證：
+• 165 項 focused checks 通過：320／375／430／932px，並含 320／430px 的 150% browser 字體。長筆記、12 宮保留、局部左右／鍵盤捲動、44px 操作範圍、正確日期編輯／刪除與其他記錄保留、換頁復位、AI 未啟用及無外部資源。
+• 原生 iPhone 17 Pro Max、iPhone SE (3rd generation)，iOS 26.5，各 1/1 layout/capture case 通過。原始結果與各 11 張附件保留在 build/native-iphone-debug-1791247515.xcresult、build/native-iphone-debug-1791247641.xcresult。
+• 更新後 Release simulator build 與未簽名 device archive 成功；native/check_build.py 驗證 16 個打包資源 SHA、3 個 privacy manifests、既有不透明 1024 icon、bundle／scene／iPhone 目標及 Release 不含測試 bootstrap。
+• Release App 和 archive 來源皆為 bc9753f4b96535dbd7d807147be2efd6699bf20a。先前 ffb9fe5 unsigned archive 另存 build/ZiweiUnsigned.ffb9fe5.xcarchive，原始驗證在 build/pre-layout-local-verification.json。
+• 初期 focused harness 修正了合成陣列排序、已被重繪替換的 DOM locator，以及頁尾 scroll clamp 的判定；命盤控制的延後狀態更新也改為在切換時立即更新。最後一輪 165 全部通過。
+
+剩餘：
+不是所有 native tests 都通過的宣告。iPhone Files 非空／非法／超限／重複／保留資料 gate 仍需已協調前景人工檢查，沒有任何 blind Files rerun。先前 iPad Files 通過仍是 ffb9fe5 的證據。
+150% browser font 不等於已驗證 iOS 系統 Dynamic Type。真實裝置 VoiceOver、大字、方向、分享目的地／檔案供應者仍待手檢。
+本里程碑之後 Kurt 已批准離線首版並完成五個入口；圖示、公開聯絡／隱私／支援網址、Apple 帳號／既有簽名與最終聲明仍待 Kurt 決定。本次沒有 AI 啟用、付款、憑證／團隊修改、實機安裝、上傳或發布。
+命理為文化詮釋，圖表為使用者歷史紀錄觀察；沒有科學確立的預測能力，不能作醫療／財務建議。

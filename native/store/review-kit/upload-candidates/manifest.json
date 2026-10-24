@@ -1,0 +1,130 @@
+{
+  "status": "HISTORICAL LOCAL CANDIDATES — not verified against 1019c38 English UI; no upload/submission",
+  "count": 5,
+  "screenshots": [
+    {
+      "path": "upload-candidates/01-daily.png",
+      "sourcePath": "screenshots/iphone-6.9/01-daily.png",
+      "sha256": "6b6419dadbab66d429736bdb8c16f36585f4d43659403cdf9f548edbe0de5abc",
+      "width": 1320,
+      "height": 2868,
+      "captionZh": "今日流運",
+      "syntheticOnly": true,
+      "captureSourceCommit": "d9f96344605e21f826acdd29e2556ecf9669a078",
+      "installedRuntimeSourceCommit": "9f737e089583889df5e6abc2264b222722940145",
+      "screenContentChangedSinceCapture": false,
+      "sizeMatchesCurrentAppleSpecification": true,
+      "uploadOrSubmissionApproved": false,
+      "screenContentChangedSinceCaptureComparisonScope": "d9f9634 capture versus installed 9f737e0 only",
+      "currentUXCandidateVisualVerification": "pending coordinated 1019c38 native English UI capture; historical Chinese PNG is not an English screenshot",
+      "plannedEnUSCopy": {
+        "headline": "Keep a daily journal",
+        "body": "Record mood, energy, tags and notes for a date you choose.",
+        "captureBrief": "Daily：以合成資料顯示英文評分與筆記；不得宣稱每天自動保存。",
+        "status": "DRAFT ONLY — not embedded in historical PNG; requires coordinated native English capture",
+        "basisRuntimeCommit": "1019c380588bbf51f6d46d396798e034612f90aa"
+      },
+      "sizeSpecificationVerificationScope": "prior recorded size check only; this document audit did not reverify current Store device-size requirements"
+    },
+    {
+      "path": "upload-candidates/02-natal.png",
+      "sourcePath": "screenshots/iphone-6.9/02-natal.png",
+      "sha256": "c1303859c0a4fc6d617f81f628a5ae0043c33e66312af30bdc8881648ef82120",
+      "width": 1320,
+      "height": 2868,
+      "captionZh": "可左右查看的十二宮命盤",
+      "syntheticOnly": true,
+      "captureSourceCommit": "d9f96344605e21f826acdd29e2556ecf9669a078",
+      "installedRuntimeSourceCommit": "9f737e089583889df5e6abc2264b222722940145",
+      "screenContentChangedSinceCapture": false,
+      "sizeMatchesCurrentAppleSpecification": true,
+      "uploadOrSubmissionApproved": false,
+      "screenContentChangedSinceCaptureComparisonScope": "d9f9634 capture versus installed 9f737e0 only",
+      "currentUXCandidateVisualVerification": "pending coordinated 1019c38 native English UI capture; historical Chinese PNG is not an English screenshot",
+      "plannedEnUSCopy": {
+        "headline": "Explore your traditional chart",
+        "body": "Read a twelve-palace Ziwei chart with a brief English guide.",
+        "captureBrief": "Birth chart：英文導覽／閱讀指引，細部術語中文；命盤兩側需局部滑動，不宣稱全部同時可見。",
+        "status": "DRAFT ONLY — not embedded in historical PNG; requires coordinated native English capture",
+        "basisRuntimeCommit": "1019c380588bbf51f6d46d396798e034612f90aa"
+      },
+      "sizeSpecificationVerificationScope": "prior recorded size check only; this document audit did not reverify current Store device-size requirements"
+    },
+    {
+      "path": "upload-candidates/03-natal-detail.png",
+      "sourcePath": "screenshots/iphone-6.9/03-natal-detail.png",
+      "sha256": "bc1bcdb7174febb0ae58053ee28ec4bfcd5db974ca7e19459619c4cd28a0a6b4",
+      "width": 1320,
+      "height": 2868,
+      "captionZh": "八字命盤與五行",
+      "syntheticOnly": true,
+      "captureSourceCommit": "d9f96344605e21f826acdd29e2556ecf9669a078",
+      "installedRuntimeSourceCommit": "9f737e089583889df5e6abc2264b222722940145",
+      "screenContentChangedSinceCapture": false,
+      "sizeMatchesCurrentAppleSpecification": true,
+      "uploadOrSubmissionApproved": false,
+      "screenContentChangedSinceCaptureComparisonScope": "d9f9634 capture versus installed 9f737e0 only",
+      "currentUXCandidateVisualVerification": "pending coordinated 1019c38 native English UI capture; historical Chinese PNG is not an English screenshot",
+      "plannedEnUSCopy": {
+        "headline": "View Bazi and the five elements",
+        "body": "Explore the Four Pillars and five-element distribution.",
+        "captureBrief": "Birth chart 下方：細部八字術語仍中文；不承諾全球出生時間校正。",
+        "status": "DRAFT ONLY — not embedded in historical PNG; requires coordinated native English capture",
+        "basisRuntimeCommit": "1019c380588bbf51f6d46d396798e034612f90aa"
+      },
+      "sizeSpecificationVerificationScope": "prior recorded size check only; this document audit did not reverify current Store device-size requirements"
+    },
+    {
+      "path": "upload-candidates/04-records.png",
+      "sourcePath": "screenshots/iphone-6.9/04-records.png",
+      "sha256": "4cd554af5817e72572cce64f80c12b00f8b86d6f5040a52abffcb441fe64de54",
+      "width": 1320,
+      "height": 2868,
+      "captionZh": "完整記錄卡與備份入口",
+      "syntheticOnly": true,
+      "captureSourceCommit": "d9f96344605e21f826acdd29e2556ecf9669a078",
+      "installedRuntimeSourceCommit": "9f737e089583889df5e6abc2264b222722940145",
+      "screenContentChangedSinceCapture": false,
+      "sizeMatchesCurrentAppleSpecification": true,
+      "uploadOrSubmissionApproved": false,
+      "screenContentChangedSinceCaptureComparisonScope": "d9f9634 capture versus installed 9f737e0 only",
+      "currentUXCandidateVisualVerification": "pending coordinated 1019c38 native English UI capture; historical Chinese PNG is not an English screenshot",
+      "plannedEnUSCopy": {
+        "headline": "Keep and back up your entries",
+        "body": "Edit your notes, export JSON or CSV, and merge JSON backups.",
+        "captureBrief": "Entries：使用合成資料；不把尚未驗證的新原生 Files 操作標成已完成；CSV 欄名中文。",
+        "status": "DRAFT ONLY — not embedded in historical PNG; requires coordinated native English capture",
+        "basisRuntimeCommit": "1019c380588bbf51f6d46d396798e034612f90aa"
+      },
+      "sizeSpecificationVerificationScope": "prior recorded size check only; this document audit did not reverify current Store device-size requirements"
+    },
+    {
+      "path": "upload-candidates/05-trends.png",
+      "sourcePath": "screenshots/iphone-6.9/05-trends.png",
+      "sha256": "c94981e790c28cc575cac54e0a128f4b2cca3ea97bdc19537938f389a26fdc2d",
+      "width": 1320,
+      "height": 2868,
+      "captionZh": "心情與精力歷史趨勢",
+      "syntheticOnly": true,
+      "captureSourceCommit": "d9f96344605e21f826acdd29e2556ecf9669a078",
+      "installedRuntimeSourceCommit": "9f737e089583889df5e6abc2264b222722940145",
+      "screenContentChangedSinceCapture": false,
+      "sizeMatchesCurrentAppleSpecification": true,
+      "uploadOrSubmissionApproved": false,
+      "screenContentChangedSinceCaptureComparisonScope": "d9f9634 capture versus installed 9f737e0 only",
+      "currentUXCandidateVisualVerification": "pending coordinated 1019c38 native English UI capture; historical Chinese PNG is not an English screenshot",
+      "plannedEnUSCopy": {
+        "headline": "Look back at your patterns",
+        "body": "Compare mood and energy history from your own journal.",
+        "captureBrief": "Trends：至少兩筆合成紀錄；若展示歷史平均預覽，須至少10筆含所選指標，不使用預測保證。",
+        "status": "DRAFT ONLY — not embedded in historical PNG; requires coordinated native English capture",
+        "basisRuntimeCommit": "1019c380588bbf51f6d46d396798e034612f90aa"
+      },
+      "sizeSpecificationVerificationScope": "prior recorded size check only; this document audit did not reverify current Store device-size requirements"
+    }
+  ],
+  "icon": "../icon-candidate.png",
+  "iconUnchanged": true,
+  "currentUXCandidateCommit": "1019c380588bbf51f6d46d396798e034612f90aa",
+  "currentUXCandidateScreenshotsVerified": false
+}

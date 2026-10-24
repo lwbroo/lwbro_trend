@@ -1,0 +1,12 @@
+Offline first release; no account or login is required. Calendar and chart resources are bundled. No AI service, cloud sync, ads, in-app purchases, or automatic diagnostic reporting is enabled. The 1019c38 candidate supports English and Traditional Chinese core screens using the Language control. Detailed traditional chart terms and CSV column headings remain Chinese; this update has not been installed or verified through native iOS UI. Kurt confirmed free download for the first release. Future business models remain exploratory; no purchases, ads or AI services are activated.
+
+Suggested review flow: Settings (設定) → enter fictitious data (2000-01-01, 12:00, female; optional name: Demo) → Save → Birth chart (本命盤). Daily (今日流運) → choose a date → save mood/energy. Create at least two entries for trend charts; the historical-average preview needs at least 10 entries with the selected metric. Entries (記錄) → export JSON/CSV using the iOS share sheet, or import JSON through the system Files picker (5 MB maximum). Import merges by date, prefers a newer updatedAt value, and retains an existing local birth profile.
+
+Interpretations are cultural content; journal statistics describe associations and do not promise predictive accuracy. Birthplace time-zone conversion, DST gap/overlap handling and true-solar-time correction are not implemented. The global product target is not a verified worldwide calculation capability.
+
+The first-release scope is approved: offline charts, journal, trends and backups. Navigation contains Daily, Birth chart, Entries, Trends and Settings only. There are no AI, sync, login or purchase entry points. AI/OAuth/sync implementations and CDN fallback are excluded from this native package; the offline CSP blocks connections. Future web implementations remain in source.
+
+DO NOT SUBMIT this draft yet: public privacy/support URLs, private review contact, App Store Connect record, distribution signing, final declarations, and manual iPhone Files/physical checks must be completed. The earlier 9f737e0 development build installed and launched; 1019c38 has background checks and generic unsigned simulator compilation only. Its native UI has not been verified. Neither milestone establishes an upload-ready distribution build or complete functional validation.
+
+Public-facing brand: lwbro
+Support email: lwbro@me.com

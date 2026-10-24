@@ -1,0 +1,22 @@
+{
+  "app": "ziwei-bazi-trend",
+  "version": 1,
+  "profile": {
+    "name": "人工示範人物",
+    "birthDate": "2000-01-01",
+    "birthTime": "12:00",
+    "gender": "女"
+  },
+  "records": [
+    {
+      "date": "2026-10-04",
+      "mood": 3,
+      "energy": 4,
+      "tags": [
+        "示範"
+      ],
+      "note": "Manual-original",
+      "updatedAt": "2026-10-04T00:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "status": "candidate; final store approval pending",
+  "libraryFileId": "libfile_545a2f9c461481919a7b6b3a88697e07",
+  "version": 2,
+  "filename": "ziwei-bazi-ai-trend-icon.png",
+  "sourcePixels": [
+    1254,
+    1254
+  ],
+  "sourceSHA256": "9b34112efda561e3882cad7d6a42c5aa8c6e0a9f819daeab7e72bafe3409f3c2",
+  "conversion": "sips resample to 1024 x 1024; unchanged composition",
+  "assetPath": "native/ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png",
+  "assetSHA256": "58e7d2eb5fcf7f814d5a8d93e5d396bdc71cc83fc7b2dfbe35d7297456bcc2bc"
+}

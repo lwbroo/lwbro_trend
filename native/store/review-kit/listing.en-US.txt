@@ -1,0 +1,31 @@
+name
+Ziwei Bazi Journal
+
+subtitle
+Charts, moods and local backup
+
+promotionalText
+Explore traditional charts, record mood and energy, and keep local backups. Core screens support English and Traditional Chinese; detailed chart terms remain Chinese.
+
+keywords
+astrology,diary,energy,calendar,fiveelements,natalchart,reflection,offline,notes
+
+description
+Core screens support English and Traditional Chinese. Detailed traditional chart terms, including star, palace and stem/branch names, remain in Chinese. CSV column headings also remain Chinese.
+
+Ziwei Bazi Journal brings traditional Chinese charts and your personal daily notes together for reflection.
+
+• View Ziwei Doushu and Bazi natal charts, plus calendar-based information for a selected date.
+• Record mood and energy on a 1–5 scale, with tags and notes. Edit or delete entries as needed.
+• With at least two entries, view mood and energy history and grouped historical averages.
+• With at least 10 entries containing the selected metric, a day preview compares historical averages from similar calendar groups.
+• Keep data on your device. Export JSON or CSV with the iOS share sheet, and import JSON backups to merge records.
+
+Core features work offline. This version has no AI service, cloud sync, account login, or in-app purchases. A destination you select for sharing may process the file under its own policies.
+
+Birth date and time are used as entered. Birthplace time-zone conversion, DST gap/overlap handling and true-solar-time correction are not implemented. International birth data should not be treated as a corrected chart. Daily calculations use noon on the selected date.
+
+Astrological interpretations are cultural content. Charts and historical-average previews describe associations in your journal; they have no scientifically validated predictive accuracy and do not provide medical, mental-health, or financial advice.
+
+Public-facing brand: lwbro
+Support email: lwbro@me.com

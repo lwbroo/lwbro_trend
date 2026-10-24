@@ -1,0 +1,76 @@
+{
+  "checkedAtUtc": "2026-10-08T12:35:52.125314+00:00",
+  "status": "all field-size limits passed; ownership and availability unverified",
+  "fields": [
+    {
+      "language": "zh-Hant",
+      "field": "name",
+      "count": 4,
+      "limit": 30,
+      "unit": "characters"
+    },
+    {
+      "language": "zh-Hant",
+      "field": "subtitle",
+      "count": 12,
+      "limit": 30,
+      "unit": "characters"
+    },
+    {
+      "language": "zh-Hant",
+      "field": "promotionalText",
+      "count": 74,
+      "limit": 170,
+      "unit": "characters"
+    },
+    {
+      "language": "zh-Hant",
+      "field": "keywords",
+      "count": 90,
+      "limit": 100,
+      "unit": "UTF-8 bytes"
+    },
+    {
+      "language": "zh-Hant",
+      "field": "description",
+      "count": 540,
+      "limit": 4000,
+      "unit": "characters"
+    },
+    {
+      "language": "en-US",
+      "field": "name",
+      "count": 18,
+      "limit": 30,
+      "unit": "characters"
+    },
+    {
+      "language": "en-US",
+      "field": "subtitle",
+      "count": 30,
+      "limit": 30,
+      "unit": "characters"
+    },
+    {
+      "language": "en-US",
+      "field": "promotionalText",
+      "count": 166,
+      "limit": 170,
+      "unit": "characters"
+    },
+    {
+      "language": "en-US",
+      "field": "keywords",
+      "count": 80,
+      "limit": 100,
+      "unit": "UTF-8 bytes"
+    },
+    {
+      "language": "en-US",
+      "field": "description",
+      "count": 1603,
+      "limit": 4000,
+      "unit": "characters"
+    }
+  ]
+}

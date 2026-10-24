@@ -1,0 +1,18 @@
+1019c38 英文候選：最小原生／實機 QA 缺件清單（尚未執行）
+
+先協調已解鎖 Mac 的前景時段，Glyco 統一協調 Claude。最近回報是 screenLocked=true／loginwindow，Glyco未持有模擬器；不能直接解鎖、搶用桌面、控制手機或沿用其他工作者裝置。本輪只更新文件，未執行以下步驟。
+
+來源：1019c380588bbf51f6d46d396798e034612f90aa；75語言／資料／英文版面、25草稿、165中文版面、35離線背景檢查及generic unsigned simulator編譯已有證據，不重跑整套。已安裝開發版仍9f737e0，不能把舊App當新版測試。執行者先記錄實際App來源／版本／iOS／專用UUID與資料fixture，確認精確候選後再測；不要執行本文件舊版曾列出的安裝命令。
+
+只用既有 manual-fixtures/manifest.json 與合成出生／日誌資料，保留非空 profile／records；不用真實出生資料、雲端目的地、帳號或真實手機。若後續程式來源更動，記錄來源並調整受影響案例，不把1019c38背景證據算成新版通過。
+
+[ ] 1. 首次English預設、Language／語言手動切換、重啟後偏好；設定資料、文化性／時間限制說明和本機隱私全文可讀，繁中仍正常。日期／Files等系統介面依系統語言，不宣稱跟隨App選項。
+[ ] 2. 姓名／日誌鍵盤開啟、Done、完整選取替換筆記後保存；Daily草稿跨五分頁／日期保留，按Save才寫入，重啟不保證未保存草稿。評分、標籤、保存及失敗提示可理解。
+[ ] 3. portrait／landscape安全區、長字串、命盤局部左右操作及下方Bazi、Entries編輯、Trends日期tick；隱私返回保留現有資料。細部術語及CSV欄名中文不是完整英文。
+[ ] 4. 新controller的Files取消再開、非法UTF-8／JSON／超5MB保留非空資料；valid合併保留本機profile、重複匯入不重複。實際JSON Save to Files→選回匯入→重啟，核對profile與records，忽略exportedAt。取消／分享中斷及CSV另外記錄，不以mock share代替。
+[ ] 5. Trends filter及真正至少10筆所選指標的歷史平均預覽；非法日期／時間／年份原生輸入。NY時區需原生／WebView日期一致的明確證據；不把舊不一致環境當通過或一般使用者缺陷。
+[ ] 6. 新版英文原生驗證後更新既有五張主截圖；使用screenshot-review.txt英文文案及合成資料，記錄來源／裝置／SHA。背景browser圖不是iOS Store截圖。
+
+實機／VoiceOver／Dynamic Type／其他分享provider另需協調與適用授權，不以模擬器代替；本輪不要求手機操作。記錄PASS／FAIL／BLOCKED、案例、實際訊息、資料一致性與遮蔽畫面，不因失敗清App或改來源檔。只清理本次建立且核對UUID的專用模擬器，不動別人的裝置。
+
+保留歷史：9f737e0模擬US QA已有真正Files取消／錯誤拒絕／非空及重複合併／1123 bytes JSON本機roundtrip；不是1019c38原生或實機通過。完整計畫與結果見native/qa/US_USER_TEST_PLAN.md、US_USER_TEST_RESULTS.md。本清單取代舊「非空Files尚未跑」說法，不重跑整個baseline。

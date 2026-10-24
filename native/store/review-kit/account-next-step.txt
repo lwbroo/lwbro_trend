@@ -1,0 +1,8 @@
+下一步只讀核對 App Store Connect App 紀錄
+
+1. 在既有登入的 App Store Connect → Apps（https://appstoreconnect.apple.com/apps）查看「紫微八字」及 bundle com.lwbroo.ziweibazi。不要先建立另一筆。
+2. 若存在：打開 App Information，核對並記下 numeric Apple ID、Bundle ID、平台、主語言、seller 與狀態；不修改法定資料或接受協議。
+3. 若不存在：在確認產品名稱後準備 ＋ → New App：iOS；紫微八字；Chinese (Traditional)；com.lwbroo.ziweibazi；SKU提案 ziwei-bazi-trend-ios。權限設定沿用權利人明確選擇，不新增他人存取。檢查名稱可用性；不建立重複紀錄。若有最新協議或登入要求，交回本人處理。
+4. Kurt已明確同意建立兩App的Apple Distribution憑證與App Store profiles，由Glyco獨占辦理。先核對既有可用能力與record，避免重複；本worker不操作帳號／簽名，也未驗證完成。不要以development／ad hoc包代替正式distribution包。
+
+目前無可操作的瀏覽器工具，Chrome JavaScript限制保持原樣；沒有盲目重試。App record存在與否仍未知，不聲稱已建立或沒有。

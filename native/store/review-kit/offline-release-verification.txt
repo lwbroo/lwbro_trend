@@ -1,0 +1,39 @@
+歷史驗證與最新補充分列；目前development版已安裝，完整Files／physical gate仍未完成。
+
+紫微八字：已批准離線首版的發布前驗證（runtime d9f9634）
+
+首版決定已完成：
+Kurt 同意「先完成上線」，採離線命盤、日誌、趨勢與 JSON／CSV 備份。五個正式入口：今日流運、本命盤、記錄、趨勢分析、設定。AI／同步／登入／購買入口不顯示；後續網頁實作保留來源，並非刪除未來功能。
+
+價格決定（僅文件更新，沿用以下驗證）：
+Kurt 確認首版免費下載；後續商業模式仍探索，沒有新增購買、廣告或 AI 服務。未操作 App Store 價格或帳號；公開品牌／營運稱呼 lwbro 與支援信箱 lwbro@me.com 已於 2026-10-06 確認；法定身分、版權及私人審查聯絡仍待提供。本次沒有重跑未變更的 builds／tests。
+
+本次完成：
+• 原生包排除 js/ai.js、js/chat.js、js/sync.js、AI relay／OAuth 實作、CDN 備援。離線介面拒絕服務呼叫，不產生 client ID／操作同步 token；connect-src none／form-action none 保留。
+• 舊的合成同步設定不會啟用連線或進入備份。JSON 只匯出出生資料與日誌；取消分享不改本機記錄。系統備份與使用者選擇的目的地仍可能有雲端處理。
+• JSON 先驗證再依日期合併；已有出生資料保留；較新更新時間優先。新增 storage quota 寫入失敗回復，避免只匯入 profile 卻未寫入 records。
+• 完整手機記錄卡、12 宮局部左右操作與键盤／日期編輯导航保留。檢視原始畫面發現狀態列與標題重疊，已修正 native CSS precedence，傳遞 UIKit 實測 top/bottom 安全區；本機隱私頁及返回亦保留安全區。
+• 本機 MIT 授權以可展開全文顯示，無需開啟外部網站。未批准的個人 email 已從原生說明移除；該 d9f9634 產物尚未含本次批准的公開品牌／信箱；最新來源草稿已填 lwbro／lwbro@me.com，公開 URL 仍待提供。
+
+實際驗證：
+• Focused 165/165：320／375／430／932px，含 320／430px 的 150% browser 字體；安全區 fallback、長文字、局部命盤、日期編輯／刪除、五個離線入口等。
+• Offline data/network audit 35/35：停用服務 fetch 次數 0；故意同 origin loopback fetch 1 次，被 CSP 拒絕；沒有對外服務呼叫。驗證混合非法匯入不變、重複／較新合併、quota 回復、惡意筆記純文字、匯出無同步 token、取消分享、清除且保留 unrelated synthetic key、本機隱私／MIT／返回連結。
+• 既有 browser smoke 51/51（含模擬 AI 回應，保留網頁功能）與曆法／輸入 20/20；JS syntax 11 files 通過。隱藏 iframe 在現有 headless 瀏覽器未完成載入，harness 改為有尺寸的 rendered iframe 後通過；沒有更動 release CSP 或實際服務。
+• 最終 iPhone 17 Pro Max、iPhone SE 原生 layout/capture case 各 1/1，包括本機隱私頁與返回；沒有 Files 操作。最終結果為 build/native-iphone-debug-1791254103.xcresult、build/native-iphone-debug-1791254226.xcresult。Debug 合成 profile／21 筆記錄不進入 Release。
+• Release simulator BUILD SUCCEEDED，device unsigned ARCHIVE SUCCEEDED。check_build.py 核對 14 packaged asset SHA、3 現有 privacy manifests、bundle/scene/iPhone identity、既有不透明圖示與測試 bootstrap 排除；也核對未打包服務／CDN。
+• 早期 72b4295 原生 case 均通過但 screenshot visual QA 發現狀態列重疊；該批僅保留 build 診斷，不列為目前候選。先前 ffb9fe5、bc9753f、72b4295 unsigned archives 另存各自帶 commit 的路徑，原始 Files 結果保留。
+
+d9f9634 里程碑簽名／身分（歷史只讀；最新development安裝及上架檢查見文末）：
+com.lwbroo.ziweibazi；version 1.0/build 1；iPhone；minimum iOS15。來源未設定 team/profile；本機沒有找到此 bundle 的 provisioning profile，security read query 未列出 valid signing identities。無 App Store connector，沒有開啟前景 Apple 帳號 UI，實際既有 App ID／record／team 未驗證。查詢結果不是 Apple 帳號中不存在紀錄的證明，也沒有建立憑證／變更團隊。
+
+仍然阻擋發布：
+• 依 owner-decisions.txt 提供最終商品呈現／發行地區、法定身分／版權／私人審查聯絡、公開政策／支援 URL 與生效／支援訊息保留做法；核對既有 Apple record/team、合法簽名能力及所有最終帳號聲明。離線本機處理與現有 privacy manifests 不等於法定宣告已批准。
+• 協調前景 iPhone Files 非空／非法／超限／重複／資料保留 gate；本次沒有 blind rerun。先前 iPad Release Files 2/2 與 iPhone Release Files 1/2 仍屬 ffb9fe5，不能當作新版本 all-green。
+• 實機 VoiceOver、系統 Dynamic Type、方向／安全區、實際檔案供應者與分享目的地；browser 字體 proxy／合成 simulator 不能取代。
+• 沒有 signed IPA、實機安裝、TestFlight/App Store upload、submission、付款、公開發布、帳號條款接受或 credentials/signing/team 變更。
+
+命理為文化詮釋；記錄統計為相關性觀察，沒有科學確立的預測能力，不作醫療／心理健康／財務建議。
+
+2026-10-06 公開聯絡草稿更新：lwbro／lwbro@me.com 已確認。僅產生商店、支援、隱私及原生隱私來源草稿；無 native rebuild、測試重跑、寄信、上傳或帳號操作。既有 archive／截圖與其測試來源維持 d9f9634；新增原生聯絡文字待政策決定後最終打包。支援信件保留／刪除做法與政策生效日期未推定。
+
+最新development里程碑：9f737e0 Release1.0/build1已用本人新下載development profile及既有憑證簽名。嚴格簽章、對應entitlements、內嵌profile完全一致、14資產雜湊及核准聯絡文字已核對；已安裝到本人iPhone，命令成功，exact bundle/version/build確認，基本launch成功且2秒仍運行。不是distribution簽名或完整實機／Files檢查。本次上架準備只讀簽名：有效開發憑證1，distribution憑證0，只有development profile。帳號內App record與其他發行能力未知；沒有重試瀏覽器限制、phone操作、build/test重跑、上傳或提交。新提案與精確待填欄位見submission-readiness.html／submission-plan.json。

@@ -1,0 +1,323 @@
+{
+  "status": "REVIEWABLE PREPARATION — NOT UPLOADED OR SUBMITTED",
+  "installedRuntimeSourceCommit": "9f737e089583889df5e6abc2264b222722940145",
+  "installedVersion": "1.0",
+  "installedBuild": "1",
+  "bundleId": "com.lwbroo.ziweibazi",
+  "confirmed": {
+    "freeOfflineFirst": true,
+    "publicOperatorBrand": "lwbro",
+    "supportEmail": "lwbro@me.com",
+    "nativeContactTextPackaged": true,
+    "developmentInstallationVerified": true,
+    "startupProcessRunningAfter2Seconds": true
+  },
+  "proposedAndRemainingDecisions": [
+    {
+      "field": "商店名稱／副標題",
+      "proposed": "紫微八字／排盤、心情紀錄與歷史趨勢；英文 Ziwei Bazi Journal／Charts, moods and local backup",
+      "status": "待採用及帳號名稱可用性確認",
+      "needed": "是否採用現有中英文文案與既有圖示。"
+    },
+    {
+      "field": "平台／語言／版本",
+      "proposed": "iOS；核心五分頁英文／繁中；傳統命盤名稱保留中文；1.0；iPhone；最低 iOS15。英文候選待原生UI驗證，沒有更動帳號primary language。",
+      "status": "已核對；App record 尚未核對",
+      "needed": "確認既有 App Store Connect record；不要建立重複紀錄。"
+    },
+    {
+      "field": "SKU（只在沒有既有 record 時）",
+      "proposed": "ziwei-bazi-trend-ios",
+      "status": "提案；未建立",
+      "needed": "只有確定沒有既有 record 且採用名稱後，才使用此 SKU。"
+    },
+    {
+      "field": "公開品牌／支援",
+      "proposed": "lwbro／lwbro@me.com",
+      "status": "Kurt 已批准",
+      "needed": "品牌／公開支援信箱已批准；2026-10-08另明確提供法定／版權姓名與私人審查email，不推定審查姓名或電話。"
+    },
+    {
+      "field": "價格／商業功能",
+      "proposed": "免費下載；無廣告、內購、訂閱、AI、雲端同步或帳號。",
+      "status": "已批准；帳號價格未設定",
+      "needed": "沿用已批准首版；沒有新付費設定提案。"
+    },
+    {
+      "field": "主要類別／產品市場與storefront",
+      "proposed": "Lifestyle；美國優先、面向全球；不預購為提案。",
+      "status": "US／全球產品目標已確認；實際storefront及類別待核對",
+      "needed": "核對實際發行地區及相應帳號要求；不自動勾選全球storefront。確認Lifestyle。"
+    },
+    {
+      "field": "發行方式",
+      "proposed": "審查通過後手動發行。",
+      "status": "提案；未設定",
+      "needed": "確認手動發行；送審及上傳仍等待 gate 完成。"
+    },
+    {
+      "field": "法定身分／seller／版權",
+      "proposed": "法定發布者／版權姓名：Kurt Chiang（2026-10-08明確提供）；Apple seller帳號名稱及是否相符、完整版權文字／年份未確認。",
+      "status": "發布者及版權姓名已確認；seller核對與完整版權文字待完成",
+      "needed": "核對實際Apple seller；提供版權年份及完整文字。lwbro仍是公開品牌；不由姓名推定既有seller帳號相符，也不把版權姓名當作內容／圖示權利完整證明。"
+    },
+    {
+      "field": "私人 App Review 聯絡",
+      "proposed": "審查email：lwbro@me.com（2026-10-08明確提供）；姓名與電話空白。此版無登入，因此不需測試帳號。",
+      "status": "email已確認；審查姓名／電話待提供；無登入已核對",
+      "needed": "補審查聯絡姓名與電話；不能從法定發布者Kurt Chiang推定審查聯絡人姓名。此email是明確提供的審查聯絡值，沒有將私人聯絡欄加入公開listing／policy／support頁。"
+    },
+    {
+      "field": "公開隱私／支援網址",
+      "proposed": "採用已備好的中英文草稿；由你指定已授權 HTTPS 主機與兩個實際 URL。",
+      "status": "尚未公開",
+      "needed": "指定 hosting／URL；不得使用本機 URL 或 ZIP 路徑送審。"
+    },
+    {
+      "field": "政策生效／支援信件保留與刪除",
+      "proposed": "無代填日期或期限；本機日誌刪除、分享／系統備份界線維持已核對文字。",
+      "status": "待提供",
+      "needed": "指定生效日期、支援信件保留多久、如何申請／處理刪除（含附件）；未指定前草稿不能稱為生效政策。"
+    },
+    {
+      "field": "App Privacy",
+      "proposed": "工程已證實此原生候選：profile／日誌／語言偏好裝置內保存與計算；無App自動傳送、AI／同步／廣告／追蹤／診斷上報；使用者自行選分享目的地。最終標籤由工程對照Apple定義及實際收信流程草擬，不先填Data Not Collected。",
+      "status": "技術資料流已核對；最終bundle／營運事實及聲明待確認",
+      "needed": "Kurt只需提供支援信件由誰／哪個服務收取、用途、轉交、保留及刪除做法，以及此App是否另有不同版本／服務。工程核對SDK、最終包與問卷，不要求Kurt猜技術答案。"
+    },
+    {
+      "field": "年齡／內容權利",
+      "proposed": "完成實際年齡問卷，讓 Apple 計算；不預填 4+。建議不選 Made for Kids；內容及圖示使用權由權利人確認。",
+      "status": "待逐題審閱與批准",
+      "needed": "工程依實際畫面／內容草擬年齡問卷；Kurt確認內容與圖示權利人、是否另有未列內容或自訂最低年齡，再審閱草稿，不要求猜Apple算出的等級。"
+    },
+    {
+      "field": "出口合規",
+      "proposed": "現有 Info.plist 的 ITSAppUsesNonExemptEncryption=false 保留；未實作自訂加密。不是已批准的法律答覆。",
+      "status": "待實際問卷／權利人確認",
+      "needed": "工程核對最終App／框架與實際問卷，提出有來源的答覆草稿給權利人確認；Kurt不需猜SDK加密行為。沒有代答帳號或上傳文件。"
+    },
+    {
+      "field": "Accessibility 宣稱",
+      "proposed": "先不標示尚未完成實機驗證的 VoiceOver／大字等支援項。",
+      "status": "提案；實機 gate 開放",
+      "needed": "完成相關實機檢查後，才宣告對應能力。"
+    }
+  ],
+  "ownerDeclarationValues": {
+    "legalOwner": "Kurt Chiang",
+    "appleSellerLegalName": null,
+    "copyright": null,
+    "privateReviewContact": {
+      "name": null,
+      "email": "lwbro@me.com",
+      "phone": null
+    },
+    "privacyPolicyUrl": null,
+    "supportUrl": null,
+    "policyEffectiveDate": null,
+    "supportMessageRetentionPolicy": null,
+    "supportMessageDeletionProcess": null,
+    "finalAppPrivacyDeclaration": null,
+    "finalAgeQuestionnaire": null,
+    "finalExportCompliance": null,
+    "copyrightOwnerName": "Kurt Chiang"
+  },
+  "distributionReadiness": {
+    "checkedAtUtc": "2026-10-06T21:54:41.279834+00:00",
+    "validIdentityCount": 1,
+    "validDevelopmentIdentityCount": 1,
+    "validDistributionIdentityCount": 0,
+    "matchingZiweiProfiles": [
+      {
+        "name": "Ziwei Bazi Trend Development",
+        "type": "development",
+        "unexpired": true,
+        "matchesValidLocalIdentity": true,
+        "deviceCount": 1
+      }
+    ],
+    "exactAppStoreProfileVerified": false,
+    "appStoreConnectRecord": "UNVERIFIED: existing Apple account browser access blocker retained; no blind retry or account/session credential extraction",
+    "developerAppId": "User registered exact App ID; downloaded profile and signed installed build verify bundle/team/certificate/device. This does not establish an App Store Connect record.",
+    "phoneAccessThisPass": false,
+    "newCredentialProfileAccountOrSecurityChanges": false
+  },
+  "browserBlocker": "No supported local browser/computer-use tool; existing Chrome AppleScript JavaScript disabled and existing Accessibility read exposed no verified controls. Reuse blocker without blind retry; no permissions changed or credentials/session tokens extracted.",
+  "nextAccountStep": "Open App Store Connect → Apps. Check for com.lwbroo.ziweibazi and open its App Information if found; record numeric Apple ID, bundle, seller and status. If absent, prepare New App dialog using approved product values; do not create duplicate. Hand off any login or agreement.",
+  "engineeringGates": [
+    "Current bilingual candidate: core English screens have background verification; native keyboard/name/note, language switching, safe-area/rotation/privacy return and Files regression remain pending after Mac is unlocked and foreground use coordinated. Parent reports loginwindow; no UI or unlocking attempted. Refresh iOS screenshots before submission.",
+    "9f737e0 simulated US QA already passed actual local Files cancellation, invalid/oversize/UTF-8 errors, repeated/nonempty merge preservation and local JSON roundtrip. Do not repeat the baseline campaign; recheck relevant interactions on the changed 206bbbb controller, then retain physical/provider checks separately.",
+    "Physical navigation, VoiceOver, system Dynamic Type, orientation/safe-area and chosen real file/share providers remain unverified. Diagnostic accessibility audit completion is not a pass.",
+    "Distribution creation is explicitly authorized and exclusively coordinated by Glyco. Check existing App record/signing capability first; then validate exact final device archive, signatures/entitlements/assets and Apple validation. This worker did not operate signing/accounts or verify completion."
+  ],
+  "screenshotProvenance": {
+    "captureSourceCommit": "d9f96344605e21f826acdd29e2556ecf9669a078",
+    "installedSourceCommit": "9f737e089583889df5e6abc2264b222722940145",
+    "changedPackagedAssetsSinceCapture": [
+      "privacy.html"
+    ],
+    "fivePrimaryScreensUnchanged": true,
+    "historicalPrivacyCaptureTextPredatesContactApproval": true,
+    "newScreenshotsOrPhoneActionsThisPass": false,
+    "fivePrimaryScreensUnchangedComparisonScope": "capture d9f9634 versus installed 9f737e0 only; not current 1019c38 English candidate",
+    "currentUXCandidateScreenshotsVerified": false
+  },
+  "actionsNotPerformed": [
+    "phone control",
+    "new certificate/profile/security changes",
+    "legal agreement acceptance",
+    "privacy/age/export declarations submitted",
+    "paid settings",
+    "upload/submission/publication"
+  ],
+  "sources": [
+    {
+      "title": "App record creation",
+      "url": "https://developer.apple.com/help/app-store-connect/create-an-app-record/add-a-new-app/"
+    },
+    {
+      "title": "App Store provisioning profile",
+      "url": "https://developer.apple.com/help/account/provisioning-profiles/create-an-app-store-provisioning-profile/"
+    },
+    {
+      "title": "App Privacy definition and optional disclosure",
+      "url": "https://developer.apple.com/app-store/app-privacy-details/"
+    },
+    {
+      "title": "Age rating questionnaire",
+      "url": "https://developer.apple.com/help/app-store-connect/manage-app-information/set-an-app-age-rating/"
+    },
+    {
+      "title": "Export questionnaire",
+      "url": "https://developer.apple.com/help/app-store-connect/manage-app-information/determine-and-upload-app-encryption-documentation/"
+    },
+    {
+      "title": "Screenshot specifications",
+      "url": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications"
+    }
+  ],
+  "productMarketTarget": {
+    "primary": "United States",
+    "reach": "Global",
+    "userConfirmed": true,
+    "actualStorefrontSettingsApprovedOrChanged": false
+  },
+  "currentUXCandidate": {
+    "report": "native/qa/ENGLISH_CORE_IMPLEMENTATION.md",
+    "coreInterface": "English / Traditional Chinese core five tabs implemented; detailed traditional chart terms and CSV headings remain Chinese",
+    "internationalCorrectedCalculationsVerified": false,
+    "nativeKeyboardUIRecheck": "blocked: parent reports screenLocked=true / foreground loginwindow; Glyco does not hold simulator. Do not unlock or attempt UI.",
+    "existingStoreScreenshotsReflectCurrentCandidate": false,
+    "physicalPhoneUsed": false,
+    "runtimeSourceCommit": "1019c380588bbf51f6d46d396798e034612f90aa"
+  },
+  "readinessCheckpoint": {
+    "reviewDate": "2026-10-07",
+    "reviewedRuntimeCommit": "1019c380588bbf51f6d46d396798e034612f90aa",
+    "status": "NOT READY FOR SUBMISSION; English core implemented; detailed Chinese terms, native/physical/screenshots/account gates remain open",
+    "report": "native/qa/READINESS_206bbbb.md",
+    "priorResults": "native/qa/US_USER_TEST_RESULTS.md",
+    "existingVerification": "1019c38: 75 language/data/English layout + 25 draft + 165 Chinese layout + 35 offline assertions passed; exact-source generic unsigned simulator Release compilation and 15 packaged asset hashes passed. This document audit did not rerun tests/builds.",
+    "priorNativeFiles": "9f737e0 actual local JSON roundtrip and error/merge preservation passed; not physical phone or 1019c38 native UI evidence",
+    "minimumOwnerInputGroups": [
+      "Adopt final names/icon/category, actual storefronts and release mode; US-first/global intent and free offline scope are already confirmed.",
+      "Publisher/copyright owner name Kurt Chiang and private review email lwbro@me.com confirmed 2026-10-08; seller account identity/match, full copyright text/year, private reviewer name and phone remain pending.",
+      "Authorized public privacy/support URLs, effective date and support-message retention/deletion handling.",
+      "Engineering drafts privacy/age/export answers from exact final app, frameworks and content; Kurt supplies operator/support/rights and any additional data-use facts, then reviews the completed answers. Do not ask Kurt to guess SDK behavior."
+    ],
+    "deferredCalculationDecision": "International birthplace/time-zone/DST algorithms remain deferred; no implementation or decision required for this audit.",
+    "actionsThisAudit": "Store/QA documents and local hashes only; no runtime changes, tests/build reruns, UI, simulator, phone, accounts, credentials, algorithms or uploads",
+    "coordinationUpdate": "blocked: parent reports screenLocked=true / foreground loginwindow; Glyco does not hold simulator. Do not unlock or attempt UI."
+  },
+  "followupEnglishCandidate": {
+    "baseCommit": "8dfa8deeaae199cde12cf5c38627369a3a58df7a",
+    "sourceIdentity": "Committed English core candidate 1019c38; build/english-core-completion.json retains exact source evidence",
+    "report": "native/qa/ENGLISH_CORE_IMPLEMENTATION.md",
+    "interfaceLanguages": [
+      "en",
+      "zh-Hant"
+    ],
+    "coreFiveTabsImplemented": true,
+    "traditionalChartNamesRemainChinese": true,
+    "nativeUIVerified": false,
+    "physicalPhoneUsed": false,
+    "worldwideCorrectedCalculationsValidated": false,
+    "verification": "75 language/data/English layout + 25 draft + 165 Chinese layout + 35 offline assertions passed; unsigned compilation tracked separately",
+    "runtimeSourceCommit": "1019c380588bbf51f6d46d396798e034612f90aa"
+  },
+  "priorReadinessCheckpoint206bbbb": {
+    "reviewDate": "2026-10-07",
+    "reviewedRuntimeCommit": "206bbbb54811ce7fbc08b03d10ce756f8deb9c22",
+    "status": "NOT READY FOR SUBMISSION; core English UX and native/physical/account gates remain open",
+    "report": "native/qa/READINESS_206bbbb.md",
+    "priorResults": "native/qa/US_USER_TEST_RESULTS.md",
+    "existingVerification": "25 UX + 165 layout + 35 offline assertions passed; exact candidate generic unsigned Release compilation passed; no rerun during readiness audit",
+    "priorNativeFiles": "9f737e0 actual local JSON roundtrip and error/merge preservation passed; not physical phone or 206bbbb UI evidence",
+    "minimumOwnerInputGroups": [
+      "Adopt final names/icon/category, actual storefronts and release mode; US-first/global intent and free offline scope are already confirmed.",
+      "Legal operator/seller/copyright and private App Review contact.",
+      "Authorized public privacy/support URLs, effective date and support-message retention/deletion handling.",
+      "Approve final actual-account privacy/age/content-rights/export declarations after factual review; no inferred answers."
+    ],
+    "deferredCalculationDecision": "International birthplace/time-zone/DST algorithms remain deferred; no implementation or decision required for this audit.",
+    "actionsThisAudit": "files and hashes only; no UI, simulator, phone, account, credentials, permissions, algorithms or upload changes",
+    "coordinationUpdate": "blocked: parent reports screenLocked=true / foreground loginwindow; Glyco does not hold simulator. Do not unlock or attempt UI."
+  },
+  "distributionCreationAuthorization": {
+    "authorized": true,
+    "scope": "Create Apple Distribution certificate and App Store profiles for the two Apps; parent confirms explicit Kurt consent on 2026-10-07",
+    "coordinator": "Glyco exclusively; Ziwei worker must not operate Claude/UI/phone/accounts/signing",
+    "executionVerifiedByThisWorker": false,
+    "existingCapabilitiesMustBeCheckedFirst": true
+  },
+  "launchTarget": {
+    "date": "2026-10-11",
+    "timezone": "Asia/Taipei",
+    "meaning": "downloadable at some point on that day; no exact launch instant requested",
+    "guaranteedAppleApprovalOrAvailability": false,
+    "fineTranslationDeferred": true,
+    "proposedMilestones": [
+      {
+        "by": "2026-10-08T10:00:00+08:00",
+        "owner": "Kurt + Glyco",
+        "gate": "Owner identity/support/rights facts and account/signing progress known; no repeated distribution-consent question"
+      },
+      {
+        "by": "2026-10-08T12:00:00+08:00",
+        "owner": "Engineering",
+        "gate": "Minimal runtime freeze; P0 fixes only, no chart/CSV translation expansion"
+      },
+      {
+        "by": "2026-10-08T18:00:00+08:00",
+        "owner": "Engineering + Glyco",
+        "gate": "Exact-source native trial, fixes, current screenshots, policies and signed archive validation pass"
+      },
+      {
+        "by": "2026-10-08T20:00:00+08:00",
+        "owner": "Account coordinator",
+        "gate": "Submit only after all P0 gates pass; otherwise revise target"
+      },
+      {
+        "by": "2026-10-10T20:00:00+08:00",
+        "owner": "Apple + authorized account coordinator",
+        "gate": "If approved and manual release selected, release promptly to allow up to 24h Store propagation; approval is outside team control"
+      }
+    ],
+    "appleReferences": [
+      "https://developer.apple.com/help/app-review/after-submitting-for-review/review-status/",
+      "https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/select-an-app-store-version-release-option/"
+    ]
+  },
+  "ownerFactApprovalEvidence": {
+    "confirmedAtUtc": "2026-10-08T12:25:33Z",
+    "source": "Owner reply relayed by coordinating parent; local review drafts only",
+    "ownerReply": "1 Kurt Chiang\n\n2. lwbro@me.com",
+    "legalPublisherAndCopyrightOwnerName": "Kurt Chiang",
+    "privateAppReviewEmail": "lwbro@me.com",
+    "reviewerNameAndPhoneConfirmed": false,
+    "appleSellerAccountMatchVerified": false,
+    "fullCopyrightTextAndYearConfirmed": false,
+    "supportProcessPolicyURLsAndFinalPrivacyApproved": false
+  }
+}
