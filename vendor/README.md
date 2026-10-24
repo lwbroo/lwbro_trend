@@ -20,3 +20,8 @@ cp node_modules/iztro/dist/iztro.min.js vendor/
 |---|---|---|---|
 | `lunar.js` | [lunar-javascript](https://github.com/6tail/lunar-javascript) 1.7.7 | 八字／農曆／節氣／流日干支 | MIT |
 | `iztro.min.js` | [iztro](https://github.com/SylarLong/iztro) 2.5.8 | 紫微斗數排盤／流年流月流日四化 | MIT |
+
+授權原文隨 App 一同封裝：
+
+- [lunar-javascript MIT](licenses/lunar-javascript-MIT.txt)，來源：[官方 LICENSE](https://github.com/6tail/lunar-javascript/blob/master/LICENSE)。
+- [iztro MIT](licenses/iztro-MIT.txt)，來源：[官方 LICENSE](https://github.com/SylarLong/iztro/blob/master/LICENSE)。

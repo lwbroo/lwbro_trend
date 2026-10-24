@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-Hant"><meta charset="utf-8"><title>紫微八字離線煙霧測試</title>
+<pre id="result">running</pre><iframe id="app" title="Synthetic regression app" style="width:430px;height:950px;border:0"></iframe>
+<script>
+(async () => {
+  const output = document.querySelector('#result');
+  const checks = [];
+  const check = (name, ok) => { checks.push({ name, ok: !!ok }); if (!ok) throw new Error(name); };
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const until = async (fn, label) => {
+    for (let i = 0; i < 100; i++) { if (fn()) return; await wait(50); }
+    throw new Error('timeout: ' + label);
+  };
+  const frame = document.querySelector('#app');
+  let doc, win;
+  try {
+    // Remove only this trial's keys; ordinary app data and all other origins stay intact.
+    ['profile', 'records', 'sync'].forEach(k => localStorage.removeItem('zwbz.' + k + '.offline-demo'));
+    localStorage.removeItem('zwbz.ai-reading-cache.offline-demo');
+    frame.src = '../index.html?offline-demo=1';
+    await new Promise(resolve => frame.onload = resolve);
+    doc = frame.contentDocument; win = frame.contentWindow;
+    const $ = s => doc.querySelector(s);
+    const clickTab = name => { $(`[data-tab="${name}"]`).click(); check('tab ' + name, $('#tab-' + name).classList.contains('active')); };
+    await until(() => $('#profile-chip').textContent, 'app initialization');
+    check('offline notice', !$('#demo-banner').hidden);
+    check('settings first', $('#tab-settings').classList.contains('active'));
+    check('sync hidden', $('#sync-card').hidden);
+    check('no AI request button in demo', !$('#btn-ai-reading'));
+
+    $('#p-name').value = '虛構人物';
+    $('#p-date').value = '2000-01-01';
+    $('#p-time').value = '12:00';
+    $('input[name="p-gender"][value="女"]').checked = true;
+    $('#profile-form').requestSubmit();
+    await until(() => doc.querySelectorAll('#ziwei-board .palace').length === 13, 'natal chart');
+    check('natal chart and four pillars', $('#bazi-table th') && doc.querySelectorAll('#ziwei-board .palace').length === 13);
+    clickTab('today');
+    check('daily reading calculated locally', $('#today-content').textContent.includes('流日'));
+    check('no AI auto request', !$('#btn-ai-reading'));
+
+    const record = (date, mood, energy) => {
+      $('#today-date').value = date;
+      $('#today-date').dispatchEvent(new Event('change', { bubbles: true }));
+      $(`input[name="mood"][value="${mood}"]`).checked = true;
+      $(`input[name="energy"][value="${energy}"]`).checked = true;
+      $('#note').value = 'synthetic';
+      $('#checkin-form').requestSubmit();
+    };
+    record('2026-10-01', 5, 4);
+    record('2026-10-02', 2, 3);
+    check('two local records', JSON.parse(localStorage.getItem('zwbz.records.offline-demo')).length === 2);
+    clickTab('records');
+    check('records displayed', $('#records-list').textContent.includes('2026-10-01'));
+    clickTab('trends');
+    check('trend chart rendered', $('#trends-content svg') !== null);
+    clickTab('ai-chat');
+    check('chat visible without sending', !$('#chat-body').hidden && !$('#chat-consent').checked);
+    clickTab('settings');
+    check('synthetic profile retained', $('#p-name').value === '虛構人物');
+
+    // Exercise import merge and malformed-file error handling without an external call.
+    clickTab('records');
+    const importFile = async text => {
+      const input = $('#import-file');
+      const transfer = new DataTransfer();
+      transfer.items.add(new File([text], 'trial.json', { type: 'application/json' }));
+      input.files = transfer.files;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      await wait(20);
+    };
+    await importFile(JSON.stringify({ records: [{ date: '2026-10-03', mood: 3, energy: 3, tags: [], note: 'import', updatedAt: '2026-10-03T00:00:00Z' }] }));
+    await until(() => JSON.parse(localStorage.getItem('zwbz.records.offline-demo')).length === 3, 'valid import');
+    const imported = JSON.parse(localStorage.getItem('zwbz.records.offline-demo'));
+    check('valid import merged', imported.length === 3);
+    await importFile('{bad json');
+    await until(() => $('#records-io-status').textContent.includes('匯入失敗'), 'invalid import');
+    check('invalid import reported', $('#records-io-status').textContent.includes('匯入失敗'));
+    await importFile(JSON.stringify({ records: [{ date: '2023-02-29', mood: 3, energy: 3 }] }));
+    await until(() => $('#records-io-status').textContent.includes('日期'), 'invalid calendar date');
+    check('impossible imported date rejected atomically', JSON.parse(localStorage.getItem('zwbz.records.offline-demo')).length === 3);
+    const RealFileReader = win.FileReader;
+    win.FileReader = class { readAsText() { this.onerror(); } };
+    await importFile('{}');
+    check('file read error visible without mutation', $('#records-io-status').textContent.includes('無法讀取') && JSON.parse(localStorage.getItem('zwbz.records.offline-demo')).length === 3);
+    win.FileReader = class { readAsText() { this.onabort(); } };
+    await importFile('{}');
+    check('file read interruption visible without mutation', $('#records-io-status').textContent.includes('中斷') && JSON.parse(localStorage.getItem('zwbz.records.offline-demo')).length === 3);
+    win.FileReader = RealFileReader;
+    await importFile(' '.repeat(5 * 1024 * 1024 + 1));
+    check('oversize import rejected before parsing', $('#records-io-status').textContent.includes('5 MB') && JSON.parse(localStorage.getItem('zwbz.records.offline-demo')).length === 3);
+
+    const exports = [];
+    win.URL.createObjectURL = blob => { exports.push(blob); return 'blob:mock'; };
+    win.URL.revokeObjectURL = () => {};
+    win.HTMLAnchorElement.prototype.click = () => {};
+    $('#btn-export-json').click();
+    $('#btn-export-csv').click();
+    await until(() => exports.length === 2, 'exports');
+    check('JSON export includes records', JSON.parse(await exports[0].text()).records.length === 3);
+    check('CSV export includes record columns', (await exports[1].text()).includes('流日干支'));
+
+    const external = win.performance.getEntriesByType('resource').filter(r => /^https?:/.test(r.name) && !r.name.startsWith(location.origin));
+    check('zero outbound resources', external.length === 0);
+
+    // Load the normal UI with a fetch mock installed before application scripts run.
+    // This proves neither AI endpoint is contacted before the user's choice.
+    ['profile', 'records', 'sync'].forEach(k => localStorage.removeItem('zwbz.' + k + '.smoke-ai'));
+    localStorage.removeItem('zwbz.ai-reading-cache.smoke-ai');
+    localStorage.setItem('zwbz.profile.smoke-ai', JSON.stringify({ name: '虛構人物', birthDate: '2000-01-01', birthTime: '12:00', gender: '女' }));
+    const source = await (await fetch('../index.html')).text();
+    const bootstrap = `<base href="${new URL('../', location.href)}"><script>
+      window.ZWBZ_NAMESPACE='smoke-ai'; window.__outbound=[];
+      window.fetch=(url,options)=>{
+        window.__outbound.push({url:String(url),body:options&&options.body});
+        if(String(url).endsWith('/reading')) return Promise.resolve(new Response(JSON.stringify({reading:'mock reading'}),{status:200}));
+        if(String(url).endsWith('/chat')) return Promise.resolve(new Response(JSON.stringify({reply:'mock reply'}),{status:200}));
+        throw new Error('Unexpected external request: '+url);
+      };
+    </scr` + `ipt>`;
+    frame.srcdoc = source.replace('<head>', '<head>' + bootstrap);
+    await new Promise(resolve => frame.onload = resolve);
+    doc = frame.contentDocument; win = frame.contentWindow;
+    await until(() => doc.querySelector('#btn-ai-reading'), 'AI choice button');
+    check('reading waits for choice', win.__outbound.length === 0);
+    doc.querySelector('#btn-ai-reading').click();
+    await until(() => doc.querySelector('#ai-reading-text').textContent === 'mock reading', 'mock reading');
+    check('reading sent only after choice', win.__outbound.length === 1 && win.__outbound[0].url.endsWith('/reading'));
+    const readingPayload = JSON.parse(win.__outbound[0].body);
+    check('reading omits raw birth data', !('birthDate' in readingPayload) && !('name' in readingPayload));
+    doc.querySelector('[data-tab="ai-chat"]').click();
+    doc.querySelector('#chat-input').value = '虛構問題';
+    doc.querySelector('#chat-form').requestSubmit();
+    check('chat waits for disclosure', win.__outbound.length === 1 && doc.querySelector('#chat-status').textContent.includes('勾選'));
+    doc.querySelector('#chat-consent').checked = true;
+    doc.querySelector('#chat-form').requestSubmit();
+    await until(() => doc.querySelector('#chat-log').textContent.includes('mock reply'), 'mock chat');
+    check('chat sent after disclosure', win.__outbound.length === 2 && win.__outbound[1].url.endsWith('/chat'));
+
+    // The two personalized entrances share app.js and must retain its required controls.
+    for (const entrance of ['jamie', 'shanshan']) {
+      frame.removeAttribute('srcdoc');
+      frame.src = '../' + entrance + '/index.html';
+      await new Promise(resolve => frame.onload = resolve);
+      doc = frame.contentDocument;
+      await until(() => doc.querySelector('#profile-chip').textContent, entrance + ' initialization');
+      check(entrance + ' entrance initialized', doc.querySelector('#tab-settings').classList.contains('active'));
+      check(entrance + ' has chat consent', !!doc.querySelector('#chat-consent'));
+    }
+
+    // Validate the actual iPhone package assets and the JavaScript export bridge.
+    localStorage.setItem('zwbz.profile', JSON.stringify({ name: '虛構人物', birthDate: '2000-01-01', birthTime: '12:00', gender: '女' }));
+    localStorage.setItem('zwbz.records', JSON.stringify([{ date: '2026-10-04', mood: 3, energy: 4, tags: [], note: 'synthetic' }]));
+    frame.src = '../native/ios/App/App/public/index.html';
+    await new Promise(resolve => frame.onload = resolve);
+    doc = frame.contentDocument; win = frame.contentWindow;
+    await until(() => doc.querySelector('#profile-chip').textContent.includes('虛構'), 'native package initialization');
+    check('native offline banner', doc.querySelector('#demo-banner').textContent.includes('離線排盤'));
+    check('native package has no automatic AI reading', !doc.querySelector('#btn-ai-reading'));
+    doc.querySelector('[data-tab="settings"]').click();
+    check('native package hides cloud sync', win.getComputedStyle(doc.querySelector('#sync-card')).display === 'none');
+    doc.querySelector('[data-tab="ai-chat"]').click();
+    check('native package hides unavailable AI form', win.getComputedStyle(doc.querySelector('#tab-ai-chat')).display === 'none');
+    const shared = [];
+    win.Capacitor = { Plugins: { ShareExport: { share: async args => { shared.push(args); return { completed: true }; } } } };
+    doc.querySelector('[data-tab="records"]').click();
+    doc.querySelector('#btn-export-json').click();
+    await until(() => shared.length === 1, 'native export bridge');
+    check('native export passes JSON to share plugin', shared[0].filename.endsWith('.json') && JSON.parse(shared[0].text).records.length === 1);
+    await until(() => doc.querySelector('#records-io-status').textContent.includes('分享完成'), 'share status');
+    win.Capacitor.Plugins.ShareExport.importBackup = async () => ({cancelled:true});
+    doc.querySelector('#btn-import-json').click();
+    await until(() => doc.querySelector('#records-io-status').textContent.includes('已取消匯入'), 'native import cancellation');
+    check('native cancellation leaves records unchanged', JSON.parse(localStorage.getItem('zwbz.records')).length === 1);
+    win.Capacitor.Plugins.ShareExport.importBackup = async () => ({cancelled:false,text:'{bad json'});
+    doc.querySelector('#btn-import-json').click();
+    await until(() => doc.querySelector('#records-io-status').textContent.includes('匯入失敗'), 'native invalid import');
+    check('native invalid JSON leaves records unchanged', JSON.parse(localStorage.getItem('zwbz.records')).length === 1);
+    const preservedRecords = localStorage.getItem('zwbz.records');
+    let settleImport, importCalls = 0;
+    win.Capacitor.Plugins.ShareExport.importBackup = () => { importCalls++; return new Promise(resolve => { settleImport = resolve; }); };
+    const importControl = doc.querySelector('#btn-import-json');
+    importControl.click();
+    await until(() => importCalls === 1, 'pending native import');
+    importControl.click();
+    doc.querySelector('#btn-export-json').click();
+    check('pending native operation disables duplicate and cross-operation controls', importControl.disabled && doc.querySelector('#btn-export-json').disabled && importCalls === 1 && shared.length === 1);
+    settleImport({cancelled:true});
+    await until(() => !importControl.disabled, 'native cancellation releases controls');
+    check('pending cancellation preserves exact original records', localStorage.getItem('zwbz.records') === preservedRecords);
+    win.Capacitor.Plugins.ShareExport.importBackup = async () => { throw new Error('synthetic read failure'); };
+    importControl.click();
+    await until(() => doc.querySelector('#records-io-status').textContent.includes('synthetic read failure'), 'native rejection releases controls');
+    check('native rejection releases controls and preserves data', !importControl.disabled && localStorage.getItem('zwbz.records') === preservedRecords);
+    win.Capacitor.Plugins.ShareExport.importBackup = async () => ({cancelled:false,text:JSON.stringify({records:[{date:'2026-10-03',mood:4,energy:3,tags:[],note:'synthetic retry',updatedAt:'2026-10-03T00:00:00Z'}]})});
+    importControl.click();
+    await until(() => doc.querySelector('#records-io-status').textContent.includes('匯入完成'), 'native retry succeeds');
+    const afterRetry = localStorage.getItem('zwbz.records');
+    importControl.click();
+    await until(() => doc.querySelector('#records-io-status').textContent.includes('新增 0 筆'), 'repeat native import');
+    check('retry and repeated valid native import preserve original record without duplicates', JSON.parse(afterRetry).length === 2 && localStorage.getItem('zwbz.records') === afterRetry);
+    doc.querySelector('[data-tab="settings"]').click();
+    check('native settings fields have labels', ['p-name','p-date','p-time'].every(id => doc.querySelector('#'+id).labels.length));
+    check('native active navigation announced', doc.querySelector('[data-tab="settings"]').getAttribute('aria-current') === 'page');
+    check('native status is announced', doc.querySelector('#records-io-status').getAttribute('role') === 'status');
+    check('native assets use no outbound resources', win.performance.getEntriesByType('resource').every(r => !/^https?:/.test(r.name) || r.name.startsWith(location.origin)));
+
+    output.textContent = JSON.stringify({ passed: checks.length, checks }, null, 2);
+    output.dataset.status = 'passed';
+  } catch (error) {
+    output.textContent = JSON.stringify({ error: String(error), checks }, null, 2);
+    output.dataset.status = 'failed';
+  }
+})();
+</script></html>

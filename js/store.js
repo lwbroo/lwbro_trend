@@ -18,11 +18,32 @@ const Store = (() => {
   function getProfile() {
     try {
       const raw = localStorage.getItem(PROFILE_KEY);
-      return raw ? JSON.parse(raw) : null;
+      return raw ? Engine.validateProfile(JSON.parse(raw)) : null;
     } catch (e) { return null; }
   }
   function saveProfile(profile) {
+    Engine.validateProfile(profile);
     localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  }
+
+  function validateRecord(rec) {
+    if (!rec || typeof rec !== 'object' || Array.isArray(rec)) throw new Error('記錄格式不正確');
+    Engine.parseCivilDate(rec.date);
+    for (const key of ['mood', 'energy']) {
+      if (rec[key] != null && (!Number.isInteger(rec[key]) || rec[key] < 1 || rec[key] > 5)) {
+        throw new Error('心情與精力需為 1–5');
+      }
+    }
+    if (rec.tags != null && (!Array.isArray(rec.tags) || rec.tags.some(t => typeof t !== 'string' || t.length > 12))) {
+      throw new Error('標籤格式不正確');
+    }
+    if (rec.note != null && typeof rec.note !== 'string') throw new Error('筆記格式不正確');
+    for (const key of ['createdAt', 'updatedAt']) {
+      if (rec[key] != null && (typeof rec[key] !== 'string' ||
+          !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?(?:Z|[+-]\d\d:\d\d)$/.test(rec[key]) ||
+          !Number.isFinite(Date.parse(rec[key])))) throw new Error('記錄的修改時間格式不正確');
+    }
+    return rec;
   }
 
   /* ---------- records ---------- */
@@ -39,6 +60,7 @@ const Store = (() => {
 
   /** 新增或更新某日記錄（每日一筆） */
   function upsertRecord(rec) {
+    validateRecord(rec);
     const records = getRecords();
     const now = new Date().toISOString();
     const idx = records.findIndex(r => r.date === rec.date);
@@ -99,18 +121,31 @@ const Store = (() => {
     if (!data || !Array.isArray(data.records)) {
       throw new Error('格式不符：找不到 records 陣列');
     }
-    if (data.profile && !getProfile()) saveProfile(data.profile);
+    // Validate the entire file before changing either local key.
+    if (data.profile != null) Engine.validateProfile(data.profile);
+    data.records.forEach(validateRecord);
     const local = getRecords();
     const byDate = new Map(local.map(r => [r.date, r]));
     let added = 0, updated = 0;
     for (const rec of data.records) {
-      if (!rec || !rec.date) continue;
       const cur = byDate.get(rec.date);
       if (!cur) { byDate.set(rec.date, rec); added++; }
-      else if ((rec.updatedAt || '') > (cur.updatedAt || '')) { byDate.set(rec.date, rec); updated++; }
+      else if ((Date.parse(rec.updatedAt) || 0) > (Date.parse(cur.updatedAt) || 0)) { byDate.set(rec.date, rec); updated++; }
     }
     const merged = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
-    saveRecords(merged);
+    const previousProfile = localStorage.getItem(PROFILE_KEY);
+    const previousRecords = localStorage.getItem(RECORDS_KEY);
+    try {
+      if (data.profile && !getProfile()) saveProfile(data.profile);
+      saveRecords(merged);
+    } catch (error) {
+      // A quota failure on the second key must not leave a partial import.
+      for (const [key, value] of [[PROFILE_KEY, previousProfile], [RECORDS_KEY, previousRecords]]) {
+        if (value == null) localStorage.removeItem(key);
+        else if (localStorage.getItem(key) !== value) localStorage.setItem(key, value);
+      }
+      throw error;
+    }
     return { added, updated, total: merged.length };
   }
 

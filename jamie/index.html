@@ -87,7 +87,14 @@
   </div>
   <div id="ziwei-board-wrap">
     <h2>紫微斗數本命盤 <span class="hint">（標記：本日的流年／流月／流日命宮與四化）</span></h2>
-    <div id="ziwei-board" class="ziwei-board"></div>
+    <p class="hint" id="chart-scroll-help">十二宮保持原有排列。寬盤可左右滑動，或使用下方按鈕查看所有宮位。</p>
+    <div class="chart-scroll-controls">
+      <button type="button" class="btn-ghost" id="chart-scroll-left" aria-label="命盤向左捲動" aria-controls="ziwei-board-scroll">← 向左</button>
+      <button type="button" class="btn-ghost" id="chart-scroll-right" aria-label="命盤向右捲動" aria-controls="ziwei-board-scroll">向右 →</button>
+    </div>
+    <div id="ziwei-board-scroll" class="chart-scroll" role="region" tabindex="0" aria-label="紫微十二宮命盤" aria-describedby="chart-scroll-help">
+      <div id="ziwei-board" class="ziwei-board"></div>
+    </div>
   </div>
   <div class="card" id="bazi-card">
     <h2>八字命盤</h2>
@@ -132,7 +139,7 @@
 <!-- ===== AI 問答 ===== -->
 <section id="tab-ai-chat" class="tab-panel">
   <div class="card">
-    <h2>AI 問答 <span class="hint">根據你的八字紫微本命盤與今日流運回答</span></h2>
+    <h2>AI 問答 <span class="hint">文化性的自我觀察參考，不是科學預測或醫療、理財建議</span></h2>
     <div id="chat-need-profile" class="notice" hidden>請先到「設定」填寫出生資料，才能開始問答。</div>
     <div id="chat-body" hidden>
       <div id="chat-log" class="chat-log"></div>
@@ -140,6 +147,7 @@
         <input type="text" id="chat-input" placeholder="問問今天適合做什麼、感情、事業…" autocomplete="off">
         <button type="submit" class="btn-primary">送出</button>
       </form>
+      <label class="hint"><input type="checkbox" id="chat-consent"> 我了解：按「送出」時，問題與推算出的命盤資料會經 Cloudflare 傳給 xAI；請勿輸入敏感個資。</label>
       <p id="chat-status" class="hint"></p>
     </div>
   </div>
@@ -162,7 +170,7 @@
       <div class="field-row">
         <span class="field-label">出生時間</span>
         <input type="time" id="p-time" required>
-        <span class="hint">（當地時間，影響時柱與紫微命宮）</span>
+        <span class="hint">（時間欄位按原值計算，未做出生地時區換算）</span>
       </div>
       <div class="field-row">
         <span class="field-label">性別</span>
@@ -211,7 +219,7 @@
   </div>
   <div class="card">
     <h2>資料管理</h2>
-    <p class="hint">未開啟雲端同步時，所有資料只儲存在你的瀏覽器（localStorage）。換裝置或清瀏覽器資料前，請先匯出 JSON 備份或開啟雲端同步。</p>
+    <p class="hint" id="data-storage-hint">未開啟雲端同步時，所有資料只儲存在你的瀏覽器（localStorage）。換裝置或清瀏覽器資料前，請先匯出 JSON 備份或開啟雲端同步。</p>
     <div class="toolbar">
       <button id="btn-settings-export" class="btn-ghost">匯出全部資料（JSON）</button>
       <button id="btn-clear-all" class="btn-danger">清除全部資料</button>
@@ -222,7 +230,7 @@
     <p class="hint">
       排盤引擎：<a href="https://github.com/6tail/lunar-javascript" target="_blank" rel="noopener">lunar-javascript</a>（八字／農曆／節氣）、
       <a href="https://github.com/SylarLong/iztro" target="_blank" rel="noopener">iztro</a>(紫微斗數／流年流月流日四化)，皆為 MIT 授權。<br>
-      流日以立春換年、節氣換月；紫微流運四化依 iztro 預設（中州派）安星規則。命理內容僅供自我觀察參考。<br>
+      流日以立春換年、節氣換月；紫微流運四化依 iztro 預設（中州派）安星規則。命理內容是文化性的自我觀察參考，並非科學預測或醫療、理財建議。<br>
       <a href="../privacy.html">隱私權政策</a>
     </p>
   </div>

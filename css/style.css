@@ -1,19 +1,21 @@
 /* 紫微八字 · 個人趨勢 — 樣式 */
 * { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+html { scroll-padding-top: var(--app-header-scroll-gap, 0px); }
 
 :root {
   --page: #f9f9f7;
   --surface: #fcfcfb;
   --ink: #0b0b0b;
   --ink-2: #52514e;
-  --muted: #898781;
+  --muted: #66645f;
   --grid: #e1e0d9;
   --baseline: #c3c2b7;
   --border: rgba(11, 11, 11, 0.10);
   --accent: #2a78d6;
   --accent-dark: #1c5cab;
   --danger: #d03b3b;
-  --lu: #0ca30c;      /* 化祿 */
+  --lu: #18751b;      /* 化祿 */
   --quan: #eb6834;    /* 化權 */
   --ke: #2a78d6;      /* 化科 */
   --ji: #d03b3b;      /* 化忌 */
@@ -38,6 +40,7 @@ a { color: var(--accent-dark); }
 .app-header h1 { font-size: 1.25rem; }
 .app-header h1 .sub { font-size: 0.85rem; color: var(--muted); font-weight: normal; margin-left: 6px; }
 .profile-chip { font-size: 0.8rem; color: var(--ink-2); background: var(--page); border: 1px solid var(--grid); border-radius: 99px; padding: 2px 12px; }
+.header-inner > *, .profile-chip { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .tabs { display: flex; gap: 2px; max-width: 1080px; margin: 10px auto 0; overflow-x: auto; }
 .tab {
   border: none; background: none; cursor: pointer;
@@ -51,10 +54,10 @@ a { color: var(--accent-dark); }
 main { max-width: 1080px; margin: 0 auto; padding: 18px 16px 60px; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
-.grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; }
+.grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 14px; }
 .card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-  padding: 16px 18px; margin: 14px 0;
+  padding: 16px 18px; margin: 14px 0; min-width: 0;
 }
 .grid-2col > .card { margin: 0; }
 .card-wide { grid-column: 1 / -1; }
@@ -90,13 +93,15 @@ button { font: inherit; cursor: pointer; }
 .btn-ghost:hover, .file-label:hover { border-color: var(--ink-2); color: var(--ink); }
 .file-label { cursor: pointer; }
 .btn-danger { background: none; color: var(--danger); border: 1px solid var(--danger); border-radius: 7px; padding: 5px 14px; font-size: 0.86rem; }
-.btn-mini { border: 1px solid var(--baseline); background: none; border-radius: 5px; font-size: 0.75rem; padding: 1px 8px; color: var(--ink-2); }
+.btn-mini { border: 1px solid var(--baseline); background: none; border-radius: 5px; font-size: 0.85rem; padding: 5px 10px; min-width: 44px; min-height: 44px; color: var(--ink-2); }
 .btn-mini.danger { color: var(--danger); border-color: var(--danger); }
 .save-status { font-size: 0.8rem; color: var(--lu); }
+.save-status[data-state="error"] { color: #9b1c16; font-weight: 600; }
+.save-status[data-state="neutral"] { color: var(--ink-2); }
 
 input[type="text"], input[type="date"], input[type="time"], textarea, select {
   font: inherit; border: 1px solid var(--baseline); border-radius: 6px;
-  padding: 5px 9px; background: var(--surface); color: var(--ink);
+  padding: 5px 9px; background: var(--surface); color: var(--ink); min-width: 0; max-width: 100%;
 }
 textarea { width: 100%; max-width: 560px; resize: vertical; }
 input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
@@ -106,13 +111,13 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
 label.inline { margin-right: 14px; }
 
 /* 心情/精力評分 */
-.rating { display: flex; gap: 6px; }
-.rating label { cursor: pointer; }
-.rating input { position: absolute; opacity: 0; }
+.rating { display: flex; gap: 6px; flex-wrap: wrap; }
+.rating label { cursor: pointer; position: relative; }
+.rating input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; }
 .rating span {
   display: flex; flex-direction: column; align-items: center; gap: 0;
   font-size: 1.3rem; border: 1px solid var(--grid); border-radius: 8px;
-  padding: 4px 10px 2px; background: var(--surface);
+  padding: 4px 10px 2px; background: var(--surface); min-width: 44px; min-height: 44px;
 }
 .rating span i { font-style: normal; font-size: 0.65rem; color: var(--muted); }
 .rating input:checked + span { border-color: var(--accent); background: #eaf2fc; }
@@ -133,9 +138,13 @@ table.info-table, table.bazi-table, table.records-table { border-collapse: colla
   border-bottom: 1px solid var(--grid); padding: 6px 10px; text-align: left; vertical-align: top;
 }
 .info-table thead th, .bazi-table thead th, .records-table thead th { color: var(--muted); font-weight: 500; font-size: 0.8rem; }
-/* 記錄表格欄位較多，窄螢幕會被壓到中文字逐字換行，改成橫向捲動（跟本命盤格同一種做法） */
-#records-list { overflow-x: auto; }
-table.records-table { min-width: 620px; }
+/* Desktop retains column comparison; mobile rows become readable record cards. */
+#records-list { min-width: 0; }
+table.records-table { table-layout: fixed; }
+.records-table .record-date { width: 16%; }
+.records-table .record-actions-heading { width: 140px; }
+.records-table th, .records-table td { overflow-wrap: anywhere; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .info-table tbody th, .bazi-table tbody th { color: var(--ink-2); font-weight: 600; white-space: nowrap; }
 .gz { font-size: 1.05rem; font-weight: 600; letter-spacing: 1px; }
 .bazi-table tr.big td { font-size: 1.3rem; font-weight: 700; }
@@ -164,7 +173,7 @@ table.records-table { min-width: 620px; }
 /* ---------- 紫微 12 宮盤 ---------- */
 .ziwei-board {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-template-rows: repeat(4, minmax(150px, auto));
   gap: 2px;
   background: var(--baseline);
@@ -174,8 +183,12 @@ table.records-table { min-width: 620px; }
   margin: 12px 0;
   min-width: 680px;
 }
-#ziwei-board-wrap { overflow-x: auto; }
-.palace { background: var(--surface); padding: 6px 8px; display: flex; flex-direction: column; font-size: 0.8rem; }
+#ziwei-board-wrap { min-width: 0; max-width: 100%; }
+.chart-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+.chart-scroll .ziwei-board { margin: 0; }
+.chart-scroll-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+button:disabled { cursor: default; opacity: .6; }
+.palace { background: var(--surface); padding: 6px 8px; display: flex; flex-direction: column; font-size: 0.8rem; min-width: 0; overflow-wrap: anywhere; }
 .branch-巳 { grid-area: 1/1; } .branch-午 { grid-area: 1/2; } .branch-未 { grid-area: 1/3; } .branch-申 { grid-area: 1/4; }
 .branch-辰 { grid-area: 2/1; } .branch-酉 { grid-area: 2/4; }
 .branch-卯 { grid-area: 3/1; } .branch-戌 { grid-area: 3/4; }
@@ -184,13 +197,13 @@ table.records-table { min-width: 620px; }
 .palace-center h3 { margin: 0 0 6px; font-size: 1rem; color: var(--ink); }
 .palace-center p { margin: 2px 0; }
 .palace-stars { display: flex; flex-wrap: wrap; gap: 2px 8px; }
-.star { white-space: nowrap; }
+.star { max-width: 100%; }
 .star-major { font-weight: 700; font-size: 0.9rem; }
 .star-minor { color: var(--ink-2); }
 .star .bright { font-style: normal; font-size: 0.65rem; color: var(--muted); margin-left: 1px; }
 .palace-adj { color: var(--muted); font-size: 0.68rem; margin-top: 3px; flex: 1; }
-.palace-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; border-top: 1px dashed var(--grid); padding-top: 3px; margin-top: 4px; }
-.palace-name { font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
+.palace-foot { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px; border-top: 1px dashed var(--grid); padding-top: 3px; margin-top: 4px; }
+.palace-name { font-weight: 600; color: var(--accent-dark); }
 .body-tag { background: var(--ink); color: #fff; border-radius: 3px; font-size: 0.62rem; padding: 0 3px; margin-left: 3px; font-weight: normal; }
 .layer-badge { background: #fdf1e6; border: 1px solid var(--quan); color: var(--quan); border-radius: 3px; font-size: 0.62rem; padding: 0 3px; margin-left: 3px; font-weight: normal; }
 .palace-meta { color: var(--muted); font-size: 0.68rem; }
@@ -206,6 +219,7 @@ table.records-table { min-width: 620px; }
 /* ---------- 記錄表 ---------- */
 .records-table .note-cell { max-width: 260px; font-size: 0.82rem; color: var(--ink-2); }
 .row-actions { white-space: nowrap; }
+.record-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 
 /* ---------- 圖表 ---------- */
 .chart-box { position: relative; }
@@ -240,4 +254,32 @@ table.records-table { min-width: 620px; }
   main { padding: 12px 10px 50px; }
   .card { padding: 12px; }
   .field-label { min-width: 100%; padding-top: 0; }
+  .info-table th, .info-table td, .bazi-table th, .bazi-table td { padding: 6px 4px; overflow-wrap: anywhere; }
+  .info-table tbody th { white-space: normal; }
+  .records-table, .records-table tbody { display: block; }
+  .records-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .records-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; border: 1px solid var(--grid); border-radius: 10px; background: var(--surface); padding: 14px; margin: 12px 0; }
+  .records-table th, .records-table td { display: block; min-width: 0; width: auto; border: 0; padding: 0; }
+  .records-table .record-date { width: auto; grid-column: 1 / -1; color: var(--ink); font-size: 1rem; }
+  .records-table td[data-label]::before { content: attr(data-label); display: block; font-size: .8rem; color: var(--muted); margin-bottom: 3px; }
+  .records-table .note-cell { max-width: none; grid-column: 1 / -1; white-space: pre-wrap; }
+  .records-table .row-actions { grid-column: 1 / -1; }
+  .records-table .chip-static { display: inline-block; max-width: 100%; }
 }
+
+:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 3px; }
+@media (max-width: 380px) { .grid-2col { grid-template-columns: minmax(0, 1fr); } .app-header { padding-left: 12px; padding-right: 12px; } }
+
+.language-switch { display:flex; align-items:center; flex-wrap:wrap; gap:6px; font-size:.85rem; }
+.language-switch select { max-width:100%; padding:4px 8px; }
+html[lang="en"] .tab { white-space:normal; }
+html[lang="en"] .dist-label { min-width:4rem; }
+html[lang="en"] .tab { min-width:0; overflow-wrap:anywhere; }
+html[lang="en"] .bazi-table tbody th { white-space:normal; overflow-wrap:anywhere; }
+html[lang="en"] .info-table th, html[lang="en"] .info-table td, html[lang="en"] .bazi-table th, html[lang="en"] .bazi-table td { overflow-wrap:anywhere; }
+html[lang="en"] .info-table tbody th { white-space:normal; }
+
+/* Keep whole tab labels; larger text can move complete buttons to another row. */
+html[data-native-release="offline"] .app-header { max-height:60vh; overflow-y:auto; }
+html[data-native-release="offline"] .tabs { display:flex; flex-wrap:wrap; overflow:visible; }
+html[data-native-release="offline"] .tab { flex:1 0 auto; min-width:44px; white-space:nowrap; overflow-wrap:normal; word-break:normal; }

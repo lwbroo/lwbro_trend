@@ -1,0 +1,104 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Synthetic journal draft and status checks</title>
+<pre id="result">running</pre><iframe id="app" title="Synthetic offline app" style="width:430px;height:950px;border:0"></iframe>
+<script>
+(async () => {
+ const out=document.querySelector('#result'),frame=document.querySelector('#app'),checks=[];
+ const capture=new URLSearchParams(location.search).get('capture');
+ if(capture){out.hidden=true;frame.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0';}
+ const check=(name,ok)=>{checks.push({name,ok:!!ok});if(!ok)throw Error(name);};
+ const wait=ms=>new Promise(r=>setTimeout(r,ms));
+ const until=async(fn,name)=>{for(let i=0;i<100;i++){if(fn())return;await wait(30);}throw Error('timeout: '+name);};
+ const profile={name:'Synthetic UX',birthDate:'2000-01-02',birthTime:'12:00',gender:'女'};
+ const saved={date:'2026-10-04',mood:3,energy:4,tags:[],note:'Saved original',updatedAt:'2026-10-04T00:00:00Z'};
+ try {
+  // Cold startup must load a saved current-day entry before capturing any draft.
+  const now=new Date(),pad=n=>String(n).padStart(2,'0');
+  const today=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const reopened={...saved,date:today,note:'Saved before closing',updatedAt:today+'T00:00:00Z'};
+  localStorage.clear();localStorage.setItem('zwbz.language','zh-Hant');localStorage.setItem('zwbz.profile',JSON.stringify(profile));localStorage.setItem('zwbz.records',JSON.stringify([reopened]));
+  frame.src='../native/ios/App/App/public/index.html?cold-start-regression';await new Promise(r=>frame.onload=r);
+  const coldDoc=frame.contentDocument;
+  await until(()=>coldDoc.querySelector('#profile-chip').textContent.includes('Synthetic UX'),'cold startup');
+  check('cold startup restores saved note and ratings without an empty draft',coldDoc.querySelector('#note').value===reopened.note && coldDoc.querySelector('input[name="mood"]:checked')?.value==='3' && coldDoc.querySelector('input[name="energy"]:checked')?.value==='4');
+  check('cold startup reports saved state without writing data',!coldDoc.querySelector('#checkin-status').textContent.includes('尚未儲存') && JSON.parse(localStorage.getItem('zwbz.records'))[0].note===reopened.note);
+  coldDoc.querySelector('[data-tab="records"]').click();coldDoc.querySelector('[data-act="edit"]').click();
+  check('editing after cold startup restores the exact saved note',coldDoc.querySelector('#note').value===reopened.note);
+  localStorage.clear();localStorage.setItem('zwbz.language','zh-Hant'); localStorage.setItem('zwbz.profile',JSON.stringify(profile));localStorage.setItem('zwbz.records',JSON.stringify([saved]));
+  frame.src='../native/ios/App/App/public/index.html?ux-regression';await new Promise(r=>frame.onload=r);
+  const doc=frame.contentDocument,win=frame.contentWindow,$=s=>doc.querySelector(s);
+  await until(()=>$('#profile-chip').textContent.includes('Synthetic UX'),'startup');
+  check('birth-time limitation is visible in English and associated with the input',!$('#birth-time-limit-en').hidden && $('#birth-time-limit-en').textContent.includes('DST gap/overlap') && $('#birth-time-limit-en').textContent.includes('International birth data') && $('#p-time').getAttribute('aria-describedby').split(' ').includes('birth-time-limit-en'));
+  const tab=name=>$('[data-tab="'+name+'"]').click();
+  const input=(selector,value)=>{const el=$(selector);el.value=value;el.dispatchEvent(new win.Event('input',{bubbles:true}));};
+  const date=value=>{$('#today-date').value=value;$('#today-date').dispatchEvent(new win.Event('change',{bubbles:true}));};
+  const records=()=>JSON.parse(localStorage.getItem('zwbz.records')||'[]');
+  const note=()=>$('#note').value;
+  const field=name=>doc.querySelector('input[name="'+name+'"]:checked')?.value||'';
+  const storedBefore=localStorage.getItem('zwbz.records');
+  const captureAt=async name=>{
+   if(capture!==name)return;
+   if(name==='draft')win.scrollTo(0,$('#checkin-card').getBoundingClientRect().top+win.scrollY-$('.app-header').getBoundingClientRect().height-12);
+   out.dataset.status='captured';await new Promise(()=>{});
+  };
+  if(capture==='limits'){tab('settings');await captureAt('limits');}
+  tab('today');date('2026-10-04');
+  $('input[name="mood"][value="4"]').click();$('input[name="energy"][value="2"]').click();
+  input('#note','Unsubmitted <b>synthetic</b> note');
+  input('#custom-tag','draft-tag');$('#custom-tag').dispatchEvent(new win.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+  input('#custom-tag','unfinished');
+  tab('records');tab('chart');tab('settings');tab('today');
+  check('tab navigation retains exact unsaved note, ratings and custom tags',note()==='Unsubmitted <b>synthetic</b> note' && field('mood')==='4' && field('energy')==='2' && [...doc.querySelectorAll('.chip.on')].some(c=>c.textContent==='draft-tag') && $('#custom-tag').value==='unfinished');
+  check('draft is marked unsaved and session-only',$('#checkin-status').textContent.includes('尚未儲存') && $('#checkin-status').textContent.includes('本次開啟') && $('#checkin-status').dataset.state==='neutral');
+  check('navigation never autosaves draft',localStorage.getItem('zwbz.records')===storedBefore);
+  await captureAt('draft');
+  date('2026-10-03');check('another date starts with its own blank form',note()==='' && field('mood')==='' && $('#custom-tag').value==='');
+  input('#note','Second date draft');$('input[name="mood"][value="2"]').click();date('2026-10-04');
+  check('date switching restores first date draft',note().startsWith('Unsubmitted') && field('mood')==='4' && $('#custom-tag').value==='unfinished');
+  $('#btn-goto-today').click();date('2026-10-03');
+  check('return-to-today preserves other date draft',note()==='Second date draft' && field('mood')==='2');
+  date('2026-10-04');input('#custom-tag','');$('#checkin-form').requestSubmit();
+  check('explicit save updates the same record only',records().length===1 && records()[0].note==='Unsubmitted <b>synthetic</b> note' && records()[0].mood===4 && records()[0].tags.includes('draft-tag'));
+  check('save status is polite success',$('#checkin-status').dataset.state==='success' && $('#checkin-status').getAttribute('role')==='status' && $('#checkin-status').getAttribute('aria-live')==='polite');
+  tab('records');tab('today');check('saved record is no longer labelled an unsaved draft',!$('#checkin-status').textContent.includes('尚未儲存'));
+  date('2026-10-05');input('#note','Draft survives required-rating failure');$('#checkin-form').requestSubmit();
+  check('validation failure is an assertive error without saving',$('#checkin-status').dataset.state==='error' && $('#checkin-status').getAttribute('role')==='alert' && $('#checkin-status').getAttribute('aria-live')==='assertive' && records().length===1);
+  tab('records');tab('today');check('failed-save draft survives navigation',note()==='Draft survives required-rating failure');
+  date('2026-10-04');input('#note','Draft survives quota failure');
+  const realSet=win.Storage.prototype.setItem;win.Storage.prototype.setItem=function(key,value){if(key==='zwbz.records')throw new win.DOMException('Synthetic quota','QuotaExceededError');return realSet.call(this,key,value);};
+  $('#checkin-form').requestSubmit();win.Storage.prototype.setItem=realSet;
+  check('storage failure leaves committed note intact',records()[0].note==='Unsubmitted <b>synthetic</b> note' && $('#checkin-status').dataset.state==='error');
+  tab('records');tab('today');check('storage-failed edit remains recoverable',note()==='Draft survives quota failure');
+  $('#checkin-form').requestSubmit();tab('records');check('retry saves without duplicates',records().length===1 && records()[0].note==='Draft survives quota failure');
+  const beforeIO=localStorage.getItem('zwbz.records');
+  let importResult={text:'{broken synthetic json'};
+  let shareResult={completed:false};let failShare=false;
+  win.Capacitor={Plugins:{ShareExport:{importBackup:async()=>importResult,share:async()=>{if(failShare)throw Error('Synthetic chooser failure');return shareResult;}}}};
+  $('#btn-import-json').click();await until(()=>!$('#btn-import-json').disabled,'invalid import');
+  check('import error preserves data and announces an error',localStorage.getItem('zwbz.records')===beforeIO && $('#records-io-status').dataset.state==='error' && $('#records-io-status').getAttribute('role')==='alert' && $('#profile-status').dataset.state==='error');
+  const foreground=win.getComputedStyle($('#records-io-status')).color;
+  const rgb=color=>color.match(/\d+/g).slice(0,3).map(Number);
+  const luminance=color=>rgb(color).map(x=>{const s=x/255;return s<=.04045?s/12.92:((s+.055)/1.055)**2.4;}).reduce((sum,x,i)=>sum+x*[.2126,.7152,.0722][i],0);
+  const contrast=(luminance(win.getComputedStyle(doc.body).backgroundColor)+.05)/(luminance(foreground)+.05);
+  check('error text has at least 4.5:1 contrast on app background',contrast>=4.5 && foreground==='rgb(155, 28, 22)');
+  await captureAt('error');
+  importResult={cancelled:true};$('#btn-import-json').click();await until(()=>!$('#btn-import-json').disabled,'cancel import');
+  check('cancel resets stale error semantics and retains data',$('#records-io-status').dataset.state==='neutral' && $('#records-io-status').getAttribute('role')==='status' && localStorage.getItem('zwbz.records')===beforeIO);
+  importResult={text:JSON.stringify({app:'ziwei-bazi-trend',version:1,profile,records:[{date:'2026-10-06',mood:2,energy:3,tags:[],note:'Synthetic merge',updatedAt:'2026-10-06T00:00:00Z'}]})};
+  $('#btn-import-json').click();await until(()=>!$('#btn-import-json').disabled,'valid import');
+  check('successful import resets error styling',records().length===2 && $('#records-io-status').dataset.state==='success' && $('#records-io-status').getAttribute('aria-live')==='polite');
+  failShare=true;$('#btn-export-json').click();await until(()=>!$('#btn-export-json').disabled,'failed export');
+  check('share failure is an error and controls recover',$('#records-io-status').dataset.state==='error' && !$('#btn-import-json').disabled && records().length===2);
+  failShare=false;$('#btn-export-json').click();await until(()=>!$('#btn-export-json').disabled,'cancelled share');
+  check('share cancellation is neutral',$('#records-io-status').dataset.state==='neutral');
+  shareResult={completed:true};$('#btn-export-json').click();await until(()=>!$('#btn-export-json').disabled,'completed share');
+  check('completed sharing reports success',$('#records-io-status').dataset.state==='success');
+  tab('today');date('2026-10-04');input('#note','Discard only after explicit delete');tab('records');win.confirm=()=>true;
+  doc.querySelector('[data-act="del"][data-date="2026-10-04"]').click();tab('today');date('2026-10-04');
+  check('confirmed record deletion also discards that date draft',note()==='' && !records().some(r=>r.date==='2026-10-04'));
+  tab('settings');$('#btn-clear-all').click();tab('today');date('2026-10-03');
+  check('confirmed clear-all removes other session drafts',note()==='' && records().length===0 && !localStorage.getItem('zwbz.profile'));
+  check('browser resources are local only',win.performance.getEntriesByType('resource').every(r=>!/^https?:/.test(r.name)||r.name.startsWith(location.origin)));
+  out.dataset.status='passed';out.textContent=JSON.stringify({passed:checks.length,syntheticOnly:true,nativeChooser:'mocked; no simulator or physical phone used',errorContrastRatio:contrast,checks},null,2);
+ } catch(error) {out.dataset.status='failed';out.textContent=JSON.stringify({error:String(error),checks},null,2);}
+})();
+</script></html>

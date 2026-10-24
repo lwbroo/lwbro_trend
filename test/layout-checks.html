@@ -1,0 +1,73 @@
+<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>Synthetic responsive layout checks</title>
+<pre id="result">running</pre><iframe id="app" title="Synthetic app under test" style="height:1000px;border:0"></iframe>
+<script>
+(async()=>{
+ const out=document.querySelector('#result'),frame=document.querySelector('#app'),checks=[];
+ const check=(name,ok,details)=>{checks.push({name,ok:!!ok,...(details?{details}: {})});if(!ok)throw Error(name+' '+JSON.stringify(details||''));};
+ const wait=ms=>new Promise(r=>setTimeout(r,ms));
+ const until=async(fn,name)=>{for(let i=0;i<100;i++){if(fn())return;await wait(30);}throw Error('timeout: '+name);};
+ const profile={name:'合成測試人物僅供版面檢查資料',birthDate:'2000-01-01',birthTime:'12:00',gender:'女'};
+ const notes='SyntheticOnly_'.repeat(25)+'\n合成筆記：驗證長文不會藏住編輯與刪除。';
+ const original=[{date:'2026-10-04',mood:3,energy:4,tags:['合成示範標籤'],note:notes,updatedAt:'2026-10-04T00:00:00Z'},{date:'2026-10-03',mood:5,energy:2,tags:[],note:'Second synthetic note',updatedAt:'2026-10-03T00:00:00Z'}];
+ try{
+  for(const [width,font] of [[320,16],[375,16],[430,16],[932,16],[320,24],[430,24]]){
+   const prefix=width+'px/'+font+'px';frame.style.width=width+'px';
+   localStorage.setItem('zwbz.language','zh-Hant');localStorage.setItem('zwbz.profile',JSON.stringify(profile));localStorage.setItem('zwbz.records',JSON.stringify([...original].sort((a,b)=>a.date.localeCompare(b.date))));
+   frame.src='../native/ios/App/App/public/index.html?layout='+width+'-'+font;
+   await new Promise(resolve=>frame.onload=resolve);
+   const doc=frame.contentDocument,win=frame.contentWindow,$=s=>doc.querySelector(s);
+   await until(()=>$('#profile-chip').textContent.includes('合成'),prefix+' loaded');
+   doc.documentElement.style.fontSize=font+'px';
+   doc.documentElement.style.setProperty('--native-safe-top','59px');
+   check(prefix+' UIKit inset fallback protects header',parseFloat(win.getComputedStyle($('.app-header')).paddingTop)>=73 && parseFloat(win.getComputedStyle($('main')).paddingBottom)>=30);
+   doc.documentElement.style.removeProperty('--native-safe-top');
+   const tab=async(name)=>{$('[data-tab="'+name+'"]').click();await wait(70);};
+   const fits=()=>doc.documentElement.scrollWidth<=win.innerWidth+1;
+   for(const name of ['today','chart','records','trends','settings']){
+    await tab(name);check(prefix+' no page overflow '+name,fits(),{width:win.innerWidth,scrollWidth:doc.documentElement.scrollWidth});
+   }
+   await tab('chart');
+   check(prefix+' all 12 palaces retained',doc.querySelectorAll('.palace:not(.palace-center)').length===12);
+   const region=$('#ziwei-board-scroll');
+   check(prefix+' named keyboard-accessible chart region',region.tabIndex===0 && region.getAttribute('aria-label') && region.getAttribute('aria-describedby'));
+   if(region.scrollWidth>region.clientWidth+1){
+    check(prefix+' wide chart contained',region.getBoundingClientRect().right<=win.innerWidth+1 && !$('#chart-scroll-right').disabled,{right:region.getBoundingClientRect().right,viewport:win.innerWidth,scrollLeft:region.scrollLeft,clientWidth:region.clientWidth,scrollWidth:region.scrollWidth,disabled:$('#chart-scroll-right').disabled});
+    $('#chart-scroll-right').click();await wait(30);
+    check(prefix+' right button scrolls board',region.scrollLeft>0 && !$('#chart-scroll-left').disabled);
+    region.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));
+    check(prefix+' last palace reachable',Math.abs(region.scrollWidth-region.clientWidth-region.scrollLeft)<2);
+    region.dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true}));
+    check(prefix+' keyboard returns to start',region.scrollLeft===0 && $('#chart-scroll-left').disabled);
+   }
+   await tab('records');
+   check(prefix+' all records render once',doc.querySelectorAll('.records-table tbody tr').length===2);
+   check(prefix+' long note is retained',$('.note-cell').textContent===notes);
+   for(const button of doc.querySelectorAll('.row-actions button')){
+    const r=button.getBoundingClientRect();check(prefix+' visible action bounds '+button.getAttribute('aria-label'),r.width>=44 && r.height>=44 && r.left>=0 && r.right<=win.innerWidth+1);
+   }
+   const row=$('.records-table tbody tr'),note=$('.note-cell');
+   check(prefix+' note has no horizontal clipping',note.scrollWidth<=note.clientWidth+1);
+   check(prefix+' row actions have date labels',row.querySelector('[data-act="edit"]').getAttribute('aria-label').includes('2026-10-04'));
+   win.scrollTo(0,500);await tab('settings');check(prefix+' tab restores page top',win.scrollY===0);
+   check(prefix+' local backup instructions accurate',$('#data-storage-hint').textContent.includes('JSON 備份') && !$('#data-storage-hint').textContent.includes('或開啟雲端'));
+   check(prefix+' offline navigation hides AI and sync',win.getComputedStyle($('[data-tab="ai-chat"]')).display==='none' && win.getComputedStyle($('#sync-card')).display==='none' && [...doc.querySelectorAll('.tab')].filter(b=>win.getComputedStyle(b).display!=='none').length===5);
+   await tab('records');doc.querySelector('[data-act="edit"][data-date="2026-10-04"]').click();await wait(40);
+   check(prefix+' edit loads exact date and values',$('#today-date').value==='2026-10-04' && $('#note').value===notes && $('input[name="mood"]:checked').value==='3');
+   const top=$('#checkin-card').getBoundingClientRect().top,header=$('.app-header').getBoundingClientRect().bottom;
+   check(prefix+' edit form revealed below sticky header',top>=header-1 && top<win.innerHeight-100 && (top<=header+25 || win.scrollY+win.innerHeight>=doc.documentElement.scrollHeight-1),{top,header});
+   $('#note').value='Synthetic edit saved';$('#checkin-form').requestSubmit();await tab('records');
+   const saved=JSON.parse(localStorage.getItem('zwbz.records'));
+   check(prefix+' edit preserves count and other date',saved.length===2 && saved.find(r=>r.date==='2026-10-04').note==='Synthetic edit saved' && saved.find(r=>r.date==='2026-10-03').note==='Second synthetic note');
+   win.confirm=()=>true;doc.querySelector('[data-act="del"][data-date="2026-10-04"]').click();
+   check(prefix+' delete operates on the labelled date',JSON.parse(localStorage.getItem('zwbz.records')).length===1 && JSON.parse(localStorage.getItem('zwbz.records'))[0].date==='2026-10-03');
+   check(prefix+' no external resources',win.performance.getEntriesByType('resource').every(r=>!/^https?:/.test(r.name)||r.name.startsWith(location.origin)));
+  }
+  localStorage.removeItem('zwbz.profile');localStorage.removeItem('zwbz.records');
+  frame.src='../native/ios/App/App/public/index.html?layout=no-profile';await new Promise(r=>frame.onload=r);
+  await until(()=>frame.contentDocument.querySelector('#profile-chip').textContent,'native shell ready');
+  frame.contentDocument.querySelector('[data-tab="ai-chat"]').click();await wait(80);
+  check('AI cannot select a hidden native page without birth data',frame.contentDocument.querySelector('#tab-settings').classList.contains('active') && frame.contentDocument.querySelector('#tab-ai-chat').inert);
+  out.dataset.status='passed';out.textContent=JSON.stringify({passed:checks.length,checks},null,2);
+ }catch(error){out.dataset.status='failed';out.textContent=JSON.stringify({error:String(error),checks},null,2);}
+})();
+</script></html>

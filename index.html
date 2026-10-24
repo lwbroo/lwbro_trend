@@ -4,8 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>紫微八字 · 個人趨勢</title>
+<script>
+// Local trial: use separate browser storage and prevent outbound requests.
+if (new URLSearchParams(location.search).has('offline-demo')) {
+  window.ZWBZ_NAMESPACE = 'offline-demo';
+  window.ZWBZ_OFFLINE_DEMO = true;
+  const policy = document.createElement('meta');
+  policy.httpEquiv = 'Content-Security-Policy';
+  policy.content = "default-src 'self' data: blob:; connect-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:";
+  document.head.appendChild(policy);
+}
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%232a78d6'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23fff'%3E紫%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
+<script src="js/i18n.js"></script>
 </head>
 <body>
 
@@ -13,8 +25,9 @@
   <div class="header-inner">
     <h1>紫微八字 <span class="sub">個人趨勢資料庫</span></h1>
     <div id="profile-chip" class="profile-chip"></div>
+    <label class="language-switch" for="language-select">Language / 語言 <select id="language-select"><option value="en">English</option><option value="zh-Hant">繁體中文</option></select></label>
   </div>
-  <nav class="tabs" id="tabs">
+  <nav class="tabs" id="tabs" aria-label="主要功能">
     <button class="tab active" data-tab="today">今日流運</button>
     <button class="tab" data-tab="chart">本命盤</button>
     <button class="tab" data-tab="records">記錄</button>
@@ -25,6 +38,8 @@
 </header>
 
 <main>
+<p id="language-status" class="hint" role="status" aria-live="polite"></p>
+<p id="demo-banner" class="notice" hidden>離線試用模式：資料與一般頁面分開儲存；AI、雲端同步及所有對外連線已停用。請使用虛構出生資料測試。</p>
 
 <!-- ===== 今日流運 + 每日記錄 ===== -->
 <section id="tab-today" class="tab-panel active">
@@ -39,25 +54,26 @@
 
   <div class="card" id="checkin-card">
     <h2>當日狀態記錄</h2>
+    <p class="hint">評分 1 代表低，5 代表高；標籤與筆記可選填。</p>
     <form id="checkin-form">
       <div class="field-row">
         <span class="field-label">心情</span>
         <div class="rating" id="mood-rating" data-name="mood">
-          <label><input type="radio" name="mood" value="1"><span>😞<i>1</i></span></label>
-          <label><input type="radio" name="mood" value="2"><span>😕<i>2</i></span></label>
-          <label><input type="radio" name="mood" value="3"><span>😐<i>3</i></span></label>
-          <label><input type="radio" name="mood" value="4"><span>🙂<i>4</i></span></label>
-          <label><input type="radio" name="mood" value="5"><span>😄<i>5</i></span></label>
+          <label><input type="radio" name="mood" value="1" aria-label="心情 1 分"><span>😞<i>1</i></span></label>
+          <label><input type="radio" name="mood" value="2" aria-label="心情 2 分"><span>😕<i>2</i></span></label>
+          <label><input type="radio" name="mood" value="3" aria-label="心情 3 分"><span>😐<i>3</i></span></label>
+          <label><input type="radio" name="mood" value="4" aria-label="心情 4 分"><span>🙂<i>4</i></span></label>
+          <label><input type="radio" name="mood" value="5" aria-label="心情 5 分"><span>😄<i>5</i></span></label>
         </div>
       </div>
       <div class="field-row">
         <span class="field-label">精力</span>
         <div class="rating" id="energy-rating" data-name="energy">
-          <label><input type="radio" name="energy" value="1"><span>🪫<i>1</i></span></label>
-          <label><input type="radio" name="energy" value="2"><span>😴<i>2</i></span></label>
-          <label><input type="radio" name="energy" value="3"><span>🙂<i>3</i></span></label>
-          <label><input type="radio" name="energy" value="4"><span>💪<i>4</i></span></label>
-          <label><input type="radio" name="energy" value="5"><span>⚡<i>5</i></span></label>
+          <label><input type="radio" name="energy" value="1" aria-label="精力 1 分"><span>🪫<i>1</i></span></label>
+          <label><input type="radio" name="energy" value="2" aria-label="精力 2 分"><span>😴<i>2</i></span></label>
+          <label><input type="radio" name="energy" value="3" aria-label="精力 3 分"><span>🙂<i>3</i></span></label>
+          <label><input type="radio" name="energy" value="4" aria-label="精力 4 分"><span>💪<i>4</i></span></label>
+          <label><input type="radio" name="energy" value="5" aria-label="精力 5 分"><span>⚡<i>5</i></span></label>
         </div>
       </div>
       <div class="field-row">
@@ -65,16 +81,16 @@
         <div id="tag-chips" class="tag-chips"></div>
       </div>
       <div class="field-row">
-        <span class="field-label">自訂標籤</span>
+        <label class="field-label" for="custom-tag">自訂標籤</label>
         <input type="text" id="custom-tag" placeholder="輸入後按 Enter 加入" maxlength="12">
       </div>
       <div class="field-row">
-        <span class="field-label">筆記</span>
+        <label class="field-label" for="note">筆記</label>
         <textarea id="note" rows="2" placeholder="今天發生了什麼？（選填）"></textarea>
       </div>
       <div class="field-row">
         <button type="submit" class="btn-primary">儲存記錄</button>
-        <span id="checkin-status" class="save-status"></span>
+        <span id="checkin-status" role="status" aria-live="polite" class="save-status"></span>
       </div>
     </form>
   </div>
@@ -85,9 +101,17 @@
   <div id="chart-need-profile" class="notice" hidden>
     請先到「設定」輸入出生資料。
   </div>
+  <div class="card"><h2>命盤怎麼讀？</h2><p class="hint">紫微的十二宮是傳統主題區域；八字四柱依年、月、日、時排列。日主是日柱的關係參考，五行是木火土金水等象徵分類。星曜、干支及細部術語保留中文，並不決定真實人生結果。</p></div>
   <div id="ziwei-board-wrap">
     <h2>紫微斗數本命盤 <span class="hint">（標記：本日的流年／流月／流日命宮與四化）</span></h2>
-    <div id="ziwei-board" class="ziwei-board"></div>
+    <p class="hint" id="chart-scroll-help">十二宮保持原有排列。寬盤可左右滑動，或使用下方按鈕查看所有宮位。</p>
+    <div class="chart-scroll-controls">
+      <button type="button" class="btn-ghost" id="chart-scroll-left" aria-label="命盤向左捲動" aria-controls="ziwei-board-scroll">← 向左</button>
+      <button type="button" class="btn-ghost" id="chart-scroll-right" aria-label="命盤向右捲動" aria-controls="ziwei-board-scroll">向右 →</button>
+    </div>
+    <div id="ziwei-board-scroll" class="chart-scroll" role="region" tabindex="0" aria-label="紫微十二宮命盤" aria-describedby="chart-scroll-help">
+      <div id="ziwei-board" class="ziwei-board"></div>
+    </div>
   </div>
   <div class="card" id="bazi-card">
     <h2>八字命盤</h2>
@@ -102,9 +126,10 @@
   <div class="toolbar">
     <button id="btn-export-json" class="btn-ghost">匯出 JSON</button>
     <button id="btn-export-csv" class="btn-ghost">匯出 CSV</button>
-    <label class="btn-ghost file-label">匯入 JSON<input type="file" id="import-file" accept=".json" hidden></label>
-    <span id="records-io-status" class="save-status"></span>
+    <button type="button" id="btn-import-json" class="btn-ghost">匯入 JSON</button><input type="file" id="import-file" accept=".json" aria-label="選擇 JSON 備份" hidden>
+    <span id="records-io-status" role="status" aria-live="polite" class="save-status"></span>
   </div>
+  <p class="hint">匯入依日期合併，只有較新修改時間會更新同日記錄；已有出生資料會保留，不是整份覆蓋。支援 UTF-8 JSON，最多 5 MB。</p>
   <div id="records-list"></div>
 </section>
 
@@ -132,37 +157,40 @@
 <!-- ===== AI 問答 ===== -->
 <section id="tab-ai-chat" class="tab-panel">
   <div class="card">
-    <h2>AI 問答 <span class="hint">根據你的八字紫微本命盤與今日流運回答</span></h2>
+    <h2>AI 問答 <span class="hint">根據推算出的八字紫微流運回答；內容是文化性的自我觀察參考，不是科學預測或醫療、理財建議</span></h2>
     <div id="chat-need-profile" class="notice" hidden>請先到「設定」填寫出生資料，才能開始問答。</div>
     <div id="chat-body" hidden>
       <div id="chat-log" class="chat-log"></div>
       <form id="chat-form" class="chat-input-row">
-        <input type="text" id="chat-input" placeholder="問問今天適合做什麼、感情、事業…" autocomplete="off">
+        <input type="text" aria-label="AI 問題" id="chat-input" placeholder="問問今天適合做什麼、感情、事業…" autocomplete="off">
         <button type="submit" class="btn-primary">送出</button>
       </form>
-      <p id="chat-status" class="hint"></p>
+      <label class="hint"><input type="checkbox" id="chat-consent"> 我了解：按「送出」時，問題與推算出的命盤資料會經 Cloudflare 傳給 xAI；請勿輸入敏感個資。</label>
+      <p id="chat-status" role="status" aria-live="polite" class="hint"></p>
     </div>
   </div>
 </section>
 
 <!-- ===== 設定 ===== -->
 <section id="tab-settings" class="tab-panel">
+  <div class="card" id="getting-started"><h2>傳統命盤與你的日誌</h2><p>探索紫微與八字文化，記下自己的心情與精力。命盤不是科學預測，也不提供醫療、心理健康或財務建議。</p><p class="hint">先填出生資料，開啟本命盤；到今日流運選擇評分並儲存，再到記錄找回。趨勢需要兩筆，歷史平均預覽需要十筆。</p></div>
   <div class="card">
     <h2>出生資料</h2>
     <form id="profile-form">
       <div class="field-row">
-        <span class="field-label">姓名</span>
+        <label class="field-label" for="p-name">姓名</label>
         <input type="text" id="p-name" placeholder="（選填）" maxlength="20">
       </div>
       <div class="field-row">
-        <span class="field-label">出生日期</span>
+        <label class="field-label" for="p-date">出生日期</label>
         <input type="date" id="p-date" required>
         <span class="hint">（國曆／西元）</span>
       </div>
       <div class="field-row">
-        <span class="field-label">出生時間</span>
-        <input type="time" id="p-time" required>
-        <span class="hint">（當地時間，影響時柱與紫微命宮）</span>
+        <label class="field-label" for="p-time">出生時間</label>
+        <input type="time" id="p-time" required aria-describedby="birth-time-limit birth-time-limit-en">
+        <span class="hint" id="birth-time-limit">出生時間直接依輸入的民用時間使用。未做出生地時區換算、夏令時間不存在／重複時刻判別或真太陽時校正；國際命盤不可視為已校正或驗證。</span>
+        <span class="hint" id="birth-time-limit-en" lang="en">Birth time is used as entered. Birthplace time-zone conversion, DST gap/overlap handling and true-solar-time correction are not implemented. International birth data should not be treated as a corrected chart.</span>
       </div>
       <div class="field-row">
         <span class="field-label">性別</span>
@@ -171,11 +199,11 @@
       </div>
       <div class="field-row">
         <button type="submit" class="btn-primary">儲存並排盤</button>
-        <span id="profile-status" class="save-status"></span>
+        <span id="profile-status" role="status" aria-live="polite" class="save-status"></span>
       </div>
     </form>
   </div>
-  <div class="card">
+  <div class="card" id="sync-card">
     <h2>雲端同步 <span class="hint">（GitHub Gist，選用）</span></h2>
     <div id="sync-disconnected">
       <p class="hint">
@@ -190,7 +218,7 @@
           到 GitHub 建立一個 <a href="https://github.com/settings/tokens/new?scopes=gist&description=ziwei-bazi-trend" target="_blank" rel="noopener">Personal Access Token</a>（只勾 <code>gist</code> 權限即可）→ 貼到下面 → 連線。
         </p>
         <div class="field-row">
-          <span class="field-label">Token</span>
+          <label class="field-label" for="sync-token">Token</label>
           <input type="password" id="sync-token" placeholder="ghp_… 或 github_pat_…" autocomplete="off">
           <button type="button" id="btn-sync-connect" class="btn-primary">連線雲端</button>
         </div>
@@ -207,11 +235,11 @@
       新裝置（含手機）打開這條連結就自動連上同一份雲端資料。<b>此連結等同你的資料鑰匙，請勿分享給別人。</b></p>
       <p id="sync-link-out" class="hint" style="word-break:break-all;"></p>
     </div>
-    <p id="sync-status" class="save-status"></p>
+    <p id="sync-status" role="status" aria-live="polite" class="save-status"></p>
   </div>
   <div class="card">
     <h2>資料管理</h2>
-    <p class="hint">未開啟雲端同步時，所有資料只儲存在你的瀏覽器（localStorage）。換裝置或清瀏覽器資料前，請先匯出 JSON 備份或開啟雲端同步。</p>
+    <p class="hint" id="data-storage-hint">未開啟雲端同步時，所有資料只儲存在你的瀏覽器（localStorage）。換裝置或清瀏覽器資料前，請先匯出 JSON 備份或開啟雲端同步。</p>
     <div class="toolbar">
       <button id="btn-settings-export" class="btn-ghost">匯出全部資料（JSON）</button>
       <button id="btn-clear-all" class="btn-danger">清除全部資料</button>
@@ -222,7 +250,7 @@
     <p class="hint">
       排盤引擎：<a href="https://github.com/6tail/lunar-javascript" target="_blank" rel="noopener">lunar-javascript</a>（八字／農曆／節氣）、
       <a href="https://github.com/SylarLong/iztro" target="_blank" rel="noopener">iztro</a>(紫微斗數／流年流月流日四化)，皆為 MIT 授權。<br>
-      流日以立春換年、節氣換月；紫微流運四化依 iztro 預設（中州派）安星規則。命理內容僅供自我觀察參考。<br>
+      流日以立春換年、節氣換月；紫微流運四化依 iztro 預設（中州派）安星規則。命理內容是文化性的自我觀察參考，並非科學預測或醫療、理財建議。<br>
       <a href="privacy.html">隱私權政策</a>
     </p>
   </div>

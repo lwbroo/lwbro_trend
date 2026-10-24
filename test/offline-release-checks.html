@@ -1,0 +1,85 @@
+<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>Synthetic offline release audit</title>
+<pre id="result">running</pre><iframe id="app" title="Synthetic offline release" style="width:430px;height:950px;border:0"></iframe>
+<script>
+(async()=>{
+ const frame=document.querySelector('#app'),out=document.querySelector('#result'),checks=[];
+ const check=(name,ok)=>{checks.push({name,ok:!!ok});if(!ok)throw Error(name);};
+ const wait=ms=>new Promise(r=>setTimeout(r,ms));
+ const until=async(fn,name)=>{for(let i=0;i<100;i++){if(fn())return;await wait(30);}throw Error('timeout: '+name);};
+ const profile={name:'Synthetic only',birthDate:'2000-01-01',birthTime:'12:00',gender:'女'};
+ const first={date:'2026-10-04',mood:3,energy:4,tags:[],note:'<img src=x onerror="window.__injected=true">',updatedAt:'2026-10-04T00:00:00Z'};
+ const second={date:'2026-10-03',mood:4,energy:2,tags:[],note:'synthetic import',updatedAt:'2026-10-03T00:00:00Z'};
+ try{
+  localStorage.clear();localStorage.setItem('zwbz.language','zh-Hant');localStorage.setItem('unrelated.synthetic','keep');
+  localStorage.setItem('zwbz.profile',JSON.stringify(profile));localStorage.setItem('zwbz.records',JSON.stringify([first]));
+  // A stale synthetic sync config must neither activate networking nor enter exports.
+  localStorage.setItem('zwbz.sync',JSON.stringify({token:'synthetic-unused-token',gistId:'synthetic-only'}));
+  const source=await(await fetch('../native/ios/App/App/public/index.html')).text();
+  const base=new URL('../native/ios/App/App/public/',location.href).href;
+  const bootstrap='<base href="'+base+'"><script>window.__requests=[];const realFetch=window.fetch;window.fetch=(...args)=>{window.__requests.push(String(args[0]));return realFetch(...args);};<\/script>';
+  frame.srcdoc=source.replace('<head>','<head>'+bootstrap);await new Promise(r=>frame.onload=r);
+  const doc=frame.contentDocument,win=frame.contentWindow,$=s=>doc.querySelector(s),store=()=>win.__audit.Store;
+  await until(()=>$('#profile-chip').textContent.includes('Synthetic'),'startup');
+  const expose=doc.createElement('script');expose.textContent='window.__audit={Store,AiReading,Chat,Sync};';doc.head.appendChild(expose);
+  check('only five enabled offline tabs',[...doc.querySelectorAll('.tab')].filter(b=>win.getComputedStyle(b).display!=='none').map(b=>b.dataset.tab).join(',')==='today,chart,records,trends,settings');
+  check('AI and sync hidden and inert',$('#tab-ai-chat').inert && $('#sync-card').inert && win.getComputedStyle($('[data-tab="ai-chat"]')).display==='none');
+  check('future service modules absent from resources',win.performance.getEntriesByType('resource').every(r=>!/(?:\/js\/(?:ai|chat|sync)\.js|cdn\.jsdelivr|unpkg)/.test(r.name)));
+  check('network-off services report unavailable',!win.__audit.AiReading.configured() && !win.__audit.Chat.configured() && !win.__audit.Sync.isConnected());
+  const initial=localStorage.getItem('zwbz.sync');
+  for(const [expression,invoke] of [['reading',()=>win.__audit.AiReading.getReading({},'2026-10-04',{},{})],['chat',()=>win.__audit.Chat.send([],{})],['sync connect',()=>win.__audit.Sync.connect('synthetic-only')],['sync now',()=>win.__audit.Sync.syncNow()],['sync pull',()=>win.__audit.Sync.pull()],['sync push',()=>win.__audit.Sync.push()]]){
+   let rejected=false;try{await invoke();}catch(e){rejected=true;}
+   check('disabled service rejects without sending: '+expression,rejected);
+  }
+  win.__audit.AiReading.reportError({message:'synthetic error'});win.__audit.Sync.schedulePush();win.__audit.Sync.adoptFromUrl();
+  await win.__audit.Sync.handleOAuthCallback();
+  check('disabled service calls never invoked fetch',win.__requests.length===0);
+  check('disabled services leave stale sync data untouched',localStorage.getItem('zwbz.sync')===initial);
+  for(const name of ['today','chart','records','trends','settings']){
+   $('[data-tab="'+name+'"]').click();await wait(30);
+   check('offline screen usable: '+name,$('#tab-'+name).classList.contains('active'));
+  }
+  $('[data-tab="records"]').click();
+  check('imported note displays as text rather than executable markup',$('.note-cell').textContent===first.note && !win.__injected && !$('.note-cell img'));
+  const exported=JSON.parse(store().exportJSON());
+  check('JSON backup contains profile and records only, no sync credentials',exported.profile.name===profile.name && exported.records.length===1 && !JSON.stringify(exported).includes('synthetic-unused-token') && !('sync' in exported));
+  const beforeProfile=localStorage.getItem('zwbz.profile'),beforeRecords=localStorage.getItem('zwbz.records');
+  let failed=false;try{store().importJSON(JSON.stringify({profile,records:[second,{...first,date:'2023-02-29'}]}));}catch(e){failed=true;}
+  check('mixed valid/invalid import preserves exact previous keys',failed && localStorage.getItem('zwbz.profile')===beforeProfile && localStorage.getItem('zwbz.records')===beforeRecords);
+  const stats=store().importJSON(JSON.stringify({profile:{...profile,name:'Other synthetic'},records:[second]}));
+  check('valid merge retains existing profile and both dates',stats.added===1 && store().getProfile().name===profile.name && store().getRecords().length===2);
+  const merged=localStorage.getItem('zwbz.records');store().importJSON(JSON.stringify({records:[second]}));
+  check('repeat import creates no duplicates',localStorage.getItem('zwbz.records')===merged);
+  store().importJSON(JSON.stringify({records:[{...first,note:'newer synthetic',updatedAt:'2026-10-05T00:00:00Z'}]}));
+  store().importJSON(JSON.stringify({records:[first]}));
+  check('newer date record wins and older import cannot replace it',store().getRecord(first.date).note==='newer synthetic');
+  // Simulate storage quota exhaustion on the records key after profile was written.
+  localStorage.removeItem('zwbz.profile');const recordsBeforeQuota=localStorage.getItem('zwbz.records');
+  const realSet=win.Storage.prototype.setItem;
+  win.Storage.prototype.setItem=function(key,value){if(key==='zwbz.records')throw new win.DOMException('synthetic quota failure','QuotaExceededError');return realSet.call(this,key,value);};
+  failed=false;try{store().importJSON(JSON.stringify({profile,records:[{...second,date:'2026-10-02'}]}));}catch(e){failed=e.name==='QuotaExceededError';}
+  win.Storage.prototype.setItem=realSet;
+  check('quota failure rolls back newly imported profile and retains exact records',failed && localStorage.getItem('zwbz.profile')===null && localStorage.getItem('zwbz.records')===recordsBeforeQuota);
+  store().saveProfile(profile);
+  // Test the actual browser policy against a loopback-only probe, never an external host.
+  let blocked=false;try{await win.fetch(new URL('native-runtime.js',base).href);}catch(e){blocked=true;}
+  check('connect-src none denies even a same-origin fetch probe',blocked);
+  check('no external resource requests',win.performance.getEntriesByType('resource').every(r=>!/^https?:/.test(r.name)||r.name.startsWith(location.origin)));
+  const shares=[];win.Capacitor={Plugins:{ShareExport:{share:async(args)=>{shares.push(args);return {completed:false};}}}};
+  $('[data-tab="records"]').click();$('#btn-export-json').click();await until(()=>shares.length===1,'synthetic native share');
+  check('backup delivered only to mocked native chooser',JSON.parse(shares[0].text).records.length===2 && shares[0].filename.endsWith('.json') && win.__requests.length===1);
+  await until(()=>!$('#btn-export-json').disabled,'share cancellation');
+  check('cancelled sharing keeps local records',localStorage.getItem('zwbz.records')===recordsBeforeQuota);
+  win.confirm=()=>true;$('[data-tab="settings"]').click();$('#btn-clear-all').click();
+  check('clear all removes app profile/records/sync',!localStorage.getItem('zwbz.profile') && !localStorage.getItem('zwbz.records') && !localStorage.getItem('zwbz.sync'));
+  check('clear all preserves unrelated local storage',localStorage.getItem('unrelated.synthetic')==='keep');
+  check('clear all returns to empty settings',$('#tab-settings').classList.contains('active') && $('#profile-chip').textContent.includes('尚未設定'));
+  check('no telemetry fetch on errors or clear',win.__requests.length===1);
+  frame.removeAttribute('srcdoc');frame.src=new URL('privacy.html',base).href;await new Promise(r=>frame.onload=r);
+  const privacyDoc=frame.contentDocument;
+  check('local privacy information includes full bundled MIT licenses',privacyDoc.querySelectorAll('#licenses pre').length===2 && privacyDoc.querySelector('#licenses').textContent.includes('Permission is hereby granted'));
+  check('privacy information does not publish unapproved personal email',!privacyDoc.body.textContent.includes('kurt.chiang@gmail.com') && privacyDoc.body.textContent.includes('正式經營者'));
+  check('privacy and licenses have local return navigation',privacyDoc.querySelector('a').getAttribute('href')==='index.html' && [...privacyDoc.querySelectorAll('a')].every(a=>!/^https?:/.test(a.getAttribute('href'))));
+  out.dataset.status='passed';out.textContent=JSON.stringify({passed:checks.length,syntheticOnly:true,networkProbe:'one loopback-only fetch denied by CSP; service fetch attempts zero',checks},null,2);
+ }catch(error){out.dataset.status='failed';out.textContent=JSON.stringify({error:String(error),checks},null,2);}
+})();
+</script></html>

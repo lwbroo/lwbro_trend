@@ -27,6 +27,13 @@
 
   const $ = sel => document.querySelector(sel);
   const $$ = sel => [...document.querySelectorAll(sel)];
+  const appHeader = $('.app-header');
+  function updateHeaderScrollGap() {
+    document.documentElement.style.setProperty('--app-header-scroll-gap', `${Math.ceil(appHeader.getBoundingClientRect().height) + 12}px`);
+  }
+  if (window.ResizeObserver) new ResizeObserver(updateHeaderScrollGap).observe(appHeader);
+  window.addEventListener('resize', updateHeaderScrollGap);
+  updateHeaderScrollGap();
 
   const PRESET_TAGS = ['工作順利', '壓力大', '人際佳', '有衝突', '身體不適', '睡眠差', '財運佳', '破財', '感情和睦', '心情低落', '學習進步', '運動'];
   const MUTAGEN_LABELS = ['祿', '權', '科', '忌'];
@@ -36,6 +43,20 @@
 
   let currentDate = todayStr();
   let analyzer = null, analyzerSig = '';
+  // Session-only drafts: navigating must not save or discard a user's edits.
+  const checkinDrafts = new Map();
+  let checkinFormLoaded = false;
+  let profileFormDirty = false;
+
+  function setStatus(element, message, state = 'success') {
+    element.dataset.state = state;
+    element.setAttribute('role', state === 'error' ? 'alert' : 'status');
+    element.setAttribute('aria-live', state === 'error' ? 'assertive' : 'polite');
+    element.setAttribute('aria-atomic', 'true');
+    const update = element.dataset.statusMessage !== message || state === 'error';
+    element.dataset.statusMessage = message;
+    if (update) element.textContent = message;
+  }
 
   function todayStr() { return fmtDate(new Date()); }
   function fmtDate(d) {
@@ -55,22 +76,29 @@
   }
 
   /* ================= 分頁 ================= */
-  function switchTab(name) {
-    $$('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  function switchTab(name, { resetScroll = false } = {}) {
+    if (window.ZWBZ_NATIVE_OFFLINE && name === 'ai-chat') return;
+    if (checkinFormLoaded && $('#tab-today').classList.contains('active')) captureCheckinDraft();
+    $$('.tab').forEach(b => {
+      const active = b.dataset.tab === name;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-current', active ? 'page' : 'false');
+    });
     $$('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
     const render = { today: renderToday, chart: renderChartTab, records: renderRecords, trends: renderTrends, 'ai-chat': renderChatTab, settings: renderSettings };
     if (render[name]) render[name]();
+    if (resetScroll) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }
   $('#tabs').addEventListener('click', ev => {
     const btn = ev.target.closest('.tab');
-    if (btn) switchTab(btn.dataset.tab);
+    if (btn) switchTab(btn.dataset.tab, { resetScroll: true });
   });
 
   function renderProfileChip() {
     const p = Store.getProfile();
     $('#profile-chip').textContent = p
-      ? `${p.name || '我'} · ${p.birthDate} ${p.birthTime} · ${p.gender}`
-      : '尚未設定出生資料';
+      ? `${p.name || (window.ZWBZI18n ? ZWBZI18n.t('我') : '我')} · ${p.birthDate} ${p.birthTime} · ${window.ZWBZI18n ? ZWBZI18n.t(p.gender) : p.gender}`
+      : (window.ZWBZI18n ? ZWBZI18n.t('尚未設定出生資料') : '尚未設定出生資料');
   }
 
   /* ================= 今日流運 ================= */
@@ -82,7 +110,9 @@
     const box = $('#today-content');
     if (!profile) { box.innerHTML = ''; loadCheckinForm(); return; }
 
-    const [y, m, d] = currentDate.split('-').map(Number);
+    let y, m, d;
+    try { ({ y, m, d } = Engine.parseCivilDate(currentDate)); }
+    catch (e) { box.textContent = e.message; return; }
     const info = Engine.daily(profile, new Date(y, m - 1, d, 12, 0, 0));
     const natal = Engine.baziNatal(profile);
     const b = info.bazi, z = info.ziwei;
@@ -92,7 +122,8 @@
     const aiCard = aiConfigured ? `
       <div class="card">
         <h2>今日運勢 <span class="hint">AI 個人化解讀</span></h2>
-        <p id="ai-reading-text" class="reading-text${cachedReading ? '' : ' loading'}">${cachedReading ? esc(cachedReading) : '解讀中…'}</p>
+        <p id="ai-reading-text" class="reading-text">${cachedReading ? esc(cachedReading) : '尚未取得 AI 解讀。'}</p>
+        ${cachedReading ? '' : '<p class="hint">按下方按鈕後，當日推算出的命盤資料會經 Cloudflare 傳給 xAI；不傳姓名或完整生日。</p><button type="button" id="btn-ai-reading" class="btn-primary">同意並取得 AI 解讀</button>'}
       </div>` : '';
 
     const baziRow = (label, o) => `
@@ -127,7 +158,7 @@
             ${baziRow('流日', b.day)}
           </tbody>
         </table>
-        <p class="hint">十神以你的日主「${natal.dayMaster}」推算；流年以立春換年、流月以節氣換月。</p>
+        <p class="hint">十神以你的日主「${natal.dayMaster}」推算；流年以立春換年、流月以節氣換月。每日統一以日期 12:00 作參考；節氣交接日其他時段可能不同，未做出生地時區校正。</p>
       </div>
       <div class="card">
         <h2>紫微流運</h2>
@@ -144,19 +175,22 @@
       </div>`;
 
     if (aiConfigured && !cachedReading) {
-      const requestedDate = currentDate;
-      AiReading.getReading(profile, currentDate, info, natal).then(text => {
-        if (currentDate !== requestedDate) return;
-        const el = $('#ai-reading-text');
-        if (!el) return;
-        el.textContent = text;
-        el.classList.remove('loading');
-      }).catch(() => {
-        if (currentDate !== requestedDate) return;
-        const el = $('#ai-reading-text');
-        if (!el) return;
-        el.textContent = '解讀暫時無法取得，稍後再試。';
-        el.classList.remove('loading');
+      $('#btn-ai-reading').addEventListener('click', async ev => {
+        const button = ev.currentTarget;
+        button.disabled = true;
+        const requestedDate = currentDate;
+        const result = $('#ai-reading-text');
+        result.textContent = '解讀中…';
+        try {
+          const reading = await AiReading.getReading(profile, requestedDate, info, natal);
+          if (currentDate !== requestedDate) return;
+          result.textContent = reading;
+          button.remove();
+        } catch (e) {
+          if (currentDate !== requestedDate) return;
+          result.textContent = '解讀暫時無法取得，稍後再試。';
+          button.disabled = false;
+        }
       });
     }
 
@@ -164,9 +198,9 @@
   }
 
   $('#today-date').addEventListener('change', ev => {
-    if (ev.target.value) { currentDate = ev.target.value; renderToday(); }
+    if (ev.target.value) { captureCheckinDraft(); currentDate = ev.target.value; renderToday(); }
   });
-  $('#btn-goto-today').addEventListener('click', () => { currentDate = todayStr(); renderToday(); });
+  $('#btn-goto-today').addEventListener('click', () => { captureCheckinDraft(); currentDate = todayStr(); renderToday(); });
 
   /* ---------- 每日記錄表單 ---------- */
   function allTags() {
@@ -177,58 +211,99 @@
   function renderTagChips(selected) {
     const box = $('#tag-chips');
     box.innerHTML = '';
-    allTags().forEach(tag => {
+    [...new Set([...allTags(), ...selected])].forEach(tag => {
       const chip = document.createElement('button');
       chip.type = 'button';
       chip.className = 'chip' + (selected.includes(tag) ? ' on' : '');
-      chip.textContent = tag;
+      chip.dataset.tag = tag;
+      chip.textContent = window.ZWBZI18n ? ZWBZI18n.tag(tag) : tag;
       chip.addEventListener('click', () => chip.classList.toggle('on'));
       box.appendChild(chip);
     });
   }
+  function checkinValues() {
+    return {
+      mood: ($('input[name="mood"]:checked') || {}).value || '',
+      energy: ($('input[name="energy"]:checked') || {}).value || '',
+      tags: $$('#tag-chips .chip.on').map(c => c.dataset.tag),
+      note: $('#note').value,
+      customTag: $('#custom-tag').value
+    };
+  }
+  function captureCheckinDraft() {
+    const values = checkinValues(), rec = Store.getRecord(currentDate);
+    const unchanged = values.mood === String(rec?.mood || '') && values.energy === String(rec?.energy || '') &&
+      values.note === (rec?.note || '') && !values.customTag &&
+      JSON.stringify([...values.tags].sort()) === JSON.stringify([...(rec?.tags || [])].sort());
+    if (unchanged) checkinDrafts.delete(currentDate);
+    else checkinDrafts.set(currentDate, values);
+    return !unchanged;
+  }
+  function showDraftStatus() {
+    if (captureCheckinDraft()) {
+      setStatus($('#checkin-status'), '草稿尚未儲存（僅保留於本次開啟；請按「儲存記錄」保存）', 'neutral');
+    } else {
+      const rec = Store.getRecord(currentDate);
+      setStatus($('#checkin-status'), rec ? `此日已有記錄（最後更新 ${new Date(rec.updatedAt).toLocaleString()}）` : '', 'neutral');
+    }
+  }
   function loadCheckinForm() {
     const rec = Store.getRecord(currentDate);
+    const draft = checkinDrafts.get(currentDate);
+    const values = draft || rec;
     const form = $('#checkin-form');
     form.reset();
-    if (rec) {
-      if (rec.mood) form.querySelector(`input[name="mood"][value="${rec.mood}"]`).checked = true;
-      if (rec.energy) form.querySelector(`input[name="energy"][value="${rec.energy}"]`).checked = true;
-      $('#note').value = rec.note || '';
+    if (values) {
+      if (values.mood) form.querySelector(`input[name="mood"][value="${values.mood}"]`).checked = true;
+      if (values.energy) form.querySelector(`input[name="energy"][value="${values.energy}"]`).checked = true;
+      $('#note').value = values.note || '';
+      $('#custom-tag').value = values.customTag || '';
     }
-    renderTagChips(rec ? (rec.tags || []) : []);
-    $('#checkin-status').textContent = rec ? `此日已有記錄（最後更新 ${new Date(rec.updatedAt).toLocaleString()}）` : '';
+    renderTagChips(values ? (values.tags || []) : []);
+    checkinFormLoaded = true;
+    setStatus($('#checkin-status'), draft ? '草稿尚未儲存（僅保留於本次開啟；請按「儲存記錄」保存）' :
+      rec ? `此日已有記錄（最後更新 ${new Date(rec.updatedAt).toLocaleString()}）` : '', 'neutral');
   }
+  $('#checkin-form').addEventListener('input', showDraftStatus);
+  $('#tag-chips').addEventListener('click', showDraftStatus);
   $('#custom-tag').addEventListener('keydown', ev => {
     if (ev.key !== 'Enter') return;
     ev.preventDefault();
     const val = ev.target.value.trim();
     if (!val) return;
     const chips = $$('#tag-chips .chip');
-    let chip = chips.find(c => c.textContent === val);
+    let chip = chips.find(c => c.dataset.tag === val);
     if (!chip) {
       chip = document.createElement('button');
       chip.type = 'button';
       chip.className = 'chip';
-      chip.textContent = val;
+      chip.dataset.tag = val;
+      chip.textContent = window.ZWBZI18n ? ZWBZI18n.tag(val) : val;
       chip.addEventListener('click', () => chip.classList.toggle('on'));
       $('#tag-chips').appendChild(chip);
     }
     chip.classList.add('on');
     ev.target.value = '';
+    showDraftStatus();
   });
   $('#checkin-form').addEventListener('submit', ev => {
     ev.preventDefault();
     const mood = ($('input[name="mood"]:checked') || {}).value;
     const energy = ($('input[name="energy"]:checked') || {}).value;
-    if (!mood && !energy) { $('#checkin-status').textContent = '請至少選擇心情或精力'; return; }
-    Store.upsertRecord({
-      date: currentDate,
-      mood: mood ? Number(mood) : null,
-      energy: energy ? Number(energy) : null,
-      tags: $$('#tag-chips .chip.on').map(c => c.textContent),
-      note: $('#note').value.trim()
-    });
-    $('#checkin-status').textContent = `已儲存 ${currentDate} 的記錄 ✓`;
+    captureCheckinDraft();
+    if (!mood && !energy) { setStatus($('#checkin-status'), '請至少選擇心情或精力', 'error'); return; }
+    try {
+      Store.upsertRecord({
+        date: currentDate,
+        mood: mood ? Number(mood) : null,
+        energy: energy ? Number(energy) : null,
+        tags: $$('#tag-chips .chip.on').map(c => c.dataset.tag),
+        note: $('#note').value.trim()
+      });
+    } catch (e) { setStatus($('#checkin-status'), e.name === 'QuotaExceededError' ? '儲存失敗，草稿仍保留。請保持 App 開啟後重試。' : e.message, 'error'); return; }
+    checkinDrafts.delete(currentDate);
+    $('#note').value = $('#note').value.trim();
+    setStatus($('#checkin-status'), `已儲存 ${currentDate} 的記錄 ✓`);
     Sync.schedulePush();
   });
 
@@ -241,6 +316,37 @@
     if (!profile) return;
     renderZiweiBoard(profile);
     renderBaziCard(profile);
+    updateChartScroll();
+  }
+
+  const chartScroll = $('#ziwei-board-scroll');
+  function updateChartScroll() {
+    if (!chartScroll) return;
+    const remaining = chartScroll.scrollWidth - chartScroll.clientWidth;
+    $('#chart-scroll-left').disabled = chartScroll.scrollLeft <= 1;
+    $('#chart-scroll-right').disabled = chartScroll.scrollLeft >= remaining - 1;
+    $('.chart-scroll-controls').hidden = remaining <= 1;
+    $('#chart-scroll-help').textContent = remaining > 1
+      ? '十二宮保持原有排列。左右滑動或使用按鈕查看所有宮位；鍵盤可用左右方向鍵、Home／End。'
+      : '十二宮保持原有排列。';
+  }
+  if (chartScroll) {
+    const moveChart = direction => {
+      chartScroll.scrollBy({ left: direction * chartScroll.clientWidth * .75, behavior: 'auto' });
+      updateChartScroll();
+    };
+    $('#chart-scroll-left').addEventListener('click', () => moveChart(-1));
+    $('#chart-scroll-right').addEventListener('click', () => moveChart(1));
+    chartScroll.addEventListener('scroll', updateChartScroll, { passive: true });
+    chartScroll.addEventListener('keydown', ev => {
+      if (ev.target !== chartScroll || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(ev.key)) return;
+      ev.preventDefault();
+      if (ev.key === 'Home' || ev.key === 'End') {
+        chartScroll.scrollLeft = ev.key === 'Home' ? 0 : chartScroll.scrollWidth;
+        updateChartScroll();
+      } else moveChart(ev.key === 'ArrowLeft' ? -1 : 1);
+    });
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(updateChartScroll).observe(chartScroll);
   }
 
   function renderZiweiBoard(profile) {
@@ -335,37 +441,41 @@
       return;
     }
     box.innerHTML = `
-      <table class="records-table">
-        <thead><tr><th>日期</th><th>流日干支</th><th>心情</th><th>精力</th><th>標籤</th><th>筆記</th><th></th></tr></thead>
-        <tbody>
+      <p class="hint">共 ${records.length} 筆記錄</p>
+      <table class="records-table" role="table" aria-label="每日狀態記錄">
+        <thead role="rowgroup"><tr role="row"><th scope="col" class="record-date">日期</th><th scope="col">流日干支</th><th scope="col">心情</th><th scope="col">精力</th><th scope="col">標籤</th><th scope="col">筆記</th><th scope="col" class="record-actions-heading">操作</th></tr></thead>
+        <tbody role="rowgroup">
           ${records.map(r => {
             const k = keysOf ? keysOf(r.date) : null;
-            return `<tr>
-              <td>${r.date}</td>
-              <td>${k ? `${k.dayGanZhi} <span class="hint">${k.shiShen}</span>` : '—'}</td>
-              <td>${r.mood != null ? r.mood : '—'}</td>
-              <td>${r.energy != null ? r.energy : '—'}</td>
-              <td>${(r.tags || []).map(t => `<span class="chip chip-static">${esc(t)}</span>`).join(' ')}</td>
-              <td class="note-cell">${esc(r.note || '')}</td>
-              <td class="row-actions">
-                <button class="btn-mini" data-act="edit" data-date="${r.date}">編輯</button>
-                <button class="btn-mini danger" data-act="del" data-date="${r.date}">刪除</button>
+            return `<tr role="row">
+              <th scope="row" role="rowheader" class="record-date"><time datetime="${r.date}">${r.date}</time></th>
+              <td role="cell" data-label="流日干支">${k ? `${k.dayGanZhi} <span class="hint">${k.shiShen}</span>` : '—'}</td>
+              <td role="cell" data-label="心情">${r.mood != null ? r.mood : '—'}</td>
+              <td role="cell" data-label="精力">${r.energy != null ? r.energy : '—'}</td>
+              <td role="cell" data-label="標籤">${(r.tags || []).map(t => `<span class="chip chip-static" data-tag="${esc(t)}">${esc(window.ZWBZI18n ? ZWBZI18n.tag(t) : t)}</span>`).join(' ') || '—'}</td>
+              <td role="cell" data-label="筆記" class="note-cell">${esc(r.note || '') || '—'}</td>
+              <td role="cell" class="row-actions"><div class="record-actions">
+                <button class="btn-mini" data-act="edit" data-date="${r.date}" aria-label="編輯 ${r.date} 的記錄">編輯</button>
+                <button class="btn-mini danger" data-act="del" data-date="${r.date}" aria-label="刪除 ${r.date} 的記錄">刪除</button>
+              </div>
               </td>
             </tr>`;
           }).join('')}
         </tbody>
-      </table>
-      <p class="hint">共 ${records.length} 筆記錄</p>`;
+      </table>`;
 
     box.onclick = ev => {
       const btn = ev.target.closest('button[data-act]');
       if (!btn) return;
       if (btn.dataset.act === 'edit') {
         currentDate = btn.dataset.date;
-        switchTab('today');
+        switchTab('today', { resetScroll: true });
+        const entryTop = $('#checkin-card').getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: Math.max(0, entryTop - $('.app-header').getBoundingClientRect().height - 12), behavior: 'auto' });
       } else if (btn.dataset.act === 'del') {
-        if (confirm(`確定刪除 ${btn.dataset.date} 的記錄？`)) {
+        if (confirm(window.ZWBZI18n ? ZWBZI18n.t(`確定刪除 ${btn.dataset.date} 的記錄？`) : `確定刪除 ${btn.dataset.date} 的記錄？`)) {
           Store.deleteRecord(btn.dataset.date);
+          checkinDrafts.delete(btn.dataset.date);
           renderRecords();
           Sync.schedulePush();
         }
@@ -374,6 +484,12 @@
   }
 
   function download(filename, text, mime) {
+    if (window.ZWBZ_NATIVE_EXPORT) {
+      nativeIO(() => window.ZWBZ_NATIVE_EXPORT(filename, text))
+        .then(result => { if (!result.ignored) setIOStatus(result.completed ? '分享完成' : '已取消分享', result.completed ? 'success' : 'neutral'); })
+        .catch(e => setIOStatus('分享失敗：' + e.message, 'error'));
+      return;
+    }
     const blob = new Blob([text], { type: mime || 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     const aEl = document.createElement('a');
@@ -396,22 +512,59 @@
     const csv = Store.exportCSV(rows, ['日期', '心情', '精力', '標籤', '筆記', '流日干支', '流日天干五行', '流日十神', '紫微流日命宮', '流日化忌']);
     download(`ziwei-bazi-records-${todayStr()}.csv`, '﻿' + csv, 'text/csv;charset=utf-8');
   });
+  function setIOStatus(message, state = 'success') {
+    setStatus($('#records-io-status'), message, state);
+    setStatus($('#profile-status'), message, state);
+  }
+  let nativeIOPending = false;
+  async function nativeIO(operation) {
+    if (nativeIOPending) return { ignored: true };
+    nativeIOPending = true;
+    const controls = ['#btn-export-json', '#btn-export-csv', '#btn-import-json', '#btn-settings-export']
+      .map(selector => $(selector)).filter(Boolean);
+    controls.forEach(control => { control.disabled = true; });
+    try { return await operation(); }
+    finally {
+      nativeIOPending = false;
+      controls.forEach(control => { control.disabled = false; });
+    }
+  }
+  function importText(text) {
+    try {
+      const result = Store.importJSON(text);
+      setIOStatus(`匯入完成：新增 ${result.added} 筆、更新 ${result.updated} 筆，共 ${result.total} 筆`);
+      renderProfileChip();
+      renderRecords();
+      Sync.schedulePush();
+    } catch (e) { setIOStatus('匯入失敗：' + e.message, 'error'); }
+  }
+  // Older personalized entrances still use a label wrapping the file input.
+  const importButton = $('#btn-import-json');
+  if (importButton) importButton.addEventListener('click', async () => {
+    if (!window.ZWBZ_NATIVE_IMPORT) { $('#import-file').click(); return; }
+    try {
+      const result = await nativeIO(() => window.ZWBZ_NATIVE_IMPORT());
+      if (result.ignored) return;
+      if (result.cancelled) setIOStatus('已取消匯入', 'neutral');
+      else importText(result.text);
+    } catch (e) { setIOStatus('匯入失敗：' + e.message, 'error'); }
+  });
+  $('#import-file').addEventListener('cancel', () => setIOStatus('已取消匯入', 'neutral'));
   $('#import-file').addEventListener('change', ev => {
     const file = ev.target.files[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setIOStatus('匯入失敗：檔案超過 5 MB，請選擇較小的 JSON 備份', 'error');
+      ev.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
-      try {
-        const result = Store.importJSON(reader.result);
-        $('#records-io-status').textContent = `匯入完成：新增 ${result.added} 筆、更新 ${result.updated} 筆，共 ${result.total} 筆`;
-        renderProfileChip();
-        renderRecords();
-        Sync.schedulePush();
-      } catch (e) {
-        $('#records-io-status').textContent = '匯入失敗：' + e.message;
-      }
+      importText(reader.result);
       ev.target.value = '';
     };
+    reader.onerror = () => { setIOStatus('匯入失敗：無法讀取檔案，請重新選擇備份', 'error'); ev.target.value = ''; };
+    reader.onabort = () => { setIOStatus('匯入已中斷，原有資料未變更', 'neutral'); ev.target.value = ''; };
     reader.readAsText(file);
   });
 
@@ -479,7 +632,7 @@
       { map: avgMap(k => k.shiShen), key: k => k.shiShen },
       { map: avgMap(k => k.ziweiPalace), key: k => k.ziweiPalace }
     ];
-    const WEEKDAY = ['日', '一', '二', '三', '四', '五', '六'];
+    const WEEKDAY = window.ZWBZI18n && ZWBZI18n.language() === 'en' ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] : ['日', '一', '二', '三', '四', '五', '六'];
     const items = [];
     for (let i = 0; i < 14; i++) {
       const d = new Date(); d.setDate(d.getDate() + i);
@@ -564,7 +717,7 @@
     Charts.barChart($('#tr-gan'), dataGan);
     Charts.barChart($('#tr-zhi'), dataZhi);
     Charts.barChart($('#tr-month'), dataMonth);
-    Charts.barChart($('#tr-tags'), dataTags);
+    Charts.barChart($('#tr-tags'), window.ZWBZI18n ? dataTags.map(item => ({...item, label: ZWBZI18n.tag(item.label)})) : dataTags);
     Charts.barChart($('#tr-palace'), dataPalace, { height: 220 });
     renderForecast($('#tr-forecast'), rows, keysOf, metric, metricName);
 
@@ -595,7 +748,14 @@
     const profile = Store.getProfile();
     $('#chat-need-profile').hidden = !!profile;
     $('#chat-body').hidden = !profile;
-    if (!profile) return;
+    if (window.ZWBZ_NATIVE_OFFLINE) {
+      $('#chat-need-profile').hidden = true;
+      $('#chat-body').hidden = false;
+      $('#chat-form').hidden = true;
+      $('#chat-consent').closest('label').hidden = true;
+      $('#chat-status').textContent = '此 iPhone 離線版本尚未啟用 AI 問答。';
+    }
+    if (!profile && !window.ZWBZ_NATIVE_OFFLINE) return;
     renderChatLog();
   }
 
@@ -617,6 +777,10 @@
     if (!text) return;
     if (!Chat.configured()) {
       $('#chat-status').textContent = 'AI 問答尚未部署，稍後再試。';
+      return;
+    }
+    if (!$('#chat-consent').checked) {
+      $('#chat-status').textContent = '請先閱讀並勾選資料傳送說明。';
       return;
     }
 
@@ -726,7 +890,10 @@
 
   /* ================= 設定 ================= */
   function renderSettings() {
+    const syncCard = $('#sync-card');
+    if (syncCard) syncCard.hidden = !!(window.ZWBZ_OFFLINE_DEMO || window.ZWBZ_NATIVE_OFFLINE);
     renderSyncUI();
+    if (profileFormDirty) return;
     const p = Store.getProfile();
     if (!p) return;
     $('#p-name').value = p.name || '';
@@ -735,35 +902,62 @@
     const g = $(`input[name="p-gender"][value="${p.gender}"]`);
     if (g) g.checked = true;
   }
+  function markProfileDraft() {
+    profileFormDirty = true;
+    setStatus($('#profile-status'), '出生資料尚未儲存（僅保留於本次開啟；請按「儲存並排盤」保存）', 'neutral');
+  }
+  $('#profile-form').addEventListener('input', markProfileDraft);
+  $('#profile-form').addEventListener('change', markProfileDraft);
   $('#profile-form').addEventListener('submit', ev => {
     ev.preventDefault();
     const gender = ($('input[name="p-gender"]:checked') || {}).value;
     const birthDate = $('#p-date').value, birthTime = $('#p-time').value;
     if (!birthDate || !birthTime || !gender) {
-      $('#profile-status').textContent = '請完整填寫出生日期、時間與性別';
+      setStatus($('#profile-status'), '請完整填寫出生日期、時間與性別', 'error');
       return;
     }
-    Store.saveProfile({ name: $('#p-name').value.trim(), birthDate, birthTime, gender });
+    try { Store.saveProfile({ name: $('#p-name').value.trim(), birthDate, birthTime, gender }); }
+    catch (e) { setStatus($('#profile-status'), e.name === 'QuotaExceededError' ? '無法儲存出生資料；請保持 App 開啟後重試。' : e.message, 'error'); return; }
+    profileFormDirty = false;
     analyzer = null;
     renderProfileChip();
-    $('#profile-status').textContent = '已儲存 ✓';
+    setStatus($('#profile-status'), '已儲存 ✓');
     Sync.schedulePush();
     setTimeout(() => switchTab('chart'), 400);
   });
   $('#btn-settings-export').addEventListener('click', exportJSONFile);
   $('#btn-clear-all').addEventListener('click', () => {
-    if (confirm('確定清除全部資料（出生資料＋所有記錄）？此動作無法復原，建議先匯出備份。')) {
+    if (confirm(window.ZWBZI18n ? ZWBZI18n.t('確定清除全部資料（出生資料＋所有記錄）？此動作無法復原，建議先匯出備份。') : '確定清除全部資料（出生資料＋所有記錄）？此動作無法復原，建議先匯出備份。')) {
       Store.clearAll();
+      checkinDrafts.clear();
+      profileFormDirty = false;
       analyzer = null;
       renderProfileChip();
       switchTab('settings');
       renderSettings();
       $('#profile-form').reset();
+      setStatus($('#profile-status'), '', 'neutral');
     }
+  });
+
+  document.addEventListener('zwbz-language-change', () => {
+    renderProfileChip();
+    // No form reset/re-render: preserve unsaved birth fields and session drafts.
+    if ($('#tab-trends').classList.contains('active')) renderTrends();
+  });
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a');
+    if (!window.ZWBZ_NATIVE_OFFLINE || !link || !/^privacy\.html(?:#|$)/.test(link.getAttribute('href') || '')) return;
+    if (checkinFormLoaded && $('#tab-today').classList.contains('active')) captureCheckinDraft();
+    if (!profileFormDirty && !checkinDrafts.size) return;
+    const message = '開啟說明頁會捨棄尚未儲存的出生資料或日誌草稿。要離開並捨棄嗎？按取消返回儲存。';
+    if (!confirm(window.ZWBZI18n ? ZWBZI18n.t(message) : message)) event.preventDefault();
   });
 
   /* ================= 啟動 ================= */
   const adoptedFromLink = Sync.adoptFromUrl(); // 由「同步連結」開啟：自動帶入雲端連線
+  const demoBanner = $('#demo-banner');
+  if (demoBanner) demoBanner.hidden = !(window.ZWBZ_OFFLINE_DEMO || window.ZWBZ_NATIVE_OFFLINE);
   renderProfileChip();
   if (Store.getProfile()) {
     switchTab('today');

@@ -9,7 +9,7 @@ const Chat = (() => {
   /* 跟 js/ai.js 同一個 Worker，路徑是 /chat；部署步驟見 ai-relay/README.md。 */
   const RELAY_URL = 'https://ziwei-bazi-ai-relay.kurtchiang.workers.dev/chat';
 
-  function configured() { return !!RELAY_URL; }
+  function configured() { return !!RELAY_URL && !window.ZWBZ_OFFLINE_DEMO && !window.ZWBZ_NATIVE_OFFLINE; }
 
   async function send(history, context) {
     const res = await fetch(RELAY_URL, {

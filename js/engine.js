@@ -60,9 +60,32 @@ const Engine = (() => {
   }
 
   /* ---------- 個人檔案解析 ---------- */
+  function parseCivilDate(dateStr) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr || '');
+    if (!match) throw new Error('日期格式需為 YYYY-MM-DD');
+    const y = Number(match[1]), m = Number(match[2]), d = Number(match[3]);
+    // JavaScript Date silently maps years 00-99 to 1900-1999. Reject that range.
+    const leap = y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0);
+    const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (y < 100 || m < 1 || m > 12 || d < 1 || d > days[m - 1]) {
+      throw new Error('日期不是有效的國曆日期（支援 0100–9999 年）');
+    }
+    return { y, m, d };
+  }
+
+  function validateProfile(profile) {
+    if (!profile || typeof profile !== 'object' || Array.isArray(profile)) throw new Error('出生資料格式不正確');
+    parseCivilDate(profile.birthDate);
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(profile.birthTime || '')) throw new Error('出生時間需為 00:00–23:59');
+    if (profile.gender !== '男' && profile.gender !== '女') throw new Error('性別需為男或女');
+    if (profile.name != null && (typeof profile.name !== 'string' || profile.name.length > 20)) throw new Error('姓名格式不正確');
+    return profile;
+  }
+
   function parseProfile(profile) {
-    const [y, m, d] = profile.birthDate.split('-').map(Number);
-    const [hh, mm] = (profile.birthTime || '12:00').split(':').map(Number);
+    validateProfile(profile);
+    const { y, m, d } = parseCivilDate(profile.birthDate);
+    const [hh, mm] = profile.birthTime.split(':').map(Number);
     return { y, m, d, hh, mm };
   }
 
@@ -117,12 +140,17 @@ const Engine = (() => {
 
   /* ---------- 任一日期的流運（八字視角＋紫微視角） ---------- */
   function daily(profile, date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) throw new Error('流運日期不正確');
     const natal = baziNatal(profile);
     const dayMaster = natal.dayMaster;
-    const solar = Solar.fromYmd(date.getFullYear(), date.getMonth() + 1, date.getDate());
+    // One reading covers a civil day. Use 12:00 in the calendar library's civil-time
+    // convention for both term boundaries and the Ziwei horoscope. No birthplace
+    // timezone conversion is attempted here.
+    const day = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
+    const solar = Solar.fromYmdHms(day.getFullYear(), day.getMonth() + 1, day.getDate(), 12, 0, 0);
     const lunar = solar.getLunar();
 
-    const yearGz = lunar.getYearInGanZhiByLiChun();   // 以立春換年
+    const yearGz = lunar.getYearInGanZhiExact();     // 以立春精確時刻換年
     const monthGz = lunar.getMonthInGanZhiExact();    // 以節氣換月
     const dayGz = lunar.getDayInGanZhi();
     const mk = gz => {
@@ -162,7 +190,7 @@ const Engine = (() => {
 
     // 紫微流運
     const astrolabe = ziweiNatal(profile);
-    const h = astrolabe.horoscope(date);
+    const h = astrolabe.horoscope(day);
     const layer = (l) => ({
       ganZhi: l.heavenlyStem + l.earthlyBranch,
       mutagen: l.mutagen,            // [祿, 權, 科, 忌] 星名
@@ -194,8 +222,8 @@ const Engine = (() => {
     const cache = new Map();
     return function trendKeys(dateStr) {
       if (cache.has(dateStr)) return cache.get(dateStr);
-      const [y, m, d] = dateStr.split('-').map(Number);
-      const lunar = Solar.fromYmd(y, m, d).getLunar();
+      const { y, m, d } = parseCivilDate(dateStr);
+      const lunar = Solar.fromYmdHms(y, m, d, 12, 0, 0).getLunar();
       const dayGz = lunar.getDayInGanZhi();
       const monthGz = lunar.getMonthInGanZhiExact();
       const gan = dayGz.charAt(0), zhi = dayGz.charAt(1);
@@ -221,7 +249,7 @@ const Engine = (() => {
 
   return {
     GAN, ZHI, GAN_WUXING, ZHI_WUXING,
-    s2t, shiShen, hourToTimeIndex,
+    s2t, shiShen, hourToTimeIndex, parseCivilDate, validateProfile,
     baziNatal, ziweiNatal, daily, createAnalyzer
   };
 })();

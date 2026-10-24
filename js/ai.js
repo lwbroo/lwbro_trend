@@ -12,7 +12,7 @@ const AiReading = (() => {
   const CACHE_KEY = 'zwbz.ai-reading-cache' + NS;
   const CLIENT_ID_KEY = 'zwbz.client-id' + NS;
 
-  function configured() { return !!RELAY_URL; }
+  function configured() { return !!RELAY_URL && !window.ZWBZ_OFFLINE_DEMO && !window.ZWBZ_NATIVE_OFFLINE; }
 
   /** 這台裝置（這個入口頁）的隨機識別碼，只用來讓 Worker 端做每日用量限制，不含任何個資。 */
   function getClientId() {
@@ -29,7 +29,7 @@ const AiReading = (() => {
   /** 前端全域錯誤回報（fire-and-forget，失敗就算了，絕不能因為回報本身又出錯）。
       只送技術性資訊，不含使用者輸入或個資；沒設定 RELAY_URL 時直接不送。 */
   function reportError(info) {
-    if (!RELAY_URL) return;
+    if (!configured()) return;
     try {
       const logUrl = RELAY_URL.replace(/\/reading$/, '/log');
       fetch(logUrl, {

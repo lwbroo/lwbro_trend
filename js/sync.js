@@ -33,7 +33,7 @@ const Sync = (() => {
   function emit(state, message) { listeners.forEach(fn => fn(state, message)); }
 
   function config() { return Store.getSyncConfig(); }
-  function isConnected() { const c = config(); return !!(c && c.token && c.gistId); }
+  function isConnected() { const c = config(); return !window.ZWBZ_OFFLINE_DEMO && !window.ZWBZ_NATIVE_OFFLINE && !!(c && c.token && c.gistId); }
 
   async function request(path, options) {
     const c = config();
@@ -154,7 +154,7 @@ const Sync = (() => {
 
   /* ---------- GitHub 一鍵登入（OAuth，免手動貼 Token） ---------- */
 
-  function oauthConfigured() { return !!(OAUTH_CLIENT_ID && OAUTH_RELAY_URL); }
+  function oauthConfigured() { return !window.ZWBZ_OFFLINE_DEMO && !window.ZWBZ_NATIVE_OFFLINE && !!(OAUTH_CLIENT_ID && OAUTH_RELAY_URL); }
 
   /** 導向 GitHub 授權頁；使用者同意後，GitHub 會帶著 code 導回本頁 */
   function loginWithGitHub() {
@@ -177,6 +177,7 @@ const Sync = (() => {
 
   /** 啟動時呼叫：處理 GitHub OAuth 登入的兩種情境 */
   async function handleOAuthCallback() {
+    if (window.ZWBZ_OFFLINE_DEMO || window.ZWBZ_NATIVE_OFFLINE) return false;
     // 情境一：帶著上一頁（根頁）已經換好、暫放的 token，導回這頁後在這頁自己的
     // namespace 下完成連線（不是根頁的 namespace）。
     const pendingToken = sessionStorage.getItem(OAUTH_PENDING_TOKEN_KEY);
@@ -242,6 +243,7 @@ const Sync = (() => {
 
   /** 啟動時呼叫：若網址帶有 #sync=…，採用其連線設定並清除網址（避免留在瀏覽紀錄畫面上） */
   function adoptFromUrl() {
+    if (window.ZWBZ_OFFLINE_DEMO || window.ZWBZ_NATIVE_OFFLINE) return false;
     const m = location.hash.match(/[#&]sync=([A-Za-z0-9+/]+)/);
     if (!m) return false;
     try {

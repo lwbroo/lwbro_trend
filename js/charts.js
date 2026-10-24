@@ -71,6 +71,7 @@ const Charts = (() => {
   function lineChart(container, series, opts) {
     opts = opts || {};
     const INK = readInk();
+    series = series.map(s => ({...s, name: window.ZWBZI18n ? ZWBZI18n.t(s.name || '指標') : s.name}));
     container.innerHTML = '';
     container.classList.add('chart-box');
 
@@ -105,6 +106,7 @@ const Charts = (() => {
     const yPos = v => pad.top + (yMax - v) / (yMax - yMin) * ih;
 
     const svg = el('svg', { width: '100%', viewBox: `0 0 ${W} ${H}`, role: 'img' });
+    svg.setAttribute('aria-label', series.map(s => `${s.name || '指標'}：${s.points.map(p => `${p.x} ${p.y}`).join('，')}`).join('；'));
 
     // 髮絲格線 + y 軸刻度
     for (let v = yMin; v <= yMax + 1e-6; v += yStep) {
@@ -115,7 +117,9 @@ const Charts = (() => {
     // x 軸標籤（最多 6 個，避免擁擠）
     const step = Math.max(1, Math.ceil(dates.length / 6));
     dates.forEach((d, i) => {
-      if (i % step === 0 || i === dates.length - 1) {
+      const last = dates.length - 1;
+      // Keep the endpoint label without crowding it with the preceding tick.
+      if (i === last || (i % step === 0 && last - i >= step)) {
         svg.appendChild(txt(xPos(d), H - 8, d.slice(5), { 'text-anchor': 'middle' }));
       }
     });
@@ -183,6 +187,7 @@ const Charts = (() => {
     const yPos = v => pad.top + (yMax - v) / yMax * ih;
 
     const svg = el('svg', { width: '100%', viewBox: `0 0 ${W} ${H}`, role: 'img' });
+    svg.setAttribute('aria-label', data.map(d => window.ZWBZI18n && ZWBZI18n.language() === 'en' ? `${d.label}, average ${d.value.toFixed(decimals)}, ${d.count} entries` : `${d.label}，平均 ${d.value.toFixed(decimals)}，${d.count} 筆`).join('; '));
     for (let v = 0; v <= yMax + 1e-6; v += yStep) {
       const vr = Math.round(v * 100) / 100;
       svg.appendChild(el('line', { x1: pad.left, x2: W - pad.right, y1: yPos(vr), y2: yPos(vr), stroke: vr === 0 ? INK.baseline : INK.grid, 'stroke-width': 1 }));
@@ -210,7 +215,7 @@ const Charts = (() => {
         const rect = svg.getBoundingClientRect();
         const body = opts.tipFormat
           ? opts.tipFormat(d, low)
-          : `平均 ${d.value.toFixed(2)}／樣本 ${d.count} 天${low ? '<br><i>樣本數少，僅供參考</i>' : ''}`;
+          : (window.ZWBZI18n && ZWBZI18n.language() === 'en' ? `Average ${d.value.toFixed(2)} / ${d.count} sample days${low ? '<br><i>Small sample; reference only</i>' : ''}` : `平均 ${d.value.toFixed(2)}／樣本 ${d.count} 天${low ? '<br><i>樣本數少，僅供參考</i>' : ''}`);
         showTip(tip, container, (ev.clientX - rect.left), y * (rect.height / H), `<b>${d.label}</b><br>${body}`);
       });
       hit.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
