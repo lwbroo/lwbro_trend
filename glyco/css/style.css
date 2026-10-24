@@ -213,6 +213,7 @@ main {
 }
 .card.warn { background: var(--warn-wash); border-color: color-mix(in srgb, var(--warn) 35%, var(--line)); color: var(--ink); }
 .card.error { background: var(--crit-wash); border-color: color-mix(in srgb, var(--crit) 35%, var(--line)); color: var(--crit); word-break: break-word; }
+.error-text { color: var(--crit); }
 .card.center, .center { text-align: center; }
 .hidden { display: none !important; }
 
